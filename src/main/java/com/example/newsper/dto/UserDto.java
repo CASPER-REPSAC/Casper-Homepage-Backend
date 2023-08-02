@@ -1,7 +1,6 @@
 package com.example.newsper.dto;
 
 import com.example.newsper.entity.UserEntity;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 

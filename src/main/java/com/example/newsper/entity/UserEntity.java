@@ -1,10 +1,7 @@
 package com.example.newsper.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 
@@ -13,6 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Getter
+@Setter
 public class UserEntity {
 
     @Id
@@ -31,7 +29,7 @@ public class UserEntity {
     @Column(name="nickname", nullable = false, unique = true)
     private String nickname;
 
-    @Column(name="birthdate", nullable = false)
+    @Column(name="birthdate", nullable = true)
     private Date birthdate;
 
     @Column(name="profile")
