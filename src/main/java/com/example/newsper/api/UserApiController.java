@@ -2,32 +2,40 @@ package com.example.newsper.api;
 
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
+import com.example.newsper.repository.UserRepository;
 import com.example.newsper.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
 @RestController
 @Slf4j
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserApiController {
 
     @Autowired
     private UserService userService;
 
     @PostMapping("/join")
-    public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult){
+    public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult, @RequestPart(value = "imgFile",required = false) MultipartFile imgFile){
         try {
-            UserEntity created = userService.newUser(dto);
+            UserEntity created;
+            if (!imgFile.isEmpty()){
+                created = userService.newUser(dto,imgFile);
+            }
+            else{
+                created = userService.newUser(dto);
+            }
             return (created != null) ?
                     ResponseEntity.status(HttpStatus.OK).body(created):
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -42,5 +50,16 @@ public class UserApiController {
         }
     }
 
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<UserEntity> userWithdrawal(@RequestParam String pw, @RequestParam String id){
+        UserEntity target = userService.show(id);
+        if (target.getPw().equals(pw)){
+            userService.delete(target.getId());
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
 
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 }

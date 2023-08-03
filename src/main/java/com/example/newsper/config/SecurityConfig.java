@@ -28,10 +28,10 @@ public class SecurityConfig {
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
                 .formLogin((formLogin) -> formLogin
-                        .loginPage("/api/login")
+                        .loginPage("/api/user/login")
                         .defaultSuccessUrl("/"))
                 .logout((logout) -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/logout"))
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/user/logout"))
                         .logoutSuccessUrl("/")
                         .invalidateHttpSession(true))
         ;

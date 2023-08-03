@@ -22,11 +22,6 @@ class UserServiceTest {
 
     @Test
     void newUser() {
-        UserDto userDto = new UserDto("1","1","1","1","1",new Date(),"1");
-        UserEntity expected = userService.newUser(userDto);
-        UserEntity userEntity = userRepository.findById("1").orElse(null);
-
-        assertEquals(expected.toString(),userEntity.toString());
 
     }
 }

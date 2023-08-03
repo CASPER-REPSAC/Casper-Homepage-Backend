@@ -32,6 +32,9 @@ public class UserEntity {
     @Column(name="birthdate", nullable = true)
     private Date birthdate;
 
-    @Column(name="profile")
-    private String profile;
+    @Column(name="profileImgName")
+    private String profileImgName;
+
+    @Column(name="profileImgPath")
+    private String profileImgPath;
 }

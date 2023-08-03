@@ -16,9 +16,11 @@ public class UserDto {
     private String name;
     private String nickname;
     private Date birthdate;
-    private String profile;
+    private String profileImgName;
+    private String profileImgPath;
+
 
     public UserEntity toEntity() {
-        return new UserEntity(id,pw,email,name,nickname,birthdate,profile);
+        return new UserEntity(id,pw,email,name,nickname,birthdate,profileImgName,profileImgPath);
     }
 }
