@@ -27,10 +27,12 @@ public class UserApiController {
     private UserService userService;
 
     @PostMapping("/join")
-    public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult, @RequestPart(value = "imgFile",required = false) MultipartFile imgFile){
+    public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult, @RequestPart(value = "profile",required = false) MultipartFile imgFile){
         try {
+            log.info(dto.toString());
+
             UserEntity created;
-            if (!imgFile.isEmpty()){
+            if (!(imgFile == null)){
                 created = userService.newUser(dto,imgFile);
             }
             else{

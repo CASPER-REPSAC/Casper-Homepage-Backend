@@ -32,7 +32,7 @@ public class UserEntity {
     @Column(name="birthdate", nullable = true)
     private Date birthdate;
 
-    @Column(name="profileImgName")
+    @Column(name="profile")
     private String profileImgName;
 
     @Column(name="profileImgPath")
