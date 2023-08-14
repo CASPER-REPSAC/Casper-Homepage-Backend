@@ -2,6 +2,7 @@ package com.example.newsper.api;
 
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
+import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.repository.UserRepository;
 import com.example.newsper.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.Date;
 
 @RestController
@@ -53,9 +55,9 @@ public class UserApiController {
     }
 
     @DeleteMapping("/withdrawal")
-    public ResponseEntity<UserEntity> userWithdrawal(@RequestParam String pw, @RequestParam String id){
-        UserEntity target = userService.show(id);
-        if (target.getPw().equals(pw)){
+    public ResponseEntity<UserEntity> userWithdrawal(@RequestBody UserDto dto){
+        UserEntity target = userService.show(dto.getId());
+        if (target.getPw().equals(dto.getPw())){
             userService.delete(target.getId());
             return ResponseEntity.status(HttpStatus.OK).build();
         }
@@ -63,5 +65,24 @@ public class UserApiController {
         else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody UserDto dto) {
+        UserEntity user = userService.show(dto.getId());
+
+        // 로그인 아이디나 비밀번호가 틀린 경우 global error return
+        if(user == null || user.getPw() != dto.getPw()) {
+            return "로그인 아이디 또는 비밀번호가 틀렸습니다.";
+        }
+
+        // 로그인 성공 => Jwt Token 발급
+
+        String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+        long expireTimeMs = 1000 * 60 * 60;     // Token 유효 시간 = 60분
+
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+
+        return jwtToken;
     }
 }
