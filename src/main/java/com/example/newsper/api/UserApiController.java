@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,9 @@ public class UserApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
     public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult, @RequestPart(value = "profile",required = false) MultipartFile imgFile){
@@ -72,7 +76,7 @@ public class UserApiController {
         UserEntity user = userService.show(dto.getId());
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
-        if(user == null || user.getPw() != dto.getPw()) {
+        if(user == null || !(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
             return "로그인 아이디 또는 비밀번호가 틀렸습니다.";
         }
 
