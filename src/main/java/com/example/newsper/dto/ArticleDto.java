@@ -24,10 +24,10 @@ public class ArticleDto {
     private String nickname;
     private String title;
     private String content;
-    private Long hide;
-    private Long notice;
+    private Boolean hide;
+    private Boolean notice;
     private Long view;
-    private Long file;
+    private Boolean file;
 
     public ArticleEntity toEntity(){
         return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,file);

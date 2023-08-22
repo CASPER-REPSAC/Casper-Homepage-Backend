@@ -30,21 +30,20 @@ public class ArticleApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/boards/{boardId}/{category}/{listNum}")
-    public ResponseEntity<List<ArticleMapping>> list(@PathVariable String boardId, @PathVariable(required = false) Long category, @PathVariable(required = false) Long listNum){
+    @GetMapping("/boards/{boardId}/{category}")
+    public ResponseEntity<List<ArticleMapping>> list(@RequestParam(value = "page") Long page, @PathVariable String boardId, @PathVariable(required = false) Long category){
         if (category == null) category = 0L;
-        if (listNum == null || listNum<=1) listNum = 0L;
+        if (page == null || page<=1) page = 0L;
 
-        List<ArticleMapping> target = articleService.boardList(boardId,category,listNum);
+        List<ArticleMapping> target = articleService.boardList(boardId,category,page);
 
         return (target != null)?
                 ResponseEntity.status(HttpStatus.OK).body(target):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-
-    @GetMapping("/list/{boardId}/{articleId}")
-    public ResponseEntity<ArticleEntity> show(@PathVariable Long articleId, @PathVariable String boardId){
+    @GetMapping("/boards/{boardId}/{category}/{articleId}")
+    public ResponseEntity<ArticleEntity> view(@PathVariable Long articleId, @PathVariable(required = false) String boardId, @PathVariable(required = false) Long category){
         ArticleEntity target = articleService.show(articleId);
 
         return (target != null)?

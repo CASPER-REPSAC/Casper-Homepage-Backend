@@ -43,16 +43,16 @@ public class ArticleEntity {
     private String content;
 
     @Column(name = "hide", nullable = false)
-    private Long hide;
+    private Boolean hide;
 
     @Column(name = "notice", nullable = false)
-    private Long notice;
+    private Boolean notice;
 
     @Column(name = "view", nullable = false)
     private Long view;
 
     @Column(name = "file", nullable = false)
-    private Long file;
+    private Boolean file;
 
 }
 
