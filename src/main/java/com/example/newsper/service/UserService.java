@@ -4,6 +4,7 @@ import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -34,7 +35,8 @@ public class UserService {
 
         UUID uuid = UUID.randomUUID();
         String imageFileName = uuid + "_" + imgFile.getOriginalFilename();
-        Path imageFilePath = Paths.get("/users/koko9/downloads"+imageFileName);
+        Path imageFilePath = Paths.get("/users/koko9/downloads/"+imageFileName);
+        log.info(imageFilePath.toString());
         try {
             Files.write(imageFilePath, imgFile.getBytes());
         } catch (Exception e) {
@@ -42,8 +44,8 @@ public class UserService {
         }
         UserEntity userEntity = userDto.toEntity();
         userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
-        userEntity.setProfileImgPath(imageFileName);
-
+        userEntity.setProfileImgPath(imageFilePath.toString());
+        userEntity.setProfileImgName(imageFileName);
         return userRepository.save(userEntity);
     }
 

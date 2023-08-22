@@ -3,6 +3,7 @@ package com.example.newsper.api;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.ArticleEntity;
+import com.example.newsper.entity.ArticleMapping;
 import com.example.newsper.service.ArticleService;
 import com.example.newsper.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,17 +30,23 @@ public class ArticleApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/list/{boardId}")
-    public ResponseEntity<List<ArticleEntity>> list(@PathVariable Long boardId){
-        List<ArticleEntity> target = articleService.articleList(boardId);
+    @GetMapping("/boards/{boardId}/{category}/{listNum}")
+    public ResponseEntity<List<ArticleMapping>> list(@PathVariable String boardId, @PathVariable(required = false) Long category, @PathVariable(required = false) Long listNum){
+        if (category == null) category = 0L;
+        if (listNum == null || listNum<=1) listNum = 0L;
+
+        List<ArticleMapping> target = articleService.boardList(boardId,category,listNum);
+
         return (target != null)?
                 ResponseEntity.status(HttpStatus.OK).body(target):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+
     @GetMapping("/list/{boardId}/{articleId}")
     public ResponseEntity<ArticleEntity> show(@PathVariable Long articleId, @PathVariable String boardId){
         ArticleEntity target = articleService.show(articleId);
+
         return (target != null)?
             ResponseEntity.status(HttpStatus.OK).body(target):
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

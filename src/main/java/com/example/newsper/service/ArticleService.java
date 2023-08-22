@@ -1,6 +1,7 @@
 package com.example.newsper.service;
 
 import com.example.newsper.entity.ArticleEntity;
+import com.example.newsper.entity.ArticleMapping;
 import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class ArticleService {
         return articleRepository.findAll();
     }
 
-    public List<ArticleEntity> articleList(Long BoardId){
-        return articleRepository.findByBoardId(BoardId);
+    public List<ArticleMapping> boardList(String boardId, Long category, Long listNum){
+        return articleRepository.findByBoardList(boardId,category,listNum);
     }
 
     public ArticleEntity show(Long ArticleId){
