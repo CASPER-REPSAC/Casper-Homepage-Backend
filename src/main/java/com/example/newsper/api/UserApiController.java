@@ -37,7 +37,7 @@ public class UserApiController {
         try {
 
             UserEntity created;
-            if (!imgFile.isEmpty()){
+            if (!(imgFile == null)){
                 created = userService.newUser(dto,imgFile);
             }
             else{

@@ -1,8 +1,6 @@
 package com.example.newsper.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
@@ -14,7 +12,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class ArticleEntity {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "articleId")
     private Long articleId;
 
