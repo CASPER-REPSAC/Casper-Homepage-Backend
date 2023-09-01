@@ -1,10 +1,9 @@
 package com.example.newsper.entity;
 
 import com.example.newsper.dto.CommentDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 
@@ -14,8 +13,10 @@ import java.util.Date;
 @ToString
 @Getter
 @Setter
+@Slf4j
 public class CommentEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="commentId")
     private Long commentId;
 
