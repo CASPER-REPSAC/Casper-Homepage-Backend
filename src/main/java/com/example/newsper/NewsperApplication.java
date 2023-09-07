@@ -7,15 +7,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
-public class NewsperApplication extends SpringBootServletInitializer {
+public class NewsperApplication{
 
 	public static void main(String[] args) {
 		SpringApplication.run(NewsperApplication.class, args);
 	}
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(NewsperApplication.class);
-	}
-
 }
