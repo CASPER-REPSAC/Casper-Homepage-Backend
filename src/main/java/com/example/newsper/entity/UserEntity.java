@@ -29,17 +29,12 @@ public class UserEntity {
     @Column(name="nickname", nullable = false, unique = true)
     private String nickname;
 
-    @Column(name="birthdate", nullable = true)
-    private Date birthdate;
-
     @Column(name="role")
     private String role;
 
-    @Column(name="profileImgName")
-    private String profileImgName;
-
-    @Column(name="profileImgPath")
-    private String profileImgPath;
-
-
+//    @Column(name="profileImgName")
+//    private String profileImgName;
+//
+//    @Column(name="profileImgPath")
+//    private String profileImgPath;
 }

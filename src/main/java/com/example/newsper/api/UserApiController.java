@@ -33,16 +33,17 @@ public class UserApiController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/join")
-    public ResponseEntity<UserEntity> newUser(@RequestPart(value = "dto") UserDto dto, BindingResult bindingResult, @RequestPart(value = "profile",required = false) MultipartFile imgFile){
+    public ResponseEntity<UserEntity> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
         try {
 
             UserEntity created;
-            if (!(imgFile == null)){
-                created = userService.newUser(dto,imgFile);
-            }
-            else{
-                created = userService.newUser(dto);
-            }
+//            if (!(imgFile == null)){
+//                created = userService.newUser(dto,imgFile);
+//            }
+//            else{
+//                created = userService.newUser(dto);
+//            }
+            created = userService.newUser(dto);
             return (created != null) ?
                     ResponseEntity.status(HttpStatus.OK).body(created):
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

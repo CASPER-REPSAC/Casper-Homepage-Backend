@@ -31,23 +31,23 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserEntity newUser(UserDto userDto, MultipartFile imgFile){
-
-        UUID uuid = UUID.randomUUID();
-        String imageFileName = uuid + "_" + imgFile.getOriginalFilename();
-        Path imageFilePath = Paths.get("/users/koko9/downloads/"+imageFileName);
-        log.info(imageFilePath.toString());
-        try {
-            Files.write(imageFilePath, imgFile.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        UserEntity userEntity = userDto.toEntity();
-        userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
-        userEntity.setProfileImgPath(imageFilePath.toString());
-        userEntity.setProfileImgName(imageFileName);
-        return userRepository.save(userEntity);
-    }
+//    public UserEntity newUser(UserDto userDto, MultipartFile imgFile){
+//
+//        UUID uuid = UUID.randomUUID();
+//        String imageFileName = uuid + "_" + imgFile.getOriginalFilename();
+//        Path imageFilePath = Paths.get("/users/koko9/downloads/"+imageFileName);
+//        log.info(imageFilePath.toString());
+//        try {
+//            Files.write(imageFilePath, imgFile.getBytes());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        UserEntity userEntity = userDto.toEntity();
+//        userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
+//        userEntity.setProfileImgPath(imageFilePath.toString());
+//        userEntity.setProfileImgName(imageFileName);
+//        return userRepository.save(userEntity);
+//    }
 
     public UserEntity newUser(UserDto dto) {
         UserEntity userEntity = dto.toEntity();

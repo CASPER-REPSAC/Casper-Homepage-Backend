@@ -20,11 +20,9 @@ public class UserDto {
     private String email;
     private String name;
     private String nickname;
-    @DateTimeFormat(pattern = "yyyyMMdd")
-    private Date birthdate;
 
 
     public UserEntity toEntity() {
-        return new UserEntity(id,pw,email,name,nickname,birthdate,"정회원",null,null);
+        return new UserEntity(id,pw,email,name,nickname,"준회원");
     }
 }
