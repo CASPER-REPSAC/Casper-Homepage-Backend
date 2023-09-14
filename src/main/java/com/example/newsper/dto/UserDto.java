@@ -23,6 +23,6 @@ public class UserDto {
 
 
     public UserEntity toEntity() {
-        return new UserEntity(id,pw,email,name,nickname,"준회원");
+        return new UserEntity(id,pw,email,name,nickname,"준회원",null);
     }
 }

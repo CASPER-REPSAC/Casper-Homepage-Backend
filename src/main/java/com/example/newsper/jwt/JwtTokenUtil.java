@@ -3,11 +3,14 @@ package com.example.newsper.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
+@Slf4j
 
 public class JwtTokenUtil {
-
+    private static Long expireTime = 1000L * 60 * 60;
+    private static String secret_key = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
     // JWT Token 발급
     public static String createToken(String loginId, String key, long expireTimeMs) {
         // Claim = Jwt Token에 들어갈 정보
@@ -21,6 +24,10 @@ public class JwtTokenUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + expireTimeMs))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
+    }
+
+    public static String createRefreshToken(){
+        return createToken(null,secret_key,expireTime*5);
     }
 
     // Claims에서 loginId 꺼내기

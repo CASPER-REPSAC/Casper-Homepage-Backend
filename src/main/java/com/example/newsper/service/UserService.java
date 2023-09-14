@@ -56,6 +56,10 @@ public class UserService {
         return userRepository.save(userEntity);
     }
 
+    public UserEntity modify(UserEntity user){
+        return userRepository.save(user);
+    }
+
     public UserEntity show(String id){
         return userRepository.findById(id).orElse(null);
     }

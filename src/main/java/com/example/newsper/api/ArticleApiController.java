@@ -67,8 +67,8 @@ public class ArticleApiController {
     @PostMapping("/write")
     public ResponseEntity<ArticleEntity> write(@RequestBody ArticleDto dto, HttpServletRequest request){
         String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
-
-        String userId = JwtTokenUtil.getLoginId(request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1], secretKey);
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
         UserEntity userEntity = userService.show(userId);
         //set ArticleId
         log.info(dto.toString());

@@ -40,9 +40,9 @@ public class SecurityConfig {
                                     .requestMatchers("/api/user/login").permitAll()
                                     .requestMatchers("/api/user/join").permitAll()
                                     //.requestMatchers("/**").authenticated()
-                                    .requestMatchers("/**").permitAll()
-                                    //.requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER");
-                                    //.requestMatchers("/admin/**").hasRole("ADMIN");
+                                    //.requestMatchers("/**").permitAll()
+                                    //.requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
+                                    //.requestMatchers("/admin/**").hasRole("ADMIN")
                                     //.anyRequest().authenticated()
                                     .anyRequest().permitAll()
 

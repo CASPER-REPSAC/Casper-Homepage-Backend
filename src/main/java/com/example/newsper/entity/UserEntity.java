@@ -32,6 +32,11 @@ public class UserEntity {
     @Column(name="role")
     private String role;
 
+    @Column(name="refreshtoken")
+    private String refreshToken;
+
+
+
 //    @Column(name="profileImgName")
 //    private String profileImgName;
 //
