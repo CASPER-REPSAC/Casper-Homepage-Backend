@@ -97,12 +97,19 @@ public class UserApiController {
 
         Map<String,Object> token = new HashMap<>();
 
-        Cookie cookie = new Cookie("RefreshToken",refreshToken);
-        cookie.setMaxAge(1000 * 60 * 60);
-        cookie.setSecure(true);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        Cookie refreshCookie = new Cookie("RefreshToken",refreshToken);
+        refreshCookie.setMaxAge(1000 * 60 * 60);
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
+
+        Cookie accessCookie = new Cookie("accessToken",jwtToken);
+        accessCookie.setMaxAge(1000 * 60 * 60);
+        accessCookie.setSecure(true);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
 
         token.put("AccessToken",jwtToken);
         token.put("RefreshToken",refreshToken);
@@ -133,12 +140,20 @@ public class UserApiController {
 
                 token.put("AccessToken",jwtToken);
                 token.put("RefreshToken",user.getRefreshToken());
-                Cookie cookie = new Cookie("RefreshToken",user.getRefreshToken());
-                cookie.setMaxAge(1000 * 60 * 60);
-                cookie.setSecure(true);
-                cookie.setHttpOnly(true);
-                cookie.setPath("/");
-                response.addCookie(cookie);
+
+                Cookie refreshCookie = new Cookie("RefreshToken",user.getRefreshToken());
+                refreshCookie.setMaxAge(1000 * 60 * 60);
+                refreshCookie.setSecure(true);
+                refreshCookie.setHttpOnly(true);
+                refreshCookie.setPath("/");
+                response.addCookie(refreshCookie);
+
+                Cookie accessCookie = new Cookie("accessToken",jwtToken);
+                accessCookie.setMaxAge(1000 * 60 * 60);
+                accessCookie.setSecure(true);
+                accessCookie.setHttpOnly(true);
+                accessCookie.setPath("/");
+                response.addCookie(accessCookie);
 
                 return ResponseEntity.status(HttpStatus.OK).body(token);
             }
@@ -146,6 +161,5 @@ public class UserApiController {
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
     }
 }
