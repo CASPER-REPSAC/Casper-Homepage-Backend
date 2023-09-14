@@ -97,7 +97,7 @@ public class UserApiController {
 
         Map<String,Object> token = new HashMap<>();
 
-        Cookie refreshCookie = new Cookie("RefreshToken",refreshToken);
+        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
         refreshCookie.setMaxAge(1000 * 60 * 60);
         refreshCookie.setSecure(true);
         refreshCookie.setHttpOnly(true);
@@ -111,8 +111,8 @@ public class UserApiController {
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
 
-        token.put("AccessToken",jwtToken);
-        token.put("RefreshToken",refreshToken);
+        token.put("accessToken",jwtToken);
+        token.put("refreshToken",refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
@@ -138,10 +138,10 @@ public class UserApiController {
 
                 Map<String,Object> token = new HashMap<>();
 
-                token.put("AccessToken",jwtToken);
-                token.put("RefreshToken",user.getRefreshToken());
+                token.put("accessToken",jwtToken);
+                token.put("refreshToken",user.getRefreshToken());
 
-                Cookie refreshCookie = new Cookie("RefreshToken",user.getRefreshToken());
+                Cookie refreshCookie = new Cookie("refreshToken",user.getRefreshToken());
                 refreshCookie.setMaxAge(1000 * 60 * 60);
                 refreshCookie.setSecure(true);
                 refreshCookie.setHttpOnly(true);
