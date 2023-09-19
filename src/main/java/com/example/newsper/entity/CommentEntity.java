@@ -23,8 +23,8 @@ public class CommentEntity {
     @Column(name="articleId", nullable = false)
     private Long articleId;
 
-    @Column(name="userId", nullable = false)
-    private String userId;
+    @Column(name="nickname", nullable = false)
+    private String nickname;
 
     @Column(name="text", nullable = false)
     private String text;
@@ -54,7 +54,7 @@ public class CommentEntity {
         if (this.commentId != dto.getCommentId())
             throw new IllegalArgumentException("댓글 수정 실패!");
         if (dto.getNickname() != null){
-            this.userId = dto.getNickname();
+            this.nickname = dto.getNickname();
         }
         if (dto.getText() != null){
             this.text = dto.getText();
