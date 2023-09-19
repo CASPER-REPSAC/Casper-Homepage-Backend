@@ -43,7 +43,7 @@ public class CommentEntity {
         return new CommentEntity(
                 dto.getCommentId(),
                 dto.getArticleId(),
-                dto.getUserId(),
+                dto.getNickname(),
                 dto.getText(),
                 dto.getCreatedAt(),
                 dto.getModifiedAt()
@@ -53,8 +53,8 @@ public class CommentEntity {
     public void patch(CommentDto dto) {
         if (this.commentId != dto.getCommentId())
             throw new IllegalArgumentException("댓글 수정 실패!");
-        if (dto.getUserId() != null){
-            this.userId = dto.getUserId();
+        if (dto.getNickname() != null){
+            this.userId = dto.getNickname();
         }
         if (dto.getText() != null){
             this.text = dto.getText();

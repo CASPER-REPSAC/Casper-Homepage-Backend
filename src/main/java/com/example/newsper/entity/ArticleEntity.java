@@ -25,7 +25,7 @@ public class ArticleEntity {
     private String boardId;
 
     @Column(name = "category", nullable = false)
-    private Long category;
+    private String category;
 
     @Column(name = "createdAt", nullable = false)
     private Date createdAt;
@@ -54,6 +54,11 @@ public class ArticleEntity {
     @Column(name = "file", nullable = false)
     private Boolean file;
 
+    @Column(name = "photo", nullable = false)
+    private String photo;
+
+    @Column(name = "numOfComments", nullable = false)
+    private Long numOfComments;
 }
 
 

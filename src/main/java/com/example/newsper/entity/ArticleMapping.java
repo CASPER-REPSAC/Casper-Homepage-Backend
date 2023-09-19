@@ -8,4 +8,8 @@ public interface ArticleMapping {
     String getNickname();
     Long getArticle_id();
     Long getView();
+    Boolean getFile();
+    Boolean getHide();
+    Long getNumOfComments();
+    String photo();
 }

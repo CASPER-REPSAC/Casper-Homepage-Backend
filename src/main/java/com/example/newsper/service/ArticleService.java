@@ -3,7 +3,6 @@ package com.example.newsper.service;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleMapping;
 import com.example.newsper.repository.ArticleRepository;
-import com.example.newsper.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,7 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    public List<ArticleEntity> album(){
-        return articleRepository.findAll();
-    }
-
-    public List<ArticleMapping> boardList(String boardId, Long category, Long listNum){
+    public List<ArticleMapping> boardList(String boardId, String category, Long listNum){
         return articleRepository.findByBoardList(boardId,category,listNum);
     }
 

@@ -15,20 +15,20 @@ public class CommentDto {
     private Long commentId;
     @JsonProperty("article_id")
     private Long articleId;
-    private String userId;
+    private String nickname;
     private String text;
     private Date createdAt;
     private Date modifiedAt;
 
     public CommentEntity toEntity(){
-        return new CommentEntity(commentId,articleId,userId,text,createdAt,modifiedAt);
+        return new CommentEntity(commentId,articleId,nickname,text,createdAt,modifiedAt);
     }
 
     public static CommentDto createCommentDto(CommentEntity comment) {
         return new CommentDto(
                 comment.getCommentId(),
                 comment.getArticleId(),
-                comment.getUserId(),
+                comment.getNickname(),
                 comment.getText(),
                 comment.getCreatedAt(),
                 comment.getModifiedAt()

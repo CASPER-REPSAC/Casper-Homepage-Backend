@@ -31,6 +31,8 @@ public class UserApiController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+
     @PostMapping("/join")
     public ResponseEntity<Map<String, Object>> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
         try {
@@ -64,17 +66,21 @@ public class UserApiController {
         }
     }
 
-    @DeleteMapping("/withdrawal")
-    public ResponseEntity<UserEntity> userWithdrawal(@RequestBody UserDto dto){
-        UserEntity target = userService.show(dto.getId());
-        if (target.getPw().equals(dto.getPw())){
-            userService.delete(target.getId());
-            return ResponseEntity.status(HttpStatus.OK).build();
+    @DeleteMapping("/withdrawal/{tarId}")
+    public ResponseEntity<UserEntity> userWithdrawal(HttpServletRequest request, @PathVariable String tarId){
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        UserEntity target = userService.show(userId);
+
+        if(target.getRole().equals("관리자")) {
+            userService.delete(tarId);
         }
 
-        else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        else {
+            userService.delete(target.getId());
         }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/login")
@@ -87,7 +93,7 @@ public class UserApiController {
         }
 
         // 로그인 성공 => Jwt Token 발급
-        String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+
         long expireTimeMs = 1000 * 60 * 60;     // Token 유효 시간 = 60분
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
         String refreshToken = JwtTokenUtil.createRefreshToken();
@@ -117,16 +123,25 @@ public class UserApiController {
     }
 
     @PostMapping("/logout")
-    public void logout(@RequestParam String id){
-        UserEntity user = userService.show(id);
+    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        UserEntity user = userService.show(userId);
         user.setRefreshToken(null);
         userService.modify(user);
+
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for(int i=0; i< cookies.length; i++){
+                cookies[i].setMaxAge(0); // 유효시간을 0으로 설정
+                response.addCookie(cookies[i]); // 응답 헤더에 추가
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
-        String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
-
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
         if(!JwtTokenUtil.isExpired(accessToken,secretKey)) {
             String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
@@ -161,5 +176,16 @@ public class UserApiController {
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @PostMapping("/show")
+    public ResponseEntity<Map<String, Object>> show(@RequestParam String id){
+        UserEntity user = userService.show(id);
+        Map<String, Object> map = new HashMap<>();
+        map.put("name",user.getName());
+        map.put("nickname",user.getNickname());
+        map.put("email",user.getEmail());
+        map.put("role",user.getRole());
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 }

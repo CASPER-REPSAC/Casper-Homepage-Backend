@@ -18,7 +18,7 @@ public class ArticleDto {
     private Long articleId;
     private String userId;
     private String boardId;
-    private Long category;
+    private String category;
     private Date createdAt;
     private Date modifiedAt;
     private String nickname;
@@ -28,8 +28,10 @@ public class ArticleDto {
     private Boolean notice;
     private Long view;
     private Boolean file;
+    private String photo;
+    private Long numOfComments;
 
     public ArticleEntity toEntity(){
-        return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,file);
+        return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,file,photo,numOfComments);
     }
 }
