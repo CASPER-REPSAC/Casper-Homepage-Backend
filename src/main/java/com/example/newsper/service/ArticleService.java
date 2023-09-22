@@ -1,7 +1,7 @@
 package com.example.newsper.service;
 
 import com.example.newsper.entity.ArticleEntity;
-import com.example.newsper.entity.ArticleMapping;
+import com.example.newsper.entity.ArticleList;
 import com.example.newsper.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    public List<ArticleMapping> boardList(String boardId, String category, Long listNum){
+    public List<ArticleList> boardList(String boardId, String category, Long listNum){
         return articleRepository.findByBoardList(boardId,category,listNum);
     }
 

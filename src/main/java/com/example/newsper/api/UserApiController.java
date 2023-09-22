@@ -178,14 +178,19 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    @PostMapping("/show")
-    public ResponseEntity<Map<String, Object>> show(@RequestParam String id){
-        UserEntity user = userService.show(id);
-        Map<String, Object> map = new HashMap<>();
-        map.put("name",user.getName());
-        map.put("nickname",user.getNickname());
-        map.put("email",user.getEmail());
-        map.put("role",user.getRole());
-        return ResponseEntity.status(HttpStatus.OK).body(map);
+    @GetMapping("/show/{id}")
+    public ResponseEntity<Map<String, Object>> show(@PathVariable String id){
+        try{
+            UserEntity user = userService.show(id);
+            Map<String, Object> map = new HashMap<>();
+            map.put("name",user.getName());
+            map.put("nickname",user.getNickname());
+            map.put("email",user.getEmail());
+            map.put("role",user.getRole());
+            return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 }
