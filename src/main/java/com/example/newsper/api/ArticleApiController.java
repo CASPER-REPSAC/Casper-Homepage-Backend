@@ -28,25 +28,22 @@ public class ArticleApiController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/album/{listNum}")
-    public ResponseEntity<List<ArticleList>> album(@PathVariable Long listNum){
-        List<ArticleList> target = articleService.boardList("album","전체",listNum);
-        return (target.isEmpty())?
-                ResponseEntity.status(HttpStatus.OK).body(target):
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    @GetMapping("/album/{page}")
+    public ResponseEntity<List<ArticleList>> album(@PathVariable Long page){
+        if (page == null || page<=1) page = 0L;
+        List<ArticleList> target = articleService.boardList("album","all",page);
 
+        log.info(target.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(target);
     }
 
-    @GetMapping("/boards/{boardId}/{category}/{page}")
+    @GetMapping("/{boardId}/{category}/{page}")
     public ResponseEntity<List<ArticleList>> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category){
-        if (category == null) category = "전체";
         if (page == null || page<=1) page = 0L;
 
         List<ArticleList> target = articleService.boardList(boardId,category,page);
         log.info(target.toString());
-        return (target.isEmpty())?
-                ResponseEntity.status(HttpStatus.OK).body(target):
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.OK).body(target);
     }
 
     @GetMapping("/view/{articleId}")
