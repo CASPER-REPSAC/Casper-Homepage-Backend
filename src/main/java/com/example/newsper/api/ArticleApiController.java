@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,7 @@ public class ArticleApiController {
         int maxPageNum = articleService.getMaxPageNum(boardId,category);
         List<ArticleList> target = articleService.boardList(boardId,category,page);
         map.put("maxPageNum",maxPageNum);
-        map.put("ArticleList",target);
-        log.info(map.toString());
+        map.put("articleList",target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 

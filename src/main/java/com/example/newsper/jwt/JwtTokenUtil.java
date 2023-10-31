@@ -26,8 +26,8 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public static String createRefreshToken(){
-        return createToken(null,secret_key,expireTime*5);
+    public static String createRefreshToken(String loginId, String key, long expireTimeMs){
+        return createToken(loginId,key,expireTimeMs);
     }
 
     // Claims에서 loginId 꺼내기

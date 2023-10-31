@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -101,9 +102,9 @@ public class UserApiController {
 
         // 로그인 성공 => Jwt Token 발급
 
-        long expireTimeMs = 60 * 60 * 24 * 14;     // Token 유효 시간 = 14일
+        long expireTimeMs = 60 * 60;     // Token 유효 시간 = 1시간
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken();
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*14*24);
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
@@ -155,39 +156,33 @@ public class UserApiController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-        if(!JwtTokenUtil.isExpired(accessToken,secretKey)) {
-            String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            UserEntity user = userService.show(userId);
-            if(!JwtTokenUtil.isExpired(user.getRefreshToken(),secretKey)){
+        Cookie[] cookies = request.getCookies();
+        try {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
+                    long expireTimeMs = 60 * 60 * 24 * 14;     // Token 유효 시간 = 60분
+                    log.info(c.getValue());
+                    String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
+                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
 
-                long expireTimeMs = 60 * 60 * 24 * 14;     // Token 유효 시간 = 60분
-                String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+                    Map<String, Object> token = new HashMap<>();
 
-                Map<String,Object> token = new HashMap<>();
+                    token.put("accessToken", jwtToken);
 
-                token.put("accessToken",jwtToken);
-                token.put("refreshToken",user.getRefreshToken());
+                    Cookie refreshCookie = new Cookie("refreshToken", c.getValue());
+                    refreshCookie.setMaxAge(60 * 60 * 24 * 14);
+                    refreshCookie.setSecure(true);
+                    refreshCookie.setHttpOnly(true);
+                    refreshCookie.setPath("/");
+                    response.addCookie(refreshCookie);
 
-                Cookie refreshCookie = new Cookie("refreshToken",user.getRefreshToken());
-                refreshCookie.setMaxAge(60 * 60 * 24 * 14);
-                refreshCookie.setSecure(true);
-                refreshCookie.setHttpOnly(true);
-                refreshCookie.setPath("/");
-                response.addCookie(refreshCookie);
-
-                Cookie accessCookie = new Cookie("accessToken",jwtToken);
-                accessCookie.setMaxAge(60 * 60);
-                accessCookie.setSecure(true);
-                accessCookie.setHttpOnly(true);
-                accessCookie.setPath("/");
-                response.addCookie(accessCookie);
-
-                return ResponseEntity.status(HttpStatus.OK).body(token);
+                    return ResponseEntity.status(HttpStatus.OK).body(token);
+                }
             }
-
+        } catch (Exception e){
+            log.info(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 

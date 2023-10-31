@@ -3,10 +3,10 @@ package com.example.newsper.entity;
 import java.util.Date;
 
 public interface ArticleList {
-    Date getCreated_at();
+    Date getCreatedAt();
     String getTitle();
     String getNickname();
-    Long getArticle_id();
+    Long getArticleId();
     Long getView();
     Boolean getFile();
     Boolean getHide();
