@@ -75,6 +75,7 @@ public class ArticleApiController {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
+            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         UserEntity userEntity = userService.show(userId);
