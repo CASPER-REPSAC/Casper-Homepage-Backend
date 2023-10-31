@@ -15,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -30,7 +32,8 @@ public class ArticleApiController {
 
     @GetMapping("/album/{page}")
     public ResponseEntity<List<ArticleList>> album(@PathVariable Long page){
-        if (page == null || page<=1) page = 0L;
+        if (page == null || page<=1) page = 1L;
+        page = (page-1)*10;
         List<ArticleList> target = articleService.boardList("album","all",page);
 
         log.info(target.toString());
@@ -38,30 +41,42 @@ public class ArticleApiController {
     }
 
     @GetMapping("/{boardId}/{category}/{page}")
-    public ResponseEntity<List<ArticleList>> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category){
-        if (page == null || page<=1) page = 0L;
+    public ResponseEntity<Map<String, Object>> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category){
+        if (page == null || page<=1) page = 1L;
 
+        Map<String, Object> map = new HashMap<>();
+        page = (page-1)*10;
+        int maxPageNum = articleService.getMaxPageNum(boardId,category);
         List<ArticleList> target = articleService.boardList(boardId,category,page);
-        log.info(target.toString());
-        return ResponseEntity.status(HttpStatus.OK).body(target);
+        map.put("maxPageNum",maxPageNum);
+        map.put("ArticleList",target);
+        log.info(map.toString());
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @GetMapping("/view/{articleId}")
     public ResponseEntity<ArticleEntity> view(@PathVariable Long articleId){
-        ArticleEntity target = articleService.show(articleId);
-        log.info(target.getView().toString());
+        ArticleEntity target = null;
+        try {
+            target = articleService.show(articleId);
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         target.setView(target.getView()+1L);
         log.info(target.getView().toString());
-        return (target != null)?
-            ResponseEntity.status(HttpStatus.OK).body(target):
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.OK).body(target);
     }
 
     @PostMapping("/write")
     public ResponseEntity<ArticleEntity> write(@RequestBody ArticleDto dto, HttpServletRequest request){
-        String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        String userId;
+        try {
+            String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+            userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         UserEntity userEntity = userService.show(userId);
         //set ArticleId
 

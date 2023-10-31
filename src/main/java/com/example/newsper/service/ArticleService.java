@@ -22,6 +22,10 @@ public class ArticleService {
         return articleRepository.findByBoardList(boardId,category,listNum);
     }
 
+    public int getMaxPageNum(String boardId, String category){
+        return articleRepository.findAllBoardListCount(boardId,category);
+    }
+
     public ArticleEntity show(Long ArticleId){
         return articleRepository.findById(ArticleId).orElse(null);
     }

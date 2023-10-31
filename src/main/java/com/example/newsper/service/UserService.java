@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -62,6 +63,10 @@ public class UserService {
 
     public UserEntity show(String id){
         return userRepository.findById(id).orElse(null);
+    }
+
+    public List<UserEntity> showall() {
+        return userRepository.findAll();
     }
 
     public UserEntity delete(String id) {

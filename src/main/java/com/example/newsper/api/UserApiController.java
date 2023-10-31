@@ -13,11 +13,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -68,9 +70,14 @@ public class UserApiController {
 
     @DeleteMapping("/withdrawal/{tarId}")
     public ResponseEntity<UserEntity> userWithdrawal(HttpServletRequest request, @PathVariable String tarId){
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        UserEntity target = userService.show(userId);
+        UserEntity target;
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+            String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            target = userService.show(userId);
+        } catch(Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         if(target.getRole().equals("관리자")) {
             userService.delete(tarId);
@@ -94,7 +101,7 @@ public class UserApiController {
 
         // 로그인 성공 => Jwt Token 발급
 
-        long expireTimeMs = 1000 * 60 * 60;     // Token 유효 시간 = 60분
+        long expireTimeMs = 60 * 60 * 24 * 14;     // Token 유효 시간 = 14일
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
         String refreshToken = JwtTokenUtil.createRefreshToken();
 
@@ -104,14 +111,14 @@ public class UserApiController {
         Map<String,Object> token = new HashMap<>();
 
         Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
-        refreshCookie.setMaxAge(1000 * 60 * 60);
+        refreshCookie.setMaxAge(60 * 60 * 24 * 14);
         refreshCookie.setSecure(true);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setPath("/");
         response.addCookie(refreshCookie);
 
         Cookie accessCookie = new Cookie("accessToken",jwtToken);
-        accessCookie.setMaxAge(1000 * 60 * 60);
+        accessCookie.setMaxAge(60 * 60);
         accessCookie.setSecure(true);
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
@@ -130,13 +137,19 @@ public class UserApiController {
         user.setRefreshToken(null);
         userService.modify(user);
 
-        Cookie[] cookies = request.getCookies();
-        if(cookies != null){
-            for(int i=0; i< cookies.length; i++){
-                cookies[i].setMaxAge(0); // 유효시간을 0으로 설정
-                response.addCookie(cookies[i]); // 응답 헤더에 추가
-            }
-        }
+        Cookie refreshCookie = new Cookie("refreshToken",null);
+        refreshCookie.setMaxAge(0);
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
+
+        Cookie accessCookie = new Cookie("accessToken",null);
+        accessCookie.setMaxAge(0);
+        accessCookie.setSecure(true);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -148,7 +161,7 @@ public class UserApiController {
             UserEntity user = userService.show(userId);
             if(!JwtTokenUtil.isExpired(user.getRefreshToken(),secretKey)){
 
-                long expireTimeMs = 1000 * 60 * 60;     // Token 유효 시간 = 60분
+                long expireTimeMs = 60 * 60 * 24 * 14;     // Token 유효 시간 = 60분
                 String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
 
                 Map<String,Object> token = new HashMap<>();
@@ -157,14 +170,14 @@ public class UserApiController {
                 token.put("refreshToken",user.getRefreshToken());
 
                 Cookie refreshCookie = new Cookie("refreshToken",user.getRefreshToken());
-                refreshCookie.setMaxAge(1000 * 60 * 60);
+                refreshCookie.setMaxAge(60 * 60 * 24 * 14);
                 refreshCookie.setSecure(true);
                 refreshCookie.setHttpOnly(true);
                 refreshCookie.setPath("/");
                 response.addCookie(refreshCookie);
 
                 Cookie accessCookie = new Cookie("accessToken",jwtToken);
-                accessCookie.setMaxAge(1000 * 60 * 60);
+                accessCookie.setMaxAge(60 * 60);
                 accessCookie.setSecure(true);
                 accessCookie.setHttpOnly(true);
                 accessCookie.setPath("/");
@@ -178,8 +191,8 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
-    @GetMapping("/show/{id}")
-    public ResponseEntity<Map<String, Object>> show(@PathVariable String id){
+    @GetMapping("/show")
+    public ResponseEntity<Map<String, Object>> show(@RequestParam String id){
         try{
             UserEntity user = userService.show(id);
             Map<String, Object> map = new HashMap<>();
@@ -188,6 +201,26 @@ public class UserApiController {
             map.put("email",user.getEmail());
             map.put("role",user.getRole());
             return ResponseEntity.status(HttpStatus.OK).body(map);
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/showall")
+    public ResponseEntity<Map<String, Object>> showall(){
+        try{
+            List<UserEntity> users = userService.showall();
+            Map<String, Object> userList = new HashMap<>();
+            for(UserEntity user:users){
+                Map<String, Object> map = new HashMap<>();
+                map.put("name",user.getName());
+                map.put("nickname",user.getNickname());
+                map.put("email",user.getEmail());
+                map.put("role",user.getRole());
+                userList.put(user.getName(),map);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(userList);
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
