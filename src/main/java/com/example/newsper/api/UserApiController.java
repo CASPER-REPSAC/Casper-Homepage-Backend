@@ -188,10 +188,14 @@ public class UserApiController {
         try{
             UserEntity user = userService.show(id);
             Map<String, Object> map = new HashMap<>();
-            map.put("name",user.getName());
-            map.put("nickname",user.getNickname());
-            map.put("email",user.getEmail());
-            map.put("role",user.getRole());
+            map.put("role", user.getRole());
+            map.put("name", user.getName());
+            map.put("nickname", user.getNickname());
+            map.put("email", user.getEmail());
+            map.put("introduce", user.getIntroduce());
+            map.put("id", user.getId());
+            map.put("image", user.getProfileImgPath());
+            map.put("homepage", user.getHomepage());
             return ResponseEntity.status(HttpStatus.OK).body(map);
         }
         catch (Exception e){
