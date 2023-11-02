@@ -32,14 +32,20 @@ public class UserEntity {
     @Column(name="role")
     private String role;
 
+    @Column(name="introduce")
+    private String introduce;
+
     @Column(name="refreshtoken")
     private String refreshToken;
 
+    @Column(name="profileImgPath")
+    private String profileImgPath;
 
+    @Column(name="homepage")
+    private String homepage;
 
 //    @Column(name="profileImgName")
 //    private String profileImgName;
 //
-//    @Column(name="profileImgPath")
-//    private String profileImgPath;
+
 }

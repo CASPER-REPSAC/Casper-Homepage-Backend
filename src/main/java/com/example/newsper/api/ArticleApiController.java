@@ -49,7 +49,7 @@ public class ArticleApiController {
         page = (page-1)*10;
         int maxPageNum = articleService.getMaxPageNum(boardId,category);
         List<ArticleList> target = articleService.boardList(boardId,category,page);
-        map.put("maxPageNum",maxPageNum);
+        map.put("maxPageNum",Math.ceil((double) maxPageNum /10.0));
         map.put("articleList",target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }

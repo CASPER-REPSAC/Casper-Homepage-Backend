@@ -18,10 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -203,22 +200,30 @@ public class UserApiController {
     }
 
     @GetMapping("/showall")
-    public ResponseEntity<Map<String, Object>> showall(){
-        try{
+    public ResponseEntity<List<Map<String,Object>>> showall(@RequestParam String roll){
+        try {
             List<UserEntity> users = userService.showall();
-            Map<String, Object> userList = new HashMap<>();
-            for(UserEntity user:users){
-                Map<String, Object> map = new HashMap<>();
-                map.put("name",user.getName());
-                map.put("nickname",user.getNickname());
-                map.put("email",user.getEmail());
-                map.put("role",user.getRole());
-                userList.put(user.getName(),map);
+            List<Map<String, Object>> userList = new ArrayList<>();
+            for (UserEntity user : users) {
+                if("all".equals(roll)||user.getRole().equals(roll)){
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("role", user.getRole());
+                    map.put("name", user.getName());
+                    map.put("nickname", user.getNickname());
+                    map.put("email", user.getEmail());
+                    map.put("introduce", user.getIntroduce());
+                    map.put("id", user.getId());
+                    map.put("image", user.getProfileImgPath());
+                    map.put("homepage", user.getHomepage());
+
+                    userList.add(map);
+                }
             }
             return ResponseEntity.status(HttpStatus.OK).body(userList);
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+
     }
 }
