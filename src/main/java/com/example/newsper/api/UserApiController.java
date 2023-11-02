@@ -124,6 +124,18 @@ public class UserApiController {
 
         token.put("accessToken",jwtToken);
         token.put("refreshToken",refreshToken);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("role", user.getRole());
+        map.put("name", user.getName());
+        map.put("nickname", user.getNickname());
+        map.put("email", user.getEmail());
+        map.put("introduce", user.getIntroduce());
+        map.put("id", user.getId());
+        map.put("image", user.getProfileImgPath());
+        map.put("homepage", user.getHomepage());
+        token.put("myInfo",map);
+
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
@@ -188,10 +200,14 @@ public class UserApiController {
         try{
             UserEntity user = userService.show(id);
             Map<String, Object> map = new HashMap<>();
-            map.put("name",user.getName());
-            map.put("nickname",user.getNickname());
-            map.put("email",user.getEmail());
-            map.put("role",user.getRole());
+            map.put("role", user.getRole());
+            map.put("name", user.getName());
+            map.put("nickname", user.getNickname());
+            map.put("email", user.getEmail());
+            map.put("introduce", user.getIntroduce());
+            map.put("id", user.getId());
+            map.put("image", user.getProfileImgPath());
+            map.put("homepage", user.getHomepage());
             return ResponseEntity.status(HttpStatus.OK).body(map);
         }
         catch (Exception e){
@@ -200,12 +216,13 @@ public class UserApiController {
     }
 
     @GetMapping("/showall")
-    public ResponseEntity<List<Map<String,Object>>> showall(@RequestParam String roll){
+    public ResponseEntity<Map<String,Object>> showall(@RequestParam String role){
         try {
             List<UserEntity> users = userService.showall();
             List<Map<String, Object>> userList = new ArrayList<>();
+            Map<String, Object> target = new HashMap<>();
             for (UserEntity user : users) {
-                if("all".equals(roll)||user.getRole().equals(roll)){
+                if("all".equals(role)||user.getRole().equals(role)){
                     Map<String, Object> map = new HashMap<>();
                     map.put("role", user.getRole());
                     map.put("name", user.getName());
@@ -219,7 +236,8 @@ public class UserApiController {
                     userList.add(map);
                 }
             }
-            return ResponseEntity.status(HttpStatus.OK).body(userList);
+            target.put("memberList",userList);
+            return ResponseEntity.status(HttpStatus.OK).body(target);
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

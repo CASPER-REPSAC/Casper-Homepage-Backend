@@ -15,10 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -85,6 +84,8 @@ public class ArticleApiController {
         dto.setNickname(userEntity.getNickname());
         dto.setView(0L);
         dto.setNumOfComments(0L);
+        Date date = new Date(System.currentTimeMillis()+3600*9*1000);
+        dto.setCreatedAt(date);
 
 
         ArticleEntity article = dto.toEntity();
@@ -95,5 +96,20 @@ public class ArticleApiController {
             ResponseEntity.status(HttpStatus.OK).body(created):
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
+    }
+    @DeleteMapping("delete/{articleId}")
+    public ResponseEntity<ArticleEntity> delete(@PathVariable Long articleId){
+        ArticleEntity deleted = articleService.delete(articleId);
+        return (deleted != null) ?
+                ResponseEntity.status(HttpStatus.OK).build():
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PatchMapping("/update/{articleId}")
+    public ResponseEntity<ArticleEntity> update(@PathVariable Long articleId, @RequestBody ArticleDto dto){
+        ArticleEntity updated = articleService.update(articleId,dto);
+        return (updated != null) ?
+                ResponseEntity.status(HttpStatus.OK).body(updated):
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
