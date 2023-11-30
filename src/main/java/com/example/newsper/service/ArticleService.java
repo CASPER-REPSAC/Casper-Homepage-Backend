@@ -5,12 +5,14 @@ import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -49,8 +51,8 @@ public class ArticleService {
         if (target == null || !id.equals(article.getArticleId())){
             return null;
         }
-
         target.patch(article);
+        log.info(target.toString());
         ArticleEntity updated = articleRepository.save(target);
         return updated;
     }

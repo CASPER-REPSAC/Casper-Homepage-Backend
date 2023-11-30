@@ -3,6 +3,7 @@ package com.example.newsper.api;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.repository.UserRepository;
 import com.example.newsper.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -184,6 +185,19 @@ public class UserApiController {
                     refreshCookie.setHttpOnly(true);
                     refreshCookie.setPath("/");
                     response.addCookie(refreshCookie);
+
+                    UserEntity user = userService.show(id);
+
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("role", user.getRole());
+                    map.put("name", user.getName());
+                    map.put("nickname", user.getNickname());
+                    map.put("email", user.getEmail());
+                    map.put("introduce", user.getIntroduce());
+                    map.put("id", user.getId());
+                    map.put("image", user.getProfileImgPath());
+                    map.put("homepage", user.getHomepage());
+                    token.put("myInfo",map);
 
                     return ResponseEntity.status(HttpStatus.OK).body(token);
                 }
