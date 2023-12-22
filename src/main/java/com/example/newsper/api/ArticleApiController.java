@@ -82,7 +82,7 @@ public class ArticleApiController {
     public ResponseEntity<ArticleEntity> write(@RequestBody ArticleDto dto, HttpServletRequest request){
         String userId = getUserId(request);
         if(!authCheck(dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        else if(!(dto.getBoardId().equals("notice_board")&&userService.getAuth(userId).equals("관리자"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        else if(!(dto.getBoardId().equals("notice_board")&&userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UserEntity userEntity = userService.show(userId);
 
@@ -131,18 +131,18 @@ public class ArticleApiController {
 
     private boolean authCheck(String boardId, String userId) {
         String userAuth;
-        if(userId.equals("guest")) userAuth = "게스트";
+        if(userId.equals("guest")) userAuth = "guest";
         else userAuth = userService.getAuth(userId);
 
-        if(userAuth.equals("준회원") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
-        else if(userAuth.equals("게스트") && boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
-        else return userAuth.equals("정회원") || userAuth.equals("졸업생") || userAuth.equals("관리자");
+        if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
+        else if(userAuth.equals("guest") && boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
+        else return userAuth.equals("full") || userAuth.equals("graduate") || userAuth.equals("admin");
     }
 
     private boolean writerCheck(Long articleId, String userId) {
         String creater = articleService.getCreater(articleId);
         String userAuth = userService.getAuth(userId);
-        return userId.equals(creater) || userAuth.equals("관리자");
+        return userId.equals(creater) || userAuth.equals("admin");
     }
 
     private String getUserId(HttpServletRequest request) {

@@ -92,7 +92,7 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if(target.getRole().equals("관리자")) {
+        if(target.getRole().equals("admin")) {
             userService.delete(tarId);
         }
 
