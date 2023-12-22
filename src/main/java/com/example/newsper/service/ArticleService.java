@@ -33,6 +33,10 @@ public class ArticleService {
         return articleRepository.findById(articleId).orElse(null);
     }
 
+    public String getBoardId(Long articleId){ return articleRepository.findById(articleId).get().getBoardId(); }
+
+    public String getCreater(Long articleId){ return articleRepository.findById(articleId).get().getUserId(); }
+
     public ArticleEntity save(ArticleEntity article){
         return articleRepository.save(article);
     }

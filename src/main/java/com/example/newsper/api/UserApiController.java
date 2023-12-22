@@ -36,6 +36,9 @@ public class UserApiController {
 
     @PostMapping("/join")
     public ResponseEntity<Map<String, Object>> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
+        if(userService.show(dto.getId()) != null) ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(!userService.showNick(dto.getNickname())) ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
         try {
             Map<String, Object> ret = new HashMap<>();
 
@@ -56,15 +59,24 @@ public class UserApiController {
             return (created != null) ?
                     ResponseEntity.status(HttpStatus.CREATED).body(ret):
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }catch(DataIntegrityViolationException e) {
-            e.printStackTrace();
-            bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }catch(Exception e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<UserEntity> update(@RequestBody UserDto dto, HttpServletRequest request){
+        String userId = getUserId(request);
+        UserEntity userEntity = userService.show(userId);
+        userEntity.setPw(dto.getPw());
+        userEntity.setNickname(dto.getNickname());
+        userEntity.setHomepage(dto.getHomepage());
+        userEntity.setIntroduce(dto.getIntroduce());
+        userEntity.setProfileImgPath(dto.getProfileImgPath());
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
     }
 
     @DeleteMapping("/withdrawal/{tarId}")
@@ -100,9 +112,9 @@ public class UserApiController {
 
         // 로그인 성공 => Jwt Token 발급
 
-        long expireTimeMs = 60 * 60 * 1000;     // Token 유효 시간 = 1시간
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*14*24);
+        long expireTimeMs = 60 * 24 * 14 * 1000;     // Token 유효 시간 = 1분
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5);
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
@@ -110,14 +122,14 @@ public class UserApiController {
         Map<String,Object> token = new HashMap<>();
 
         Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
-        refreshCookie.setMaxAge(60 * 60 * 24 * 14 * 1000);
+        refreshCookie.setMaxAge((int) (expireTimeMs*5));
         refreshCookie.setSecure(true);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setPath("/");
         response.addCookie(refreshCookie);
 
         Cookie accessCookie = new Cookie("accessToken",jwtToken);
-        accessCookie.setMaxAge(60 * 60 * 1000);
+        accessCookie.setMaxAge((int) (expireTimeMs*3));
         accessCookie.setSecure(true);
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
@@ -170,7 +182,7 @@ public class UserApiController {
         try {
             for (Cookie c : cookies) {
                 if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
-                    long expireTimeMs = 60 * 60 * 24 * 14 * 1000;     // Token 유효 시간 = 60분
+                    long expireTimeMs = 5 * 60 * 24 * 14 * 1000;     // Token 유효 시간 = 5분
                     log.info(c.getValue());
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
                     String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
@@ -180,7 +192,7 @@ public class UserApiController {
                     token.put("accessToken", jwtToken);
 
                     Cookie refreshCookie = new Cookie("refreshToken", c.getValue());
-                    refreshCookie.setMaxAge(60 * 60 * 24 * 14 * 1000);
+                    refreshCookie.setMaxAge(5 * 60 * 24 * 14 * 1000);
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
                     refreshCookie.setPath("/");
@@ -236,7 +248,7 @@ public class UserApiController {
             List<Map<String, Object>> userList = new ArrayList<>();
             Map<String, Object> target = new HashMap<>();
             for (UserEntity user : users) {
-                if("all".equals(role)||user.getRole().equals(role)){
+                if(user.getRole().equals(role)){
                     Map<String, Object> map = new HashMap<>();
                     map.put("role", user.getRole());
                     map.put("name", user.getName());
@@ -246,7 +258,6 @@ public class UserApiController {
                     map.put("id", user.getId());
                     map.put("image", user.getProfileImgPath());
                     map.put("homepage", user.getHomepage());
-
                     userList.add(map);
                 }
             }
@@ -257,5 +268,14 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+    }
+
+    private String getUserId(HttpServletRequest request) {
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+            return JwtTokenUtil.getLoginId(accessToken, secretKey);
+        } catch(Exception e){
+            return "guest";
+        }
     }
 }
