@@ -36,9 +36,6 @@ public class UserApiController {
 
     @PostMapping("/join")
     public ResponseEntity<Map<String, Object>> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
-        if(userService.show(dto.getId()) != null) ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        if(!userService.showNick(dto.getNickname())) ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
         try {
             Map<String, Object> ret = new HashMap<>();
 
@@ -55,10 +52,15 @@ public class UserApiController {
 //            else{
 //                created = userService.newUser(dto);
 //            }
-            created = userService.newUser(dto);
+            try {
+                created = userService.newUser(dto);
+            } catch (Exception e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
             return (created != null) ?
                     ResponseEntity.status(HttpStatus.CREATED).body(ret):
                     ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
         }catch(Exception e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", e.getMessage());

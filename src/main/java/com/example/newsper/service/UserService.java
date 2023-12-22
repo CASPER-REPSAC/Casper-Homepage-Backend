@@ -65,6 +65,14 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public Boolean showId(String userId){
+        List<UserEntity> users = userRepository.findAll();
+        for(UserEntity user:users){
+            if(user.getId().equals(userId)) return true;
+        }
+        return false;
+    }
+
     public Boolean showNick(String nickname){
         List<UserEntity> users = userRepository.findAll();
         for(UserEntity user:users){
