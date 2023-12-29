@@ -35,37 +35,32 @@ public class UserApiController {
     String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
 
     @PostMapping("/join")
-    public ResponseEntity<Map<String, Object>> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
-        try {
-            Map<String, Object> ret = new HashMap<>();
+    public ResponseEntity<?> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
+        Map<String, Object> ret = new HashMap<>();
 
-            ret.put("id",dto.getId());
-            ret.put("pw",dto.getPw());
-            ret.put("email",dto.getEmail());
-            ret.put("name",dto.getName());
-            ret.put("nickname",dto.getNickname());
+        if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
 
-            UserEntity created;
+        UserEntity user = userService.show(dto.getId());
+        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+
+        ret.put("id",dto.getId());
+        ret.put("pw",dto.getPw());
+        ret.put("email",dto.getEmail());
+        ret.put("name",dto.getName());
+        ret.put("nickname",dto.getNickname());
+
+
 //            if (!(imgFile == null)){
 //                created = userService.newUser(dto,imgFile);
 //            }
 //            else{
 //                created = userService.newUser(dto);
 //            }
-            try {
-                created = userService.newUser(dto);
-            } catch (Exception e){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-            return (created != null) ?
-                    ResponseEntity.status(HttpStatus.CREATED).body(ret):
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        UserEntity created = userService.newUser(dto);
 
-        }catch(Exception e) {
-            e.printStackTrace();
-            bindingResult.reject("signupFailed", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        return (created != null) ?
+                ResponseEntity.status(HttpStatus.CREATED).body(ret):
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/update")
@@ -104,13 +99,12 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody UserDto dto,HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody UserDto dto,HttpServletResponse response) {
         UserEntity user = userService.show(dto.getId());
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
-        if(user == null || !(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        if(user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-101));
+        if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
 
         // 로그인 성공 => Jwt Token 발급
 
@@ -279,5 +273,13 @@ public class UserApiController {
         } catch(Exception e){
             return "guest";
         }
+    }
+
+    private Map<String, Object> setErrorCodeBody(int code){
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
+        responseBody.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        responseBody.put("code", code);
+        return responseBody;
     }
 }

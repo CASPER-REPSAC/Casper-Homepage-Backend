@@ -15,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -43,11 +41,11 @@ public class ArticleApiController {
     }
 
     @GetMapping("/{boardId}/{category}/{page}")
-    public ResponseEntity<Map<String, Object>> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category, HttpServletRequest request){
+    public ResponseEntity<?> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category, HttpServletRequest request){
 
         //권한 확인
         String userId = getUserId(request);
-        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
@@ -60,12 +58,12 @@ public class ArticleApiController {
     }
 
     @GetMapping("/view/{articleId}")
-    public ResponseEntity<ArticleEntity> view(@PathVariable Long articleId, HttpServletRequest request){
+    public ResponseEntity<?> view(@PathVariable Long articleId, HttpServletRequest request){
 
         //권한 확인
         String boardId = articleService.getBoardId(articleId);
         String userId = getUserId(request);
-        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         ArticleEntity target = null;
         try {
@@ -79,10 +77,10 @@ public class ArticleApiController {
     }
 
     @PostMapping("/write")
-    public ResponseEntity<ArticleEntity> write(@RequestBody ArticleDto dto, HttpServletRequest request){
+    public ResponseEntity<?> write(@RequestBody ArticleDto dto, HttpServletRequest request){
         String userId = getUserId(request);
-        if(!authCheck(dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        else if(!(dto.getBoardId().equals("notice_board")&&userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(!authCheck(dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        if(dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
 
         UserEntity userEntity = userService.show(userId);
 
@@ -106,10 +104,10 @@ public class ArticleApiController {
 
 
     @DeleteMapping("delete/{articleId}")
-    public ResponseEntity<ArticleEntity> delete(@PathVariable Long articleId, HttpServletRequest request){
+    public ResponseEntity<?> delete(@PathVariable Long articleId, HttpServletRequest request){
 
         String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();;
+        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         ArticleEntity deleted = articleService.delete(articleId);
         return (deleted != null) ?
@@ -118,10 +116,10 @@ public class ArticleApiController {
     }
 
     @PatchMapping("/update/{articleId}")
-    public ResponseEntity<ArticleEntity> update(@PathVariable Long articleId, @RequestBody ArticleDto dto, HttpServletRequest request){
+    public ResponseEntity<?> update(@PathVariable Long articleId, @RequestBody ArticleDto dto, HttpServletRequest request){
 
         String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();;
+        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         ArticleEntity updated = articleService.update(articleId,dto);
         return (updated != null) ?
@@ -136,7 +134,7 @@ public class ArticleApiController {
 
         if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
         else if(userAuth.equals("guest") && boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
-        else return userAuth.equals("full") || userAuth.equals("graduate") || userAuth.equals("admin");
+        else return userAuth.equals("active") || userAuth.equals("rest") || userAuth.equals("graduate") || userAuth.equals("admin");
     }
 
     private boolean writerCheck(Long articleId, String userId) {
@@ -152,5 +150,13 @@ public class ArticleApiController {
         } catch(Exception e){
             return "guest";
         }
+    }
+
+    private Map<String, Object> setErrorCodeBody(int code){
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
+        responseBody.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        responseBody.put("code", code);
+        return responseBody;
     }
 }
