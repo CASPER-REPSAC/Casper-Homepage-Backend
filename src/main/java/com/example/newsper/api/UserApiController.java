@@ -108,7 +108,7 @@ public class UserApiController {
 
         // 로그인 성공 => Jwt Token 발급
 
-        long expireTimeMs = 1000 * 60;     // Token 유효 시간 = 1분
+        long expireTimeMs = 60;     // Token 유효 시간 = 1분
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3);
         String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5);
 
@@ -178,7 +178,7 @@ public class UserApiController {
         try {
             for (Cookie c : cookies) {
                 if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
-                    long expireTimeMs = 1000 * 60 * 5;     // Token 유효 시간 = 5분
+                    long expireTimeMs = 60 * 5;     // Token 유효 시간 = 5분
                     log.info(c.getValue());
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
                     String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
@@ -188,7 +188,7 @@ public class UserApiController {
                     token.put("accessToken", jwtToken);
 
                     Cookie refreshCookie = new Cookie("refreshToken", c.getValue());
-                    refreshCookie.setMaxAge(1000 * 60 * 5);
+                    refreshCookie.setMaxAge(60 * 5);
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
                     refreshCookie.setPath("/");
