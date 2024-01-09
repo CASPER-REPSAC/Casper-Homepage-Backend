@@ -109,8 +109,8 @@ public class UserApiController {
         // 로그인 성공 => Jwt Token 발급
 
         long expireTimeMs = 60;     // Token 유효 시간 = 1분
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5);
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3*1000);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5*1000);
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
@@ -169,6 +169,7 @@ public class UserApiController {
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -181,7 +182,7 @@ public class UserApiController {
                     long expireTimeMs = 60 * 5;     // Token 유효 시간 = 5분
                     log.info(c.getValue());
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
-                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
+                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs*1000);
 
                     Map<String, Object> token = new HashMap<>();
 
