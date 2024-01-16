@@ -67,7 +67,6 @@ public class UserApiController {
     public ResponseEntity<UserEntity> update(@RequestBody UserDto dto, HttpServletRequest request){
         String userId = getUserId(request);
         UserEntity userEntity = userService.show(userId);
-        userEntity.setPw(dto.getPw());
         userEntity.setNickname(dto.getNickname());
         userEntity.setHomepage(dto.getHomepage());
         userEntity.setIntroduce(dto.getIntroduce());

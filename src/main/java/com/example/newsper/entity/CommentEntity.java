@@ -15,6 +15,7 @@ import java.util.Date;
 @Setter
 @Slf4j
 public class CommentEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="commentId")
@@ -32,7 +33,7 @@ public class CommentEntity {
     @Column(name="createdAt", nullable = false)
     private Date createdAt;
 
-    @Column(name="modifiedAt")
+    @Column(name = "modifiedAt", nullable = false)
     private Date modifiedAt;
 
     public static CommentEntity createComment(CommentDto dto, ArticleEntity article) {
@@ -40,22 +41,12 @@ public class CommentEntity {
             throw new IllegalArgumentException("댓글 생성 실패!");
         if (dto.getArticleId() != article.getArticleId())
             throw new IllegalArgumentException("댓글 생성 실패!");
-        return new CommentEntity(
-                dto.getCommentId(),
-                dto.getArticleId(),
-                dto.getNickname(),
-                dto.getText(),
-                dto.getCreatedAt(),
-                dto.getModifiedAt()
-        );
+        return dto.toEntity();
     }
 
     public void patch(CommentDto dto) {
         if (this.commentId != dto.getCommentId())
             throw new IllegalArgumentException("댓글 수정 실패!");
-        if (dto.getNickname() != null){
-            this.nickname = dto.getNickname();
-        }
         if (dto.getText() != null){
             this.text = dto.getText();
         }

@@ -1,7 +1,9 @@
 package com.example.newsper.api;
 
 import com.example.newsper.dto.CommentDto;
+import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.service.CommentService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,20 +26,20 @@ public class CommentApiController {
     }
 
     @PostMapping("/comment")
-    public ResponseEntity<CommentDto> create(@PathVariable Long articleId, @RequestBody CommentDto dto){
-        CommentDto createdDto = commentService.create(articleId,dto);
-        return ResponseEntity.status(HttpStatus.OK).body(createdDto);
+    public ResponseEntity<CommentEntity> create(@PathVariable Long articleId, @RequestBody CommentDto dto, HttpServletRequest request){
+        CommentEntity created = commentService.create(articleId,dto,request);
+        return ResponseEntity.status(HttpStatus.OK).body(created);
     }
 
     @PatchMapping("/comment/{id}")
-    public ResponseEntity<CommentDto> update(@PathVariable Long id, @RequestBody CommentDto dto){
-        CommentDto updatedDto = commentService.update(id,dto);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedDto);
+    public ResponseEntity<CommentEntity> update(@PathVariable Long id, @RequestBody CommentDto dto){
+        CommentEntity updated = commentService.update(id,dto);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/comment/{id}")
-    public ResponseEntity<CommentDto> delete(@PathVariable Long id, @PathVariable String articleId){
-        CommentDto updatedDto = commentService.delete(id);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedDto);
+    public ResponseEntity<CommentEntity> delete(@PathVariable Long id, @PathVariable String articleId){
+        commentService.delete(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
