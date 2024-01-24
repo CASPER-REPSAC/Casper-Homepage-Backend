@@ -23,6 +23,7 @@ public class UserDto {
     private String introduce;
     private String profileImgPath;
     private String homepage;
+    private String role;
 
 
     public UserEntity toEntity() {

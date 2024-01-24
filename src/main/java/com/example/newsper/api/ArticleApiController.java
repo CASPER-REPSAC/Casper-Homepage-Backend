@@ -107,7 +107,7 @@ public class ArticleApiController {
     public ResponseEntity<?> delete(@PathVariable Long articleId, HttpServletRequest request){
 
         String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         ArticleEntity deleted = articleService.delete(articleId);
         return (deleted != null) ?
@@ -119,7 +119,7 @@ public class ArticleApiController {
     public ResponseEntity<?> update(@PathVariable Long articleId, @RequestBody ArticleDto dto, HttpServletRequest request){
 
         String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         ArticleEntity updated = articleService.update(articleId,dto);
         return (updated != null) ?
@@ -176,6 +176,7 @@ public class ArticleApiController {
         else if(code == -301) responseBody.put("message", "게시판 접근 권한 없음");
         else if(code == -302) responseBody.put("message", "게시글 쓰기 권한 없음");
         else if(code == -303) responseBody.put("message", "게시글 수정/삭제 권한 없음");
+        else if(code == -1) responseBody.put("message", "지정되지 않은 에러");
 
         return responseBody;
     }

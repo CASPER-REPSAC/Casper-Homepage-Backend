@@ -1,5 +1,6 @@
 package com.example.newsper.api;
 
+import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
@@ -98,7 +99,7 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDto dto,HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody UserDto dto, HttpServletResponse response) {
         UserEntity user = userService.show(dto.getId());
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
@@ -266,6 +267,17 @@ public class UserApiController {
 
     }
 
+    @PostMapping("/auth")
+    public ResponseEntity auth(HttpServletRequest request, @RequestBody UserDto dto) {
+        String userId = getUserId(request);
+        if(!userId.equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-1));
+
+        UserEntity user = userService.show(dto.getId());
+        user.setRole(dto.getRole());
+        userService.modify(user);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     private String getUserId(HttpServletRequest request) {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
@@ -277,8 +289,6 @@ public class UserApiController {
 
     private Map<String, Object> setErrorCodeBody(int code){
         Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
-        responseBody.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
         responseBody.put("code", code);
         return responseBody;
     }
