@@ -63,7 +63,7 @@ public class ArticleApiController {
         //권한 확인
         String boardId = articleService.getBoardId(articleId);
         String userId = getUserId(request);
-        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
+        if(!authCheck(boardId, userId) || !isHide(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         ArticleEntity target = null;
         try {
@@ -136,6 +136,16 @@ public class ArticleApiController {
         else if(userAuth.equals("guest") && boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
         else return userAuth.equals("active") || userAuth.equals("rest") || userAuth.equals("graduate") || userAuth.equals("admin");
     }
+
+    private boolean isHide(Long articleId, String userId) {
+        String userAuth;
+        if(userId.equals("guest")) userAuth = "guest";
+        else userAuth = userService.getAuth(userId);
+
+        if(userAuth.equals("associate")) return articleService.getCreater(articleId).equals(userId);
+        else return !userAuth.equals("guest");
+    }
+
 
     private boolean writerCheck(Long articleId, String userId) {
         String creater = articleService.getCreater(articleId);
