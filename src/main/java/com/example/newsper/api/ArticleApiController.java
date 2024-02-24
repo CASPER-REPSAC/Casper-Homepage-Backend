@@ -5,6 +5,7 @@ import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.service.ArticleService;
 import com.example.newsper.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -131,7 +132,8 @@ public class ArticleApiController {
         String userAuth;
         if(userId.equals("guest")) userAuth = "guest";
         else userAuth = userService.getAuth(userId);
-
+        System.out.println("userAuth = " + userAuth);
+        System.out.println("boardId = " + boardId);
         if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
         else if(userAuth.equals("guest") && boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
         else return userAuth.equals("active") || userAuth.equals("rest") || userAuth.equals("graduate") || userAuth.equals("admin");
@@ -139,6 +141,7 @@ public class ArticleApiController {
 
     private boolean isHide(Long articleId, String userId) {
         String userAuth;
+        if(!articleService.getHide(articleId)) return true;
         if(userId.equals("guest")) userAuth = "guest";
         else userAuth = userService.getAuth(userId);
 

@@ -37,6 +37,8 @@ public class ArticleService {
 
     public String getCreater(Long articleId){ return articleRepository.findById(articleId).get().getUserId(); }
 
+    public Boolean getHide(Long articleId) { return articleRepository.findById(articleId).get().getHide(); }
+
     public ArticleEntity save(ArticleEntity article){
         return articleRepository.save(article);
     }

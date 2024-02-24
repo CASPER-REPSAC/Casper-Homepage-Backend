@@ -195,6 +195,13 @@ public class UserApiController {
                     refreshCookie.setPath("/");
                     response.addCookie(refreshCookie);
 
+                    Cookie accessCookie = new Cookie("accessToken",jwtToken);
+                    accessCookie.setMaxAge(0);
+                    accessCookie.setSecure(true);
+                    accessCookie.setHttpOnly(true);
+                    accessCookie.setPath("/");
+                    response.addCookie(accessCookie);
+
                     UserEntity user = userService.show(id);
 
                     Map<String, Object> map = new HashMap<>();
