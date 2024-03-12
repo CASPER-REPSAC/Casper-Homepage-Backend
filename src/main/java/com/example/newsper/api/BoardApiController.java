@@ -22,7 +22,7 @@ public class BoardApiController {
     private BoardService boardService;
 
     @GetMapping("/")
-    public ResponseEntity<?> findAll(@RequestBody BoardDto dto){
+    public ResponseEntity<?> findAll(){
         List<BoardEntity> dtos = boardService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
