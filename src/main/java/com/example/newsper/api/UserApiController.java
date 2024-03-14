@@ -74,7 +74,7 @@ public class UserApiController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(!type.startsWith("image")) {
+        if(!type.startsWith("image")||profile.getSize()>1048576) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
