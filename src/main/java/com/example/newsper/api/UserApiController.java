@@ -1,6 +1,10 @@
 package com.example.newsper.api;
 
 import com.example.newsper.dto.ArticleDto;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
@@ -19,6 +23,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -62,6 +67,41 @@ public class UserApiController {
         return (created != null) ?
                 ResponseEntity.status(HttpStatus.CREATED).body(ret):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PostMapping("/image")
+    public void update(@RequestPart(value = "profile") MultipartFile profile) throws IOException {
+        log.info("파일 이름 : " + profile.getOriginalFilename());
+        log.info("파일 타입 : " + profile.getContentType());
+        log.info("파일 크기 : " + profile.getSize());
+
+//        String uploadFolder = "/home/casper/newsper_profile";
+        String uploadFolder = "C:\\Users\\koko9\\Downloads";
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date date = new Date();
+        String str = sdf.format(date);
+        String datePath = str.replace("-", File.separator);
+
+        File uploadPath = new File(uploadFolder, datePath);
+
+        if(uploadPath.exists() == false) {
+            uploadPath.mkdirs();
+        }
+
+        /* 파일 이름 */
+        String uploadFileName = profile.getOriginalFilename();
+
+        /* UUID 설정 */
+        String uuid = UUID.randomUUID().toString();
+        uploadFileName = uuid + "_" + uploadFileName;
+
+        /* 파일 위치, 파일 이름을 합친 File 객체 */
+        File saveFile = new File(uploadPath, uploadFileName);
+
+        profile.transferTo(saveFile);
+
     }
 
     @PostMapping("/update")
