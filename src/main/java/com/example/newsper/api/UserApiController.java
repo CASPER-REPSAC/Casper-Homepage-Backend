@@ -1,25 +1,21 @@
 package com.example.newsper.api;
 
-import com.example.newsper.dto.ArticleDto;
-
 import java.io.File;
+import java.nio.file.Files;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
-import com.example.newsper.repository.UserRepository;
 import com.example.newsper.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +37,7 @@ public class UserApiController {
     String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
 
     @PostMapping("/join")
-    public ResponseEntity<?> newUser(@RequestBody UserDto dto, BindingResult bindingResult){ //@RequestPart(value = "dto") UserDto dto, @RequestPart(value = "profile",required = false) MultipartFile imgFile
+    public ResponseEntity<?> newUser(@RequestBody UserDto dto){
         Map<String, Object> ret = new HashMap<>();
 
         if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
@@ -54,14 +50,8 @@ public class UserApiController {
         ret.put("email",dto.getEmail());
         ret.put("name",dto.getName());
         ret.put("nickname",dto.getNickname());
+        ret.put("profile",dto.getProfileImgPath());
 
-
-//            if (!(imgFile == null)){
-//                created = userService.newUser(dto,imgFile);
-//            }
-//            else{
-//                created = userService.newUser(dto);
-//            }
         UserEntity created = userService.newUser(dto);
 
         return (created != null) ?
@@ -70,13 +60,26 @@ public class UserApiController {
     }
 
     @PostMapping("/image")
-    public void update(@RequestPart(value = "profile") MultipartFile profile) throws IOException {
-        log.info("파일 이름 : " + profile.getOriginalFilename());
-        log.info("파일 타입 : " + profile.getContentType());
-        log.info("파일 크기 : " + profile.getSize());
+    public ResponseEntity<?> update(@RequestPart(value = "profile") MultipartFile profile) throws IOException {
+//        log.info("파일 이름 : " + profile.getOriginalFilename());
+//        log.info("파일 타입 : " + profile.getContentType());
+//        log.info("파일 크기 : " + profile.getSize());
 
-//        String uploadFolder = "/home/casper/newsper_profile";
-        String uploadFolder = "C:\\Users\\koko9\\Downloads";
+        File checkfile = new File(profile.getOriginalFilename());
+        String type = null;
+
+        try {
+            type = Files.probeContentType(checkfile.toPath());
+            log.info("MIME TYPE : " + type);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(!type.startsWith("image")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        String uploadFolder = "/home/casper/newsper_profile";
+//        String uploadFolder = "C:\\Users\\koko9\\Downloads";
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -102,6 +105,7 @@ public class UserApiController {
 
         profile.transferTo(saveFile);
 
+        return ResponseEntity.status(HttpStatus.OK).body("{profile : "+uploadFileName+"}");
     }
 
     @PostMapping("/update")
