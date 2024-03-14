@@ -105,7 +105,7 @@ public class UserApiController {
 
         profile.transferTo(saveFile);
 
-        return ResponseEntity.status(HttpStatus.OK).body("{profile : "+saveFile.getAbsolutePath()+"}");
+        return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \""+saveFile.getAbsolutePath()+"\"}");
     }
 
     @PostMapping("/update")
