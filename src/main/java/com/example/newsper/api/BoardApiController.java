@@ -15,19 +15,19 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/board/boards")
+@RequestMapping("/api/board")
 public class BoardApiController {
 
     @Autowired
     private BoardService boardService;
 
-    @GetMapping("/")
+    @GetMapping("/hi")
     public ResponseEntity<?> findAll(){
         List<BoardEntity> dtos = boardService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
-    @PostMapping("/")
+    @PostMapping("/bye")
     public ResponseEntity<?> save(@RequestBody BoardDto dto){
         BoardEntity target = boardService.save(dto.toEntity());
         return ResponseEntity.status(HttpStatus.OK).body(target);
