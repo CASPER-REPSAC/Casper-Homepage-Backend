@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/board")
+@RequestMapping("/api/board/boards")
 public class BoardApiController {
 
     @Autowired
