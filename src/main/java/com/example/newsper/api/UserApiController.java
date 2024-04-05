@@ -152,28 +152,32 @@ public class UserApiController {
 
         // 로그인 성공 => Jwt Token 발급
 
-        long expireTimeMs = 60;     // Token 유효 시간 = 1분
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3*1000);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5*1000);
+        long expireTimeMs = 60 * 60 * 1000; // Token 유효 시간 = 1시간 (밀리초 단위)
+        long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
+
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
 
         Map<String,Object> token = new HashMap<>();
 
-        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
-        refreshCookie.setMaxAge((int) (expireTimeMs*5));
-        refreshCookie.setSecure(true);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/");
-        response.addCookie(refreshCookie);
-
+        // AccessToken 설정
         Cookie accessCookie = new Cookie("accessToken",jwtToken);
-        accessCookie.setMaxAge((int) (expireTimeMs*3));
+        accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
         accessCookie.setSecure(true);
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
+
+        // RefreshToken 설정
+        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
+        refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
 
         token.put("accessToken",jwtToken);
         token.put("refreshToken",refreshToken);
@@ -191,6 +195,7 @@ public class UserApiController {
 
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
@@ -223,24 +228,32 @@ public class UserApiController {
         try {
             for (Cookie c : cookies) {
                 if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
-                    long expireTimeMs = 60 * 5;     // Token 유효 시간 = 5분
-                    log.info(c.getValue());
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
-                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs*1000);
+
+                    // AccessToken 만료 시간 = 1시간 (밀리초 단위)
+                    long expireTimeMs = 60 * 60 * 1000;
+
+                    // RefreshToken 만료 시간 = 30일 (밀리초 단위)
+                    long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000;
+
+                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
+                    String refreshToken = JwtTokenUtil.createRefreshToken(id, secretKey, refreshExpireTimeMs);
 
                     Map<String, Object> token = new HashMap<>();
 
                     token.put("accessToken", jwtToken);
 
-                    Cookie refreshCookie = new Cookie("refreshToken", c.getValue());
-                    refreshCookie.setMaxAge(60 * 5);
+                    // RefreshToken 설정
+                    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+                    refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
                     refreshCookie.setPath("/");
                     response.addCookie(refreshCookie);
 
-                    Cookie accessCookie = new Cookie("accessToken",jwtToken);
-                    accessCookie.setMaxAge(0);
+                    // AccessToken 설정
+                    Cookie accessCookie = new Cookie("accessToken", jwtToken);
+                    accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
                     accessCookie.setSecure(true);
                     accessCookie.setHttpOnly(true);
                     accessCookie.setPath("/");
@@ -268,6 +281,7 @@ public class UserApiController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
 
     @GetMapping("/show")
     public ResponseEntity<Map<String, Object>> show(@RequestParam String id){

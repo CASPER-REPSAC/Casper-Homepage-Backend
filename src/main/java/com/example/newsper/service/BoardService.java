@@ -41,6 +41,8 @@ public class BoardService {
     public BoardEntity find(BoardNameKey boardNameKey){
         return boardRepository.findById(boardNameKey).orElse(null);
     }
+
+    public List<String> findCategory(String id) { return boardRepository.findCategory(id); }
     public List<BoardEntity> findAll() {
         return boardRepository.findAll();
     }
