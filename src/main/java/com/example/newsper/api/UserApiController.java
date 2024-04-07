@@ -260,6 +260,8 @@ public class UserApiController {
                     response.addCookie(accessCookie);
 
                     UserEntity user = userService.show(id);
+                    user.setRefreshToken(refreshToken);
+                    userService.modify(user);
 
                     Map<String, Object> map = new HashMap<>();
                     map.put("role", user.getRole());
