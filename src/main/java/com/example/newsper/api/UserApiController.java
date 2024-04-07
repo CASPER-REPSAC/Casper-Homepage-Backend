@@ -230,14 +230,12 @@ public class UserApiController {
                 if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
 
-                    // 현재 시간을 기준으로 리프레시 토큰의 만료 시간을 설정하는 방법
-                    Date currentDate = new Date();
 
                     // AccessToken 만료 시간 = 1시간 (밀리초 단위)
-                    long expireTimeMs = currentDate.getTime() + 60 * 60 * 1000;
+                    long expireTimeMs = 60 * 60 * 1000;
 
                     // RefreshToken 만료 시간 = 30일 (밀리초 단위)
-                    long refreshExpireTimeMs = currentDate.getTime() + (30 * 24 * 60 * 60 * 1000);
+                    long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000;
 
                     String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
                     String refreshToken = JwtTokenUtil.createRefreshToken(id, secretKey, refreshExpireTimeMs);
@@ -247,7 +245,7 @@ public class UserApiController {
                     token.put("accessToken", jwtToken);
 
                     // RefreshToken 설정
-                    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+                    Cookie refreshCookie = new Cookie("refreshToken2", refreshToken);
                     refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
