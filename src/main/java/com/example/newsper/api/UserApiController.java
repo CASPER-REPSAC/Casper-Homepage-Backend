@@ -151,12 +151,12 @@ public class UserApiController {
         if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
 
         // 로그인 성공 => Jwt Token 발급
-
+        long currentTimeMs = System.currentTimeMillis();
         long expireTimeMs = 60 * 60 * 1000; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
 
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, currentTimeMs+expireTimeMs);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, currentTimeMs+refreshExpireTimeMs);
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
@@ -230,6 +230,7 @@ public class UserApiController {
                 if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
 
+                    long currentTimeMs = System.currentTimeMillis();
 
                     // AccessToken 만료 시간 = 1시간 (밀리초 단위)
                     long expireTimeMs = 60 * 60 * 1000;
@@ -237,15 +238,15 @@ public class UserApiController {
                     // RefreshToken 만료 시간 = 30일 (밀리초 단위)
                     long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000;
 
-                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
-                    String refreshToken = JwtTokenUtil.createRefreshToken(id, secretKey, refreshExpireTimeMs);
+                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, currentTimeMs+expireTimeMs);
+                    String refreshToken = JwtTokenUtil.createRefreshToken(id, secretKey, currentTimeMs+refreshExpireTimeMs);
 
                     Map<String, Object> token = new HashMap<>();
 
                     token.put("accessToken", jwtToken);
 
                     // RefreshToken 설정
-                    Cookie refreshCookie = new Cookie("refreshToken2", refreshToken);
+                    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
                     refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
