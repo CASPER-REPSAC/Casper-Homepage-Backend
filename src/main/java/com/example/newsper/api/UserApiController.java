@@ -8,6 +8,7 @@ import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.UserService;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -158,6 +159,11 @@ public class UserApiController {
 
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
         String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
+
+        Date expiredDate1 = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken).getBody().getExpiration();
+        log.info("jwtToken : " + expiredDate1.toString());
+        Date expiredDate = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(refreshToken).getBody().getExpiration();
+        log.info("refreshToken : " + expiredDate.toString());
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
