@@ -227,7 +227,7 @@ public class UserApiController {
         Cookie[] cookies = request.getCookies();
         try {
             for (Cookie c : cookies) {
-                if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
+                if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
 
                     // AccessToken 만료 시간 = 1시간 (밀리초 단위)
@@ -279,7 +279,7 @@ public class UserApiController {
             }
         } catch (Exception e){
             log.info(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
