@@ -163,7 +163,10 @@ public class ArticleApiController {
 
             file.transferTo(saveFile);
 
-            fileService.save(new FileDto(saveFile.getAbsolutePath(),requestId));
+            String serverUrl = "http://build.casper.or.kr";
+            String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+
+            fileService.save(new FileDto(profileUrl,requestId));
         }
         map.put("filePaths",requestId);
         return ResponseEntity.status(HttpStatus.OK).body(map);

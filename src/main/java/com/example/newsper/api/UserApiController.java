@@ -106,7 +106,10 @@ public class UserApiController {
 
         profile.transferTo(saveFile);
 
-        return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \""+saveFile.getAbsolutePath()+"\"}");
+        String serverUrl = "http://build.casper.or.kr";
+        String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+
+        return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \"" + profileUrl + "\"}");
     }
 
     @PostMapping("/update")
