@@ -88,7 +88,7 @@ public class ArticleApiController {
         List<String> files = fileService.getFiles(articleId);
         map.put("article",target);
         map.put("files",files);
-        return ResponseEntity.status(HttpStatus.OK).body(target);
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @PostMapping("/write")
