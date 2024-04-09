@@ -30,6 +30,7 @@ public class ArticleDto {
     private Boolean file;
     private String photo;
     private Long numOfComments;
+    private Long requestId;
 
     public ArticleEntity toEntity(){
         return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,file,photo,numOfComments);

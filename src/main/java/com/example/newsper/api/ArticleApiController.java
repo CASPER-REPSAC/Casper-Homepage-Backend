@@ -1,12 +1,14 @@
 package com.example.newsper.api;
 
 import com.example.newsper.dto.ArticleDto;
+import com.example.newsper.dto.FileDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.service.ArticleService;
+import com.example.newsper.service.FileService;
 import com.example.newsper.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -30,6 +38,9 @@ public class ArticleApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private FileService fileService;
 
     @GetMapping("/album/{page}")
     public ResponseEntity<List<ArticleList>> album(@PathVariable Long page){
@@ -92,6 +103,7 @@ public class ArticleApiController {
         Date date = new Date(System.currentTimeMillis()+3600*9*1000);
         dto.setCreatedAt(date);
         dto.setModifiedAt(date);
+        dto.getRequestId();
 
         ArticleEntity article = dto.toEntity();
         log.info(article.toString());
@@ -100,6 +112,61 @@ public class ArticleApiController {
         return (created != null)?
             ResponseEntity.status(HttpStatus.OK).body(created):
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PostMapping("/file")
+    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files) throws IOException {
+        HashMap<String,Long> map = new HashMap<>();
+        Long requestId = Instant.now().toEpochMilli();
+        for (MultipartFile file : files) {
+            log.info("파일 이름 : " + file.getOriginalFilename());
+            log.info("파일 타입 : " + file.getContentType());
+            log.info("파일 크기 : " + file.getSize());
+
+            File checkfile = new File(file.getOriginalFilename());
+            String type = null;
+
+            try {
+                type = Files.probeContentType(checkfile.toPath());
+                log.info("MIME TYPE : " + type);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (file.getSize() > 104857600) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            String uploadFolder = "/home/casper/newsper_files";
+            //        String uploadFolder = "C:\\Users\\koko9\\Downloads";
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Date date = new Date();
+            String str = sdf.format(date);
+            String datePath = str.replace("-", File.separator);
+
+            File uploadPath = new File(uploadFolder, datePath);
+
+            if (uploadPath.exists() == false) {
+                uploadPath.mkdirs();
+            }
+
+            /* 파일 이름 */
+            String uploadFileName = file.getOriginalFilename();
+
+            /* UUID 설정 */
+            String uuid = UUID.randomUUID().toString();
+            uploadFileName = uuid + "_" + uploadFileName;
+
+            /* 파일 위치, 파일 이름을 합친 File 객체 */
+            File saveFile = new File(uploadPath, uploadFileName);
+
+            file.transferTo(saveFile);
+
+            fileService.save(new FileDto(saveFile.getAbsolutePath(),requestId));
+        }
+        map.put("filePaths",requestId);
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
 
