@@ -9,6 +9,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/profile/**")
-                .addResourceLocations("file:/home/casper/newsper_profile/");
+                .addResourceLocations("file:///home/casper/newsper_profile/");
     }
 }
