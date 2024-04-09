@@ -14,4 +14,7 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     @Query(value = "UPDATE fileEntity SET articleId = :articleId WHERE articleId = :requestId", nativeQuery = true)
     int update(@Param("requestId") Long requestId, @Param("articleId") Long articleId);
 
+    @Query(value = "SELECT filePath FROM fileEntity WHERE articleId = :articleId", nativeQuery = true)
+    List<String> getFiles(@Param("articleId") Long articleId);
+
 }

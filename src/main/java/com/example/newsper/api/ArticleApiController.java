@@ -71,7 +71,7 @@ public class ArticleApiController {
 
     @GetMapping("/view/{articleId}")
     public ResponseEntity<?> view(@PathVariable Long articleId, HttpServletRequest request){
-
+        HashMap<String,Object> map = new HashMap<>();
         //권한 확인
         String boardId = articleService.getBoardId(articleId);
         String userId = getUserId(request);
@@ -85,6 +85,9 @@ public class ArticleApiController {
         }
         target.setView(target.getView()+1L);
         log.info(target.getView().toString());
+        List<String> files = fileService.getFiles(articleId);
+        map.put("article",target);
+        map.put("files",files);
         return ResponseEntity.status(HttpStatus.OK).body(target);
     }
 

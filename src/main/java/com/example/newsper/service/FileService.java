@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional
@@ -23,6 +25,10 @@ public class FileService {
 
     public int update(Long requestId, Long articleId){
         return fileRepository.update(requestId,articleId);
+    }
+
+    public List<String> getFiles(Long articleId){
+        return fileRepository.getFiles(articleId);
     }
 
 }
