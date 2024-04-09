@@ -103,9 +103,9 @@ public class ArticleApiController {
         Date date = new Date(System.currentTimeMillis()+3600*9*1000);
         dto.setCreatedAt(date);
         dto.setModifiedAt(date);
-        dto.getRequestId();
 
         ArticleEntity article = dto.toEntity();
+        if(!(dto.getRequestId() == null)) fileService.update(dto.getRequestId(),article.getArticleId());
         log.info(article.toString());
         ArticleEntity created = articleService.save(article);
 

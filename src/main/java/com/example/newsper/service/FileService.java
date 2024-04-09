@@ -21,4 +21,8 @@ public class FileService {
         fileRepository.save(fileDto.toEntity());
     }
 
+    public void update(Long requestId, Long articleId){
+        fileRepository.update(requestId,articleId);
+    }
+
 }
