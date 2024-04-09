@@ -105,7 +105,9 @@ public class ArticleApiController {
         dto.setModifiedAt(date);
 
         ArticleEntity article = dto.toEntity();
-        if(!(dto.getRequestId() == null)) fileService.update(dto.getRequestId(),article.getArticleId());
+        int operation = 0;
+        if(!(dto.getRequestId() == null)) operation = fileService.update(dto.getRequestId(),article.getArticleId());
+        log.info("파일 업로드 : "+operation);
         log.info(article.toString());
         ArticleEntity created = articleService.save(article);
 
@@ -168,7 +170,7 @@ public class ArticleApiController {
 
             fileService.save(new FileDto(profileUrl,requestId));
         }
-        map.put("filePaths",requestId);
+        map.put("requestId",requestId);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
