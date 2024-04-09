@@ -105,11 +105,13 @@ public class ArticleApiController {
         dto.setModifiedAt(date);
 
         ArticleEntity article = dto.toEntity();
-        int operation = 0;
-        if(!(dto.getRequestId() == null)) operation = fileService.update(dto.getRequestId(),article.getArticleId());
-        log.info("파일 업로드 : "+operation);
+
         log.info(article.toString());
         ArticleEntity created = articleService.save(article);
+
+        int operation = 0;
+        if(!(dto.getRequestId() == null)) operation = fileService.update(dto.getRequestId(),created.getArticleId());
+        log.info("파일 업로드 : "+operation);
 
         return (created != null)?
             ResponseEntity.status(HttpStatus.OK).body(created):
