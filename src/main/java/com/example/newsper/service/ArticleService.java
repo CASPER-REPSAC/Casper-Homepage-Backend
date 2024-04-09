@@ -22,7 +22,8 @@ public class ArticleService {
     private ArticleRepository articleRepository;
 
     public List<ArticleList> boardList(String boardId, String category, Long listNum){
-        return articleRepository.findByBoardList(boardId,category,listNum);
+        if(category.equals("all")) return articleRepository.findByBoardListAll(boardId, listNum);
+        else return articleRepository.findByBoardList(boardId,category,listNum);
     }
 
     public int getMaxPageNum(String boardId, String category){

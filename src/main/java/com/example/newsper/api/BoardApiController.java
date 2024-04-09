@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -21,19 +23,21 @@ public class BoardApiController {
     @Autowired
     private BoardService boardService;
 
-    @GetMapping("/")
-    public ResponseEntity<?> findAll(){
-        List<BoardEntity> dtos = boardService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(dtos);
+    @GetMapping("/category")
+    public ResponseEntity<?> category(@RequestParam String board){
+        List<String> target = boardService.findCategory(board);
+        Map<String, Object> map = new HashMap<>();
+        map.put("categories",target);
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
-    @PostMapping("/")
+    @PostMapping("/add")
     public ResponseEntity<?> save(@RequestBody BoardDto dto){
         BoardEntity target = boardService.save(dto.toEntity());
         return ResponseEntity.status(HttpStatus.OK).body(target);
     }
 
-    @DeleteMapping("/{boardName}/{subBoardName}")
+    @DeleteMapping("/delete/{boardName}/{subBoardName}")
     public ResponseEntity<?> delete(@PathVariable String boardName, @PathVariable String subBoardName){
         BoardEntity deleted = boardService.delete(boardService.find(new BoardNameKey(boardName, subBoardName)));
         return (deleted != null) ?
@@ -41,7 +45,7 @@ public class BoardApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @PatchMapping("/{boardName}/{subBoardName}")
+    @PatchMapping("/patch/{boardName}/{subBoardName}")
     public ResponseEntity<?> update(@PathVariable String boardName, @PathVariable String subBoardName, @RequestBody BoardDto dto){
         boardService.update(boardService.find(new BoardNameKey(boardName, subBoardName)), dto);
         return ResponseEntity.status(HttpStatus.OK).body(boardService.find(new BoardNameKey(dto.getBoardName(), dto.getSubBoardName())));

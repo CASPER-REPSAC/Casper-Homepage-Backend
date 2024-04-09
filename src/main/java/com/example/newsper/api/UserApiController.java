@@ -8,6 +8,7 @@ import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.UserService;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -151,29 +152,39 @@ public class UserApiController {
         if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
 
         // 로그인 성공 => Jwt Token 발급
+        long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
+        long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
 
-        long expireTimeMs = 60;     // Token 유효 시간 = 1분
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs*3*1000);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, expireTimeMs*5*1000);
+        Date now = new Date();
+
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
+
+        Date expiredDate1 = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken).getBody().getExpiration();
+        log.info("jwtToken : " + expiredDate1.toString());
+        Date expiredDate = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(refreshToken).getBody().getExpiration();
+        log.info("refreshToken : " + expiredDate.toString());
 
         user.setRefreshToken(refreshToken);
         userService.modify(user);
 
         Map<String,Object> token = new HashMap<>();
 
-        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
-        refreshCookie.setMaxAge((int) (expireTimeMs*5));
-        refreshCookie.setSecure(true);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/");
-        response.addCookie(refreshCookie);
-
+        // AccessToken 설정
         Cookie accessCookie = new Cookie("accessToken",jwtToken);
-        accessCookie.setMaxAge((int) (expireTimeMs*3));
+        accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
         accessCookie.setSecure(true);
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
+
+        // RefreshToken 설정
+        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
+        refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
 
         token.put("accessToken",jwtToken);
         token.put("refreshToken",refreshToken);
@@ -191,6 +202,7 @@ public class UserApiController {
 
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
@@ -222,31 +234,41 @@ public class UserApiController {
         Cookie[] cookies = request.getCookies();
         try {
             for (Cookie c : cookies) {
-                if (c.getName().equals("refreshToken") || !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
-                    long expireTimeMs = 60 * 5;     // Token 유효 시간 = 5분
-                    log.info(c.getValue());
+                if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
-                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs*1000);
+
+                    // AccessToken 만료 시간 = 1시간 (밀리초 단위)
+                    long expireTimeMs = 60 * 60 * 1000L;
+
+                    // RefreshToken 만료 시간 = 30일 (밀리초 단위)
+                    long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L;
+
+                    String jwtToken = JwtTokenUtil.createToken(id, secretKey, expireTimeMs);
+                    String refreshToken = JwtTokenUtil.createRefreshToken(id, secretKey, refreshExpireTimeMs);
 
                     Map<String, Object> token = new HashMap<>();
 
                     token.put("accessToken", jwtToken);
 
-                    Cookie refreshCookie = new Cookie("refreshToken", c.getValue());
-                    refreshCookie.setMaxAge(60 * 5);
+                    // RefreshToken 설정
+                    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+                    refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
                     refreshCookie.setSecure(true);
                     refreshCookie.setHttpOnly(true);
                     refreshCookie.setPath("/");
                     response.addCookie(refreshCookie);
 
-                    Cookie accessCookie = new Cookie("accessToken",jwtToken);
-                    accessCookie.setMaxAge(0);
+                    // AccessToken 설정
+                    Cookie accessCookie = new Cookie("accessToken", jwtToken);
+                    accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
                     accessCookie.setSecure(true);
                     accessCookie.setHttpOnly(true);
                     accessCookie.setPath("/");
                     response.addCookie(accessCookie);
 
                     UserEntity user = userService.show(id);
+                    user.setRefreshToken(refreshToken);
+                    userService.modify(user);
 
                     Map<String, Object> map = new HashMap<>();
                     map.put("role", user.getRole());
@@ -264,10 +286,11 @@ public class UserApiController {
             }
         } catch (Exception e){
             log.info(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
 
     @GetMapping("/show")
     public ResponseEntity<Map<String, Object>> show(@RequestParam String id){
