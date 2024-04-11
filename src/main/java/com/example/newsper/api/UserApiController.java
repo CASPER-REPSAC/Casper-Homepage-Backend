@@ -9,9 +9,14 @@ import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.UserService;
 import io.jsonwebtoken.Jwts;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jdk.jfr.Description;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
+@Tag(name= "User", description = "User API")
 @RestController
 @Slf4j
 @RequestMapping("/api/user")
@@ -38,7 +44,13 @@ public class UserApiController {
     String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
 
     @PostMapping("/join")
-    public ResponseEntity<?> newUser(@RequestBody UserDto dto){
+    @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
+    @ApiResponse(responseCode = "201", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    public ResponseEntity<?> join(
+            @Parameter(description = "유저 DTO")
+            @RequestBody UserDto dto
+    ){
         Map<String, Object> ret = new HashMap<>();
 
         if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
@@ -61,7 +73,13 @@ public class UserApiController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity<?> update(@RequestPart(value = "profile") MultipartFile profile) throws IOException {
+    @Operation(summary= "프로필 사진 업로드", description= "최대 10MB 파일(gif, png, jpeg, bmp, webp)")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    public ResponseEntity<?> image(
+            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile")
+            @RequestPart(value = "profile") MultipartFile profile
+    ) throws IOException {
 //        log.info("파일 이름 : " + profile.getOriginalFilename());
 //        log.info("파일 타입 : " + profile.getContentType());
 //        log.info("파일 크기 : " + profile.getSize());
@@ -113,7 +131,12 @@ public class UserApiController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<UserEntity> update(@RequestBody UserDto dto, HttpServletRequest request){
+    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글, 프로필 파일을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    public ResponseEntity<UserEntity> update(
+            @Parameter(description = "profile API를 통해 프로필 주소를 받아와서 사용합니다.")
+            @RequestBody UserDto dto, HttpServletRequest request
+    ){
         String userId = getUserId(request);
         UserEntity userEntity = userService.show(userId);
         userEntity.setNickname(dto.getNickname());
@@ -124,8 +147,16 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
     }
 
-    @DeleteMapping("/withdrawal/{tarId}")
-    public ResponseEntity<UserEntity> userWithdrawal(HttpServletRequest request, @PathVariable String tarId){
+    @DeleteMapping("/withdrawal/{id}")
+    @Operation(summary= "회원 탈퇴", description= "본인, 관리자만 탈퇴 진행 가능합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "관리자는 탈퇴가 불가능합니다.")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<UserEntity> userWithdrawal(
+            @Parameter(description = "유저 ID")
+            @PathVariable String id,
+            HttpServletRequest request
+    ){
         UserEntity target;
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
@@ -135,19 +166,27 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        if(id.equals("admin")) return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+
         if(target.getRole().equals("admin")) {
-            userService.delete(tarId);
+            userService.delete(id);
         }
 
         else {
-            userService.delete(target.getId());
+            if(target.getId().equals(id)) userService.delete(target.getId());
+            else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserDto dto, HttpServletResponse response) {
+    @Operation(summary= "로그인", description= "로그인 토큰을 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> login(
+            @Parameter(description = "id, pw")
+            @RequestBody UserDto dto, HttpServletResponse response) {
         UserEntity user = userService.show(dto.getId());
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
@@ -206,36 +245,44 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
-
     @PostMapping("/logout")
+    @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-        String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        UserEntity user = userService.show(userId);
-        user.setRefreshToken(null);
-        userService.modify(user);
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+            String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            UserEntity user = userService.show(userId);
+            user.setRefreshToken(null);
+            userService.modify(user);
 
-        Cookie refreshCookie = new Cookie("refreshToken",null);
-        refreshCookie.setMaxAge(0);
-        refreshCookie.setSecure(true);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/");
-        response.addCookie(refreshCookie);
+            Cookie refreshCookie = new Cookie("refreshToken", null);
+            refreshCookie.setMaxAge(0);
+            refreshCookie.setSecure(true);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setPath("/");
+            response.addCookie(refreshCookie);
 
-        Cookie accessCookie = new Cookie("accessToken",null);
-        accessCookie.setMaxAge(0);
-        accessCookie.setSecure(true);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setPath("/");
-        response.addCookie(accessCookie);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+            Cookie accessCookie = new Cookie("accessToken", null);
+            accessCookie.setMaxAge(0);
+            accessCookie.setSecure(true);
+            accessCookie.setHttpOnly(true);
+            accessCookie.setPath("/");
+            response.addCookie(accessCookie);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @PostMapping("/refresh")
+    @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "토큰이 없거나 만료되었습니다.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
-        Cookie[] cookies = request.getCookies();
         try {
+            Cookie[] cookies = request.getCookies();
             for (Cookie c : cookies) {
                 if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                     String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
@@ -296,7 +343,13 @@ public class UserApiController {
 
 
     @GetMapping("/show")
-    public ResponseEntity<Map<String, Object>> show(@RequestParam String id){
+    @Operation(summary= "유저 정보 조회", description= "유저 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "404", description = "유저 정보를 찾을 수 없습니다.")
+    public ResponseEntity<Map<String, Object>> show(
+            @Parameter(description = "유저 ID")
+            @RequestParam String id
+    ){
         try{
             UserEntity user = userService.show(id);
             Map<String, Object> map = new HashMap<>();
@@ -316,13 +369,19 @@ public class UserApiController {
     }
 
     @GetMapping("/showall")
-    public ResponseEntity<Map<String,Object>> showall(@RequestParam String role){
+    @Operation(summary= "유저 그룹 조회", description= "권한으로 유저 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "404", description = "유저 정보를 찾을 수 없습니다.")
+    public ResponseEntity<Map<String,Object>> showall(
+            @Parameter(description = " all, associate, active, rest, graduate")
+            @RequestParam String role
+    ){
         try {
             List<UserEntity> users = userService.showall();
             List<Map<String, Object>> userList = new ArrayList<>();
             Map<String, Object> target = new HashMap<>();
             for (UserEntity user : users) {
-                if(user.getRole().equals(role)){
+                if(user.getRole().equals(role)||role.equals("all")){
                     Map<String, Object> map = new HashMap<>();
                     map.put("role", user.getRole());
                     map.put("name", user.getName());
@@ -339,13 +398,20 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.OK).body(target);
         }
         catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
     }
 
     @PostMapping("/auth")
-    public ResponseEntity auth(HttpServletRequest request, @RequestBody UserDto dto) {
+    @Operation(summary= "유저 권한 수정", description= "유저의 권한을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity auth(
+            HttpServletRequest request,
+            @Parameter(description = " all, associate, active, rest, graduate")
+            @RequestBody UserDto dto
+    ){
         String userId = getUserId(request);
         if(!userId.equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-1));
 
