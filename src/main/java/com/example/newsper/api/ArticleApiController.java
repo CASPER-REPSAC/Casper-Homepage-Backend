@@ -88,7 +88,15 @@ public class ArticleApiController {
     }
 
     @GetMapping("/view/{articleId}")
-    public ResponseEntity<?> view(@PathVariable Long articleId, HttpServletRequest request){
+    @Operation(summary= "게시글 상세 조회", description= "게시글 내용을 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> view(
+            @Parameter(description = "게시글ID")
+            @PathVariable Long articleId,
+            HttpServletRequest request
+    ){
         HashMap<String,Object> map = new HashMap<>();
         //권한 확인
         String boardId = articleService.getBoardId(articleId);
@@ -110,7 +118,15 @@ public class ArticleApiController {
     }
 
     @PostMapping("/write")
-    public ResponseEntity<?> write(@RequestBody ArticleDto dto, HttpServletRequest request){
+    @Operation(summary= "게시글 작성", description= "파일 업로드시 file API 먼저 사용")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> write(
+            @Parameter(description = "게시글DTO")
+            @RequestBody ArticleDto dto,
+            HttpServletRequest request
+    ){
         String userId = getUserId(request);
         if(!authCheck(dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
         if(dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
@@ -140,7 +156,14 @@ public class ArticleApiController {
     }
 
     @PostMapping("/file")
-    public ResponseEntity<?> update(@RequestParam("files") List<MultipartFile> files) throws IOException {
+    @Operation(summary= "파일 업로드", description= "파일 URL을 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+//    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> update(
+            @Parameter(description = "application/json multipart/form-data 파일 리스트")
+            @RequestParam("files") List<MultipartFile> files
+    ) throws IOException {
         HashMap<String,Long> map = new HashMap<>();
         Long requestId = Instant.now().toEpochMilli();
         for (MultipartFile file : files) {
@@ -200,7 +223,15 @@ public class ArticleApiController {
 
 
     @DeleteMapping("delete/{articleId}")
-    public ResponseEntity<?> delete(@PathVariable Long articleId, HttpServletRequest request){
+    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> delete(
+            @Parameter(description = "게시글ID")
+            @PathVariable Long articleId,
+            HttpServletRequest request
+    ){
 
         String userId = getUserId(request);
         if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
@@ -212,7 +243,17 @@ public class ArticleApiController {
     }
 
     @PatchMapping("/update/{articleId}")
-    public ResponseEntity<?> update(@PathVariable Long articleId, @RequestBody ArticleDto dto, HttpServletRequest request){
+    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> update(
+            @Parameter(description = "게시글ID")
+            @PathVariable Long articleId,
+            @Parameter(description = "게시글DTO")
+            @RequestBody ArticleDto dto,
+            HttpServletRequest request
+    ){
 
         String userId = getUserId(request);
         if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
