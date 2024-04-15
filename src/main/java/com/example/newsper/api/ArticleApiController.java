@@ -10,6 +10,9 @@ import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.service.ArticleService;
 import com.example.newsper.service.FileService;
 import com.example.newsper.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +46,12 @@ public class ArticleApiController {
     private FileService fileService;
 
     @GetMapping("/album/{page}")
-    public ResponseEntity<List<ArticleList>> album(@PathVariable Long page){
+    @Operation(summary= "앨범 조회", description= "얼범을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    public ResponseEntity<List<ArticleList>> album(
+            @Parameter(description = "게시판 페이지")
+            @PathVariable Long page
+    ){
         if (page == null || page<=1) page = 1L;
         page = (page-1)*10;
         List<ArticleList> target = articleService.boardList("album","all",page);
@@ -53,7 +61,17 @@ public class ArticleApiController {
     }
 
     @GetMapping("/{boardId}/{category}/{page}")
-    public ResponseEntity<?> list(@PathVariable Long page, @PathVariable String boardId, @PathVariable(required = false) String category, HttpServletRequest request){
+    @Operation(summary= "게시글 리스트 조회", description= "총 페이지 수와 게시글 리스트를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    public ResponseEntity<?> list(
+            @Parameter(description = "게시판 페이지")
+            @PathVariable Long page,
+            @Parameter(description = "공지사항:0, 정회원:1, 준회원:2, 졸업생:3, 자유게시판:4")
+            @PathVariable String boardId,
+            @Parameter(description = "소분류:String")
+            @PathVariable(required = false) String category,
+            HttpServletRequest request){
 
         //권한 확인
         String userId = getUserId(request);
