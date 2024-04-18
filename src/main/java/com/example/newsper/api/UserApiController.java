@@ -4,13 +4,17 @@ import java.io.File;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import com.example.newsper.dto.UserDto;
+
+import com.example.newsper.dto.*;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
@@ -29,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-@Tag(name= "User", description = "User API")
+@Tag(name= "User", description = "유저 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/user")
@@ -48,8 +52,8 @@ public class UserApiController {
     @ApiResponse(responseCode = "201", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity<?> join(
-            @Parameter(description = "유저 DTO")
-            @RequestBody UserDto dto
+            @Parameter(description = "회원가입 DTO")
+            @RequestBody JoinDto dto
     ){
         Map<String, Object> ret = new HashMap<>();
 
@@ -57,15 +61,15 @@ public class UserApiController {
 
         UserEntity user = userService.show(dto.getId());
         if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+        UserDto userDto = dto.toUserDto(dto);
+        ret.put("id",userDto.getId());
+        ret.put("pw",userDto.getPw());
+        ret.put("email",userDto.getEmail());
+        ret.put("name",userDto.getName());
+        ret.put("nickname",userDto.getNickname());
+        ret.put("profile",userDto.getProfileImgPath());
 
-        ret.put("id",dto.getId());
-        ret.put("pw",dto.getPw());
-        ret.put("email",dto.getEmail());
-        ret.put("name",dto.getName());
-        ret.put("nickname",dto.getNickname());
-        ret.put("profile",dto.getProfileImgPath());
-
-        UserEntity created = userService.newUser(dto);
+        UserEntity created = userService.newUser(userDto);
 
         return (created != null) ?
                 ResponseEntity.status(HttpStatus.CREATED).body(ret):
@@ -77,7 +81,7 @@ public class UserApiController {
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity<?> image(
-            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile")
+            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile", content = @Content())
             @RequestPart(value = "profile") MultipartFile profile
     ) throws IOException {
 //        log.info("파일 이름 : " + profile.getOriginalFilename());
@@ -135,7 +139,7 @@ public class UserApiController {
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<UserEntity> update(
             @Parameter(description = "profile API를 통해 프로필 주소를 받아와서 사용합니다.")
-            @RequestBody UserDto dto, HttpServletRequest request
+            @RequestBody UserModifyDto dto, HttpServletRequest request
     ){
         String userId = getUserId(request);
         UserEntity userEntity = userService.show(userId);
@@ -186,7 +190,7 @@ public class UserApiController {
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> login(
             @Parameter(description = "id, pw")
-            @RequestBody UserDto dto, HttpServletResponse response) {
+            @RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.show(dto.getId());
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
@@ -196,8 +200,6 @@ public class UserApiController {
         // 로그인 성공 => Jwt Token 발급
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
-
-        Date now = new Date();
 
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
         String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
@@ -410,7 +412,7 @@ public class UserApiController {
     public ResponseEntity auth(
             HttpServletRequest request,
             @Parameter(description = " all, associate, active, rest, graduate")
-            @RequestBody UserDto dto
+            @RequestBody RoleDto dto
     ){
         String userId = getUserId(request);
         if(!userId.equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-1));

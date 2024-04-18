@@ -1,11 +1,13 @@
 package com.example.newsper.api;
 
+import com.example.newsper.dto.AddCommentDto;
 import com.example.newsper.dto.CommentDto;
 import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name= "Comment", description = "댓글 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/article/{articleId}")
@@ -39,8 +42,7 @@ public class CommentApiController {
     public ResponseEntity<CommentEntity> create(
             @Parameter(description = "게시글ID")
             @PathVariable Long articleId,
-            @Parameter(description = "text:String")
-            @RequestBody CommentDto dto,
+            @RequestBody AddCommentDto dto,
             HttpServletRequest request
     ){
         CommentEntity created = commentService.create(articleId,dto,request);

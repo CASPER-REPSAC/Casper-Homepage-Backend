@@ -1,6 +1,7 @@
 package com.example.newsper.api;
 
 import com.example.newsper.dto.ArticleDto;
+import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
@@ -13,6 +14,7 @@ import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
+@Tag(name= "Article", description = "게시글 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/article")
@@ -124,14 +127,15 @@ public class ArticleApiController {
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> write(
             @Parameter(description = "게시글DTO")
-            @RequestBody ArticleDto dto,
+            @RequestBody CreateArticleDto _dto,
             HttpServletRequest request
     ){
         String userId = getUserId(request);
-        if(!authCheck(dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
-        if(dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        if(!authCheck(_dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        if(_dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
 
         UserEntity userEntity = userService.show(userId);
+        ArticleDto dto = _dto.toArticleDto(_dto);
 
         dto.setUserId(userEntity.getId());
         dto.setNickname(userEntity.getNickname());
