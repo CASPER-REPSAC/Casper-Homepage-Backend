@@ -53,40 +53,10 @@ public class UserApiController {
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity<?> join(
             @Parameter(description = "회원가입 DTO")
-            @RequestBody JoinDto dto
-    ){
-        Map<String, Object> ret = new HashMap<>();
-
-        if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
-
-        UserEntity user = userService.show(dto.getId());
-        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
-        UserDto userDto = dto.toUserDto(dto);
-        ret.put("id",userDto.getId());
-        ret.put("pw",userDto.getPw());
-        ret.put("email",userDto.getEmail());
-        ret.put("name",userDto.getName());
-        ret.put("nickname",userDto.getNickname());
-        ret.put("profile",userDto.getProfileImgPath());
-
-        UserEntity created = userService.newUser(userDto);
-
-        return (created != null) ?
-                ResponseEntity.status(HttpStatus.CREATED).body(ret):
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    @PostMapping("/image")
-    @Operation(summary= "프로필 사진 업로드", description= "최대 10MB 파일(gif, png, jpeg, bmp, webp)")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-    public ResponseEntity<?> image(
+            @RequestBody JoinDto dto,
             @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile", content = @Content())
             @RequestPart(value = "profile") MultipartFile profile
     ) throws IOException {
-//        log.info("파일 이름 : " + profile.getOriginalFilename());
-//        log.info("파일 타입 : " + profile.getContentType());
-//        log.info("파일 크기 : " + profile.getSize());
 
         File checkfile = new File(profile.getOriginalFilename());
         String type = null;
@@ -131,7 +101,26 @@ public class UserApiController {
         String serverUrl = "http://build.casper.or.kr";
         String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
 
-        return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \"" + profileUrl + "\"}");
+        Map<String, Object> ret = new HashMap<>();
+
+        if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
+
+        UserEntity user = userService.show(dto.getId());
+        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+        UserDto userDto = dto.toUserDto(dto);
+        userDto.setProfileImgPath("{ \"profile\" : \"" + profileUrl + "\"}");
+        ret.put("id",userDto.getId());
+        ret.put("pw",userDto.getPw());
+        ret.put("email",userDto.getEmail());
+        ret.put("name",userDto.getName());
+        ret.put("nickname",userDto.getNickname());
+        ret.put("profile",userDto.getProfileImgPath());
+
+        UserEntity created = userService.newUser(userDto);
+
+        return (created != null) ?
+                ResponseEntity.status(HttpStatus.CREATED).body(ret):
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/update")
