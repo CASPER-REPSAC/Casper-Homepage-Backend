@@ -66,7 +66,7 @@ public class UserApiController {
         if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
         UserDto userDto = dto.toUserDto(dto);
 
-        if(!profile.isEmpty()) {
+        if(profile != null) {
             File checkfile = new File(profile.getOriginalFilename());
             String type = null;
 
