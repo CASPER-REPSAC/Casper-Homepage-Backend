@@ -13,6 +13,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class MailService {
+
     @Autowired
     private JavaMailSender mailSender;
 
