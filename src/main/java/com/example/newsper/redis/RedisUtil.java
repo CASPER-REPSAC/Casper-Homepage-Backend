@@ -1,6 +1,7 @@
 package com.example.newsper.redis;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,9 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @Service
 public class RedisUtil {
-    private final StringRedisTemplate template;
+
+    @Autowired
+    private StringRedisTemplate template;
 
     public String getData(String key) {
         ValueOperations<String, String> valueOperations = template.opsForValue();
