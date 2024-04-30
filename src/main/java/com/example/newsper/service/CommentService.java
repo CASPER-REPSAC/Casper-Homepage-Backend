@@ -11,6 +11,7 @@ import com.example.newsper.repository.CommentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,9 @@ public class CommentService {
 
     @Autowired
     private UserService userService;
+
+    @Value("${custom.secret-key}")
+    String secretKey;
 
     public List<CommentDto> comments(Long articleId) {
         return commentRepository.findByArticleId(articleId)
@@ -67,7 +71,6 @@ public class CommentService {
     }
 
     private String getUserId(HttpServletRequest request) {
-        String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             return JwtTokenUtil.getLoginId(accessToken, secretKey);

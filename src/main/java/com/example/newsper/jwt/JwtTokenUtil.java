@@ -4,13 +4,16 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 @Slf4j
 
 public class JwtTokenUtil {
     private static Long expireTime = 1000L * 60 * 60;
-    private static String secret_key = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+
+    @Value("${custom.secret-key}")
+    String secretKey;
     // JWT Token 발급
     public static String createToken(String loginId, String key, long expireTimeMs) {
         // Claim = Jwt Token에 들어갈 정보

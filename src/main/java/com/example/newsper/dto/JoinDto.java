@@ -25,6 +25,9 @@ public class JoinDto {
     @Schema(description = "프로필 사진 URL")
     private String profileImgPath;
 
+    @Schema(description = "이메일 인증키")
+    private String emailKey;
+
     public UserDto toUserDto(JoinDto dto){
         return new UserDto(dto.getId(),dto.getPw(),dto.getEmail(),dto.getName(),dto.getNickname(),null,null,null,null);
     }

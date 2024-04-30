@@ -8,26 +8,24 @@ import java.text.SimpleDateFormat;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.service.AccountLockService;
+import com.example.newsper.service.MailService;
 import com.example.newsper.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jdk.jfr.Description;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,7 +43,14 @@ public class UserApiController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    String secretKey = "mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123mysecretkey123123";
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private AccountLockService accountLockService;
+
+    @Value("${custom.secret-key}")
+    String secretKey;
 
     @PostMapping("/join")
     @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
@@ -59,6 +64,8 @@ public class UserApiController {
     ) throws IOException {
 
         Map<String, Object> ret = new HashMap<>();
+
+        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
 
         if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
 
@@ -188,6 +195,7 @@ public class UserApiController {
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
         if(user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-101));
         if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
+        if(accountLockService.countLoginFailed(user)>=5) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-105));
 
         // 로그인 성공 => Jwt Token 발급
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
@@ -429,4 +437,6 @@ public class UserApiController {
         responseBody.put("code", code);
         return responseBody;
     }
+
+
 }
