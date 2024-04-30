@@ -1,36 +1,36 @@
 package com.example.newsper.redis;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-@RequiredArgsConstructor
 @Service
 public class RedisUtil {
 
-    @Autowired
-    private StringRedisTemplate template;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    public RedisUtil(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     public String getData(String key) {
-        ValueOperations<String, String> valueOperations = template.opsForValue();
+        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
         return valueOperations.get(key);
     }
 
     public boolean existData(String key) {
-        return Boolean.TRUE.equals(template.hasKey(key));
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
     }
 
     public void setDataExpire(String key, String value, long duration) {
-        ValueOperations<String, String> valueOperations = template.opsForValue();
+        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
         Duration expireDuration = Duration.ofSeconds(duration);
         valueOperations.set(key, value, expireDuration);
     }
 
     public void deleteData(String key) {
-        template.delete(key);
+        stringRedisTemplate.delete(key);
     }
 }
