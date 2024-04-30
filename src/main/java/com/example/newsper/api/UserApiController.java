@@ -58,49 +58,6 @@ public class UserApiController {
             @RequestPart(value = "profile", required = false) MultipartFile profile
     ) throws IOException {
 
-        File checkfile = new File(profile.getOriginalFilename());
-        String type = null;
-
-        try {
-            type = Files.probeContentType(checkfile.toPath());
-            log.info("MIME TYPE : " + type);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(!type.startsWith("image")||profile.getSize()>10485760) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-
-        String uploadFolder = "/home/casper/newsper_profile";
-//        String uploadFolder = "C:\\Users\\koko9\\Downloads";
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        Date date = new Date();
-        String str = sdf.format(date);
-        String datePath = str.replace("-", File.separator);
-
-        File uploadPath = new File(uploadFolder, datePath);
-
-        if(uploadPath.exists() == false) {
-            uploadPath.mkdirs();
-        }
-
-        /* 파일 이름 */
-        String uploadFileName = profile.getOriginalFilename();
-
-        /* UUID 설정 */
-        String uuid = UUID.randomUUID().toString();
-        uploadFileName = uuid + "_" + uploadFileName;
-
-        /* 파일 위치, 파일 이름을 합친 File 객체 */
-        File saveFile = new File(uploadPath, uploadFileName);
-
-        profile.transferTo(saveFile);
-
-        String serverUrl = "http://build.casper.or.kr";
-        String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
-
         Map<String, Object> ret = new HashMap<>();
 
         if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
@@ -108,13 +65,59 @@ public class UserApiController {
         UserEntity user = userService.show(dto.getId());
         if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
         UserDto userDto = dto.toUserDto(dto);
-        userDto.setProfileImgPath(profileUrl);
+
+        if(!profile.isEmpty()) {
+            File checkfile = new File(profile.getOriginalFilename());
+            String type = null;
+
+            try {
+                type = Files.probeContentType(checkfile.toPath());
+                log.info("MIME TYPE : " + type);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!type.startsWith("image") || profile.getSize() > 10485760) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            String uploadFolder = "/home/casper/newsper_profile";
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+            Date date = new Date();
+            String str = sdf.format(date);
+            String datePath = str.replace("-", File.separator);
+
+            File uploadPath = new File(uploadFolder, datePath);
+
+            if (uploadPath.exists() == false) {
+                uploadPath.mkdirs();
+            }
+
+            /* 파일 이름 */
+            String uploadFileName = profile.getOriginalFilename();
+
+            /* UUID 설정 */
+            String uuid = UUID.randomUUID().toString();
+            uploadFileName = uuid + "_" + uploadFileName;
+
+            /* 파일 위치, 파일 이름을 합친 File 객체 */
+            File saveFile = new File(uploadPath, uploadFileName);
+
+            profile.transferTo(saveFile);
+
+            String serverUrl = "http://build.casper.or.kr";
+            String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+
+            userDto.setProfileImgPath(profileUrl);
+            ret.put("profile",userDto.getProfileImgPath());
+        }
+
         ret.put("id",userDto.getId());
         ret.put("pw",userDto.getPw());
         ret.put("email",userDto.getEmail());
         ret.put("name",userDto.getName());
         ret.put("nickname",userDto.getNickname());
-        ret.put("profile",userDto.getProfileImgPath());
 
         UserEntity created = userService.newUser(userDto);
 
