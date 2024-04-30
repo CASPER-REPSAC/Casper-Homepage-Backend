@@ -130,7 +130,7 @@ public class ArticleApiController {
             @Parameter(description = "Content-type:application/json, 파라미터 명: createArticleDto")
             @RequestPart(value = "createArticleDto") CreateArticleDto _dto,
             @Parameter(description = "multipart/form-data, 파라미터 명: files")
-            @RequestPart(value = "files") List<MultipartFile> files,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
             HttpServletRequest request
     ) throws IOException {
         String userId = getUserId(request);
