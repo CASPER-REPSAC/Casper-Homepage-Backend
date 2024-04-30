@@ -108,7 +108,7 @@ public class UserApiController {
         UserEntity user = userService.show(dto.getId());
         if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
         UserDto userDto = dto.toUserDto(dto);
-        userDto.setProfileImgPath("{ \"profile\" : \"" + profileUrl + "\"}");
+        userDto.setProfileImgPath("profile : "+profileUrl);
         ret.put("id",userDto.getId());
         ret.put("pw",userDto.getPw());
         ret.put("email",userDto.getEmail());
