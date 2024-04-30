@@ -52,10 +52,10 @@ public class UserApiController {
     @ApiResponse(responseCode = "201", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity<?> join(
-            @Parameter(description = "회원가입 DTO")
-            @RequestBody JoinDto dto,
-            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile", content = @Content())
-            @RequestPart(value = "profile") MultipartFile profile
+            @Parameter(description = "Content-type:application/json, 파라미터 명: joinDto")
+            @RequestPart(value = "joinDto") JoinDto dto,
+            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile")
+            @RequestPart(value = "profile", required = false) MultipartFile profile
     ) throws IOException {
 
         File checkfile = new File(profile.getOriginalFilename());
