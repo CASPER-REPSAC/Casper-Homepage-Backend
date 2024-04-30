@@ -3,6 +3,7 @@ package com.example.newsper.api;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.dto.FileDto;
+import com.example.newsper.dto.JoinDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
@@ -126,10 +127,12 @@ public class ArticleApiController {
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> write(
-            @Parameter(description = "게시글DTO")
-            @RequestBody CreateArticleDto _dto,
+            @Parameter(description = "Content-type:application/json, 파라미터 명: createArticleDto")
+            @RequestPart(value = "createArticleDto") CreateArticleDto _dto,
+            @Parameter(description = "multipart/form-data, 파라미터 명: files")
+            @RequestPart(value = "files") List<MultipartFile> files,
             HttpServletRequest request
-    ){
+    ) throws IOException {
         String userId = getUserId(request);
         if(!authCheck(_dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
         if(_dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
@@ -150,79 +153,132 @@ public class ArticleApiController {
         log.info(article.toString());
         ArticleEntity created = articleService.save(article);
 
-        int operation = 0;
-        if(!(dto.getRequestId() == null)) operation = fileService.update(dto.getRequestId(),created.getArticleId());
-        log.info("파일 업로드 : "+operation);
+        if(files != null) {
+            Long requestId = Instant.now().toEpochMilli();
+            for (MultipartFile file : files) {
+                log.info("파일 이름 : " + file.getOriginalFilename());
+                log.info("파일 타입 : " + file.getContentType());
+                log.info("파일 크기 : " + file.getSize());
+
+                File checkfile = new File(file.getOriginalFilename());
+                String type = null;
+
+                try {
+                    type = Files.probeContentType(checkfile.toPath());
+                    log.info("MIME TYPE : " + type);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (file.getSize() > 104857600) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                }
+
+                String uploadFolder = "/home/casper/newsper_files";
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                Date date2 = new Date();
+                String str = sdf.format(date2);
+                String datePath = str.replace("-", File.separator);
+
+                File uploadPath = new File(uploadFolder, datePath);
+
+                if (uploadPath.exists() == false) {
+                    uploadPath.mkdirs();
+                }
+
+                /* 파일 이름 */
+                String uploadFileName = file.getOriginalFilename();
+
+                /* UUID 설정 */
+                String uuid = UUID.randomUUID().toString();
+                uploadFileName = uuid + "_" + uploadFileName;
+
+                /* 파일 위치, 파일 이름을 합친 File 객체 */
+                File saveFile = new File(uploadPath, uploadFileName);
+
+                file.transferTo(saveFile);
+
+                String serverUrl = "http://build.casper.or.kr";
+                String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+
+                fileService.save(new FileDto(profileUrl, requestId));
+            }
+
+            int operation = 0;
+            if (!(dto.getRequestId() == null))
+                operation = fileService.update(requestId, created.getArticleId());
+            log.info("파일 업로드 : " + operation);
+        }
 
         return (created != null)?
             ResponseEntity.status(HttpStatus.OK).body(created):
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @PostMapping("/file")
-    @Operation(summary= "파일 업로드", description= "파일 URL을 반환합니다.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-//    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
-    public ResponseEntity<?> update(
-            @Parameter(description = "application/json multipart/form-data 파일 리스트")
-            @RequestParam("files") List<MultipartFile> files
-    ) throws IOException {
-        HashMap<String,Long> map = new HashMap<>();
-        Long requestId = Instant.now().toEpochMilli();
-        for (MultipartFile file : files) {
-            log.info("파일 이름 : " + file.getOriginalFilename());
-            log.info("파일 타입 : " + file.getContentType());
-            log.info("파일 크기 : " + file.getSize());
-
-            File checkfile = new File(file.getOriginalFilename());
-            String type = null;
-
-            try {
-                type = Files.probeContentType(checkfile.toPath());
-                log.info("MIME TYPE : " + type);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (file.getSize() > 104857600) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-
-            String uploadFolder = "/home/casper/newsper_files";
-            //        String uploadFolder = "C:\\Users\\koko9\\Downloads";
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-            Date date = new Date();
-            String str = sdf.format(date);
-            String datePath = str.replace("-", File.separator);
-
-            File uploadPath = new File(uploadFolder, datePath);
-
-            if (uploadPath.exists() == false) {
-                uploadPath.mkdirs();
-            }
-
-            /* 파일 이름 */
-            String uploadFileName = file.getOriginalFilename();
-
-            /* UUID 설정 */
-            String uuid = UUID.randomUUID().toString();
-            uploadFileName = uuid + "_" + uploadFileName;
-
-            /* 파일 위치, 파일 이름을 합친 File 객체 */
-            File saveFile = new File(uploadPath, uploadFileName);
-
-            file.transferTo(saveFile);
-
-            String serverUrl = "http://build.casper.or.kr";
-            String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
-
-            fileService.save(new FileDto(profileUrl,requestId));
-        }
-        map.put("requestId",requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(map);
-    }
+//    @PostMapping("/file")
+//    @Operation(summary= "파일 업로드", description= "파일 URL을 반환합니다.")
+//    @ApiResponse(responseCode = "200", description = "성공")
+//    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+////    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+//    public ResponseEntity<?> update(
+//            @Parameter(description = "application/json multipart/form-data 파일 리스트")
+//            @RequestParam("files") List<MultipartFile> files
+//    ) throws IOException {
+//        HashMap<String,Long> map = new HashMap<>();
+//        Long requestId = Instant.now().toEpochMilli();
+//        for (MultipartFile file : files) {
+//            log.info("파일 이름 : " + file.getOriginalFilename());
+//            log.info("파일 타입 : " + file.getContentType());
+//            log.info("파일 크기 : " + file.getSize());
+//
+//            File checkfile = new File(file.getOriginalFilename());
+//            String type = null;
+//
+//            try {
+//                type = Files.probeContentType(checkfile.toPath());
+//                log.info("MIME TYPE : " + type);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            if (file.getSize() > 104857600) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//            }
+//
+//            String uploadFolder = "/home/casper/newsper_files";
+//
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//
+//            Date date = new Date();
+//            String str = sdf.format(date);
+//            String datePath = str.replace("-", File.separator);
+//
+//            File uploadPath = new File(uploadFolder, datePath);
+//
+//            if (uploadPath.exists() == false) {
+//                uploadPath.mkdirs();
+//            }
+//
+//            /* 파일 이름 */
+//            String uploadFileName = file.getOriginalFilename();
+//
+//            /* UUID 설정 */
+//            String uuid = UUID.randomUUID().toString();
+//            uploadFileName = uuid + "_" + uploadFileName;
+//
+//            /* 파일 위치, 파일 이름을 합친 File 객체 */
+//            File saveFile = new File(uploadPath, uploadFileName);
+//
+//            file.transferTo(saveFile);
+//
+//            String serverUrl = "http://build.casper.or.kr";
+//            String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+//
+//            fileService.save(new FileDto(profileUrl,requestId));
+//        }
+//        map.put("requestId",requestId);
+//        return ResponseEntity.status(HttpStatus.OK).body(map);
+//    }
 
 
 
