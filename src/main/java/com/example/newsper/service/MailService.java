@@ -16,8 +16,7 @@ public class MailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
 
     @Value("${spring.mail.username}")
     private String configEmail;
