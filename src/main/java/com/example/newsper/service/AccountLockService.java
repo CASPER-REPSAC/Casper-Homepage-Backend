@@ -42,4 +42,8 @@ public class AccountLockService {
         }
         else return false;
     }
+
+    public void deleteCount(String id){
+        redisUtil.deleteData(id);
+    }
 }

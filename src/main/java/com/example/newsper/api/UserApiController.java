@@ -220,6 +220,8 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
         }
 
+        accountLockService.deleteCount(dto.getId());
+
         // 로그인 성공 => Jwt Token 발급
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
