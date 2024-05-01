@@ -65,12 +65,22 @@ public class UserApiController {
 
         Map<String, Object> ret = new HashMap<>();
 
-        if(mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
+        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
 
-        if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
+        if(dto.getId() == null ||
+                dto.getPw() == null ||
+                dto.getEmail() == null ||
+                dto.getName() == null ||
+                dto.getNickname() == null ||
+                dto.getEmailKey() == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
 
         UserEntity user = userService.show(dto.getId());
-        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+
+        if(user != null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+
         UserDto userDto = dto.toUserDto(dto);
 
         if(profile != null) {
