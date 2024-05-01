@@ -49,7 +49,7 @@ public class CommentService {
         dto.setCreatedAt(date);
         dto.setModifiedAt(date);
         String userId = getUserId(request);
-        UserEntity userEntity = userService.show(userId);
+        UserEntity userEntity = userService.findById(userId);
         dto.setNickname(userEntity.getNickname());
         CommentEntity comment = CommentEntity.createComment(dto,article);
         return commentRepository.save(comment);

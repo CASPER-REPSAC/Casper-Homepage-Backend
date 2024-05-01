@@ -1,14 +1,12 @@
 package com.example.newsper.jwt;
 
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.repository.UserRepository;
 import com.example.newsper.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -54,7 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String loginId = JwtTokenUtil.getLoginId(token, secretKey);
 
         // 추출한 loginId로 User 찾아오기
-        UserEntity loginUser = userService.show(loginId);
+        UserEntity loginUser = userService.findById(loginId);
 
         // loginUser 정보로 UsernamePasswordAuthenticationToken 발급
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

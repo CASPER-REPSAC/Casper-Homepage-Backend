@@ -1,7 +1,10 @@
 package com.example.newsper.config;
 
+import com.example.newsper.attributes.OAuthAttributes;
+import com.example.newsper.handler.OAuthHandler;
 import com.example.newsper.jwt.JwtTokenFilter;
 import com.example.newsper.repository.UserRepository;
+import com.example.newsper.service.OAuthService;
 import com.example.newsper.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,12 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private OAuthService oAuthService;
+
+    @Autowired
+    private OAuthHandler oAuthHandler;
+
     @Value("${custom.secret-key}")
     String secretKey;
 
@@ -36,6 +45,14 @@ public class SecurityConfig {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth2Login ->
+                        oauth2Login
+                                .userInfoEndpoint(userInfoEndpoint ->
+                                        userInfoEndpoint.userService(oAuthService))
+                                .successHandler(oAuthHandler) // 동의하고 계속하기를 눌렀을 때 Handler 설정
+                )
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtTokenFilter(userService, secretKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->

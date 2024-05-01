@@ -11,6 +11,7 @@ import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.service.AccountLockService;
 import com.example.newsper.service.MailService;
+import com.example.newsper.service.OAuthService;
 import com.example.newsper.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.spec.OAEPParameterSpec;
 import java.util.*;
 
 @Tag(name= "User", description = "유저 API")
@@ -52,6 +54,9 @@ public class UserApiController {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private OAuthService oAuthService;
 
     @Value("${custom.secret-key}")
     String secretKey;
@@ -80,7 +85,7 @@ public class UserApiController {
                 dto.getEmailKey() == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
 
-        UserEntity user = userService.show(dto.getId());
+        UserEntity user = userService.findById(dto.getId());
 
         if(user != null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
@@ -157,7 +162,7 @@ public class UserApiController {
             @RequestBody UserModifyDto dto, HttpServletRequest request
     ){
         String userId = getUserId(request);
-        UserEntity userEntity = userService.show(userId);
+        UserEntity userEntity = userService.findById(userId);
         userEntity.setNickname(dto.getNickname());
         userEntity.setHomepage(dto.getHomepage());
         userEntity.setIntroduce(dto.getIntroduce());
@@ -180,7 +185,7 @@ public class UserApiController {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            target = userService.show(userId);
+            target = userService.findById(userId);
         } catch(Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -206,7 +211,7 @@ public class UserApiController {
     public ResponseEntity<?> login(
             @Parameter(description = "id, pw")
             @RequestBody LoginDto dto, HttpServletResponse response) {
-        UserEntity user = userService.show(dto.getId());
+        UserEntity user = userService.findById(dto.getId());
 
         if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-105));
 
@@ -272,6 +277,11 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
+    @GetMapping("/google/{registrationId}")
+    public void googleLogin(@RequestParam String code, @PathVariable String registrationId) {
+        oAuthService.socialLogin(code, registrationId);
+    }
+
     @PostMapping("/logout")
     @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
@@ -280,7 +290,7 @@ public class UserApiController {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             String userId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            UserEntity user = userService.show(userId);
+            UserEntity user = userService.findById(userId);
             user.setRefreshToken(null);
             userService.modify(user);
 
@@ -343,7 +353,7 @@ public class UserApiController {
                     accessCookie.setPath("/");
                     response.addCookie(accessCookie);
 
-                    UserEntity user = userService.show(id);
+                    UserEntity user = userService.findById(id);
                     user.setRefreshToken(refreshToken);
                     userService.modify(user);
 
@@ -378,7 +388,7 @@ public class UserApiController {
             @RequestParam String id
     ){
         try{
-            UserEntity user = userService.show(id);
+            UserEntity user = userService.findById(id);
             Map<String, Object> map = new HashMap<>();
             map.put("role", user.getRole());
             map.put("name", user.getName());
@@ -442,7 +452,7 @@ public class UserApiController {
         String userId = getUserId(request);
         if(!userId.equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-1));
 
-        UserEntity user = userService.show(dto.getId());
+        UserEntity user = userService.findById(dto.getId());
         user.setRole(dto.getRole());
         userService.modify(user);
         return ResponseEntity.status(HttpStatus.OK).build();
