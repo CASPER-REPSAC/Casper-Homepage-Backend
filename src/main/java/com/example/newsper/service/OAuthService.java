@@ -41,7 +41,6 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     private final RestTemplate restTemplate = new RestTemplate();
 
     public void socialLogin(String code) {
-        System.out.println("code = " + code);
         String accessToken = getAccessToken(code);
         System.out.println("accessToken = " + accessToken);
         log.info("accessToken : "+accessToken);
