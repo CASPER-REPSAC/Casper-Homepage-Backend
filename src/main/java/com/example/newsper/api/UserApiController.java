@@ -65,6 +65,9 @@ public class UserApiController {
 
         Map<String, Object> ret = new HashMap<>();
 
+        log.info("email : "+dto.getEmail());
+        log.info("key : "+dto.getEmailKey());
+
         if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
 
