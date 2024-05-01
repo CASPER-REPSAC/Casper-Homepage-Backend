@@ -4,7 +4,6 @@ import com.example.newsper.attributes.OAuthAttributes;
 import com.example.newsper.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Map;
-import java.lang.reflect.Member;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,6 +24,8 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     private UserService userService;
 
     public void socialLogin(String code, String registrationId) {
+        System.out.println("code = " + code);
+        System.out.println("registrationId = " + registrationId);
         log.info("code = "+code);
         log.info("code = "+registrationId);
     }

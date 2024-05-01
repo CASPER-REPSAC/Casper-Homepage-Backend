@@ -2,6 +2,7 @@
 !**/src/main/**/build/
 !**/src/test/**/build/
 **/src/main/resources/application.properties
+**/build/resources/main/application.properties
 !**/src/main/resources/
 ### STS ###
 .apt_generated
@@ -32,7 +33,3 @@ out/
 
 ### VS Code ###
 .vscode/
-build/resources/main/application.properties
-*.properties
-build/resources/main/application.properties
-*.properties
