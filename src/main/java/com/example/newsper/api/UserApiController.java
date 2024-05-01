@@ -277,9 +277,9 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
-    @GetMapping("/google/{registrationId}")
-    public void googleLogin(@RequestParam String code, @PathVariable String registrationId) {
-        oAuthService.socialLogin(code, registrationId);
+    @GetMapping("/google")
+    public void googleLogin(@RequestParam String code) {
+        System.out.println("Received authorization code: " + code);
     }
 
     @PostMapping("/logout")
