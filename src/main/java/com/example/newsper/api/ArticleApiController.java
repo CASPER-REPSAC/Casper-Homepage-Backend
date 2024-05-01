@@ -330,7 +330,7 @@ public class ArticleApiController {
         else userAuth = userService.getAuth(userId);
         System.out.println("userAuth = " + userAuth);
         System.out.println("boardId = " + boardId);
-        if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
+        if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("free_board")||boardId.equals("notice_board"))) return true;
         else if(userAuth.equals("guest") && (boardId.equals("free_board")||boardId.equals("notice_board"))) return true;
         else return userAuth.equals("active") || userAuth.equals("rest") || userAuth.equals("graduate") || userAuth.equals("admin");
     }
