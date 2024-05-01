@@ -24,17 +24,22 @@ public class AccountLockService {
     @Autowired
     private JavaMailSender javaMailSender;
 
-    public int countLoginFailed(UserEntity user) {
-        int count = 0;
-        if (redisUtil.existData(user.getId())) {
-            count = Integer.parseInt(redisUtil.getData(user.getId()));
-            redisUtil.deleteData(user.getId());
+    public void setCount(String id) {
+        if (redisUtil.existData(id)) {
+            redisUtil.INCRData(id);
+        } else{
+            redisUtil.setDataExpire(id,"1",5*60L);
         }
-        count++;
+    }
 
-        redisUtil.setDataExpire(user.getId(), String.valueOf(count), 60 * 5L);
-
-        log.info("attemptCount : {}", count);
-        return count;
+    public boolean validation(String id) {
+        if (redisUtil.existData(id)) {
+            if(Integer.parseInt(redisUtil.getData(id))>=5) {
+                redisUtil.INCRData(id);
+                return false;
+            }
+            else return true;
+        }
+        else return true;
     }
 }

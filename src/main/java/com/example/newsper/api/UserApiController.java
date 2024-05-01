@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.service.AccountLockService;
 import com.example.newsper.service.MailService;
 import com.example.newsper.service.UserService;
@@ -49,6 +50,9 @@ public class UserApiController {
     @Autowired
     private AccountLockService accountLockService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     @Value("${custom.secret-key}")
     String secretKey;
 
@@ -64,9 +68,6 @@ public class UserApiController {
     ) throws IOException {
 
         Map<String, Object> ret = new HashMap<>();
-
-        log.info("email : "+dto.getEmail());
-        log.info("key : "+dto.getEmailKey());
 
         if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
@@ -141,6 +142,8 @@ public class UserApiController {
 
         UserEntity created = userService.newUser(userDto);
 
+        redisUtil.deleteData(dto.getEmail());
+
         return (created != null) ?
                 ResponseEntity.status(HttpStatus.CREATED).body(ret):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -205,10 +208,17 @@ public class UserApiController {
             @RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.show(dto.getId());
 
+        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-105));
+
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
-        if(user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-101));
-        if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
-        if(accountLockService.countLoginFailed(user)>=5) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-105));
+        if(user == null) {
+            accountLockService.setCount(dto.getId());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-101));
+        }
+        if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
+            accountLockService.setCount(dto.getId());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
+        }
 
         // 로그인 성공 => Jwt Token 발급
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)

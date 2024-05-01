@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisUtil {
@@ -32,5 +33,10 @@ public class RedisUtil {
 
     public void deleteData(String key) {
         stringRedisTemplate.delete(key);
+    }
+
+    public void INCRData(String key){
+        stringRedisTemplate.opsForValue().increment(key, 1);
+        stringRedisTemplate.expire(key, 5, TimeUnit.MINUTES);
     }
 }
