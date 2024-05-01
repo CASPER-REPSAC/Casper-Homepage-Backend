@@ -280,6 +280,7 @@ public class UserApiController {
     @GetMapping("/google")
     public void googleLogin(@RequestParam String code) {
         System.out.println("Received authorization code: " + code);
+        oAuthService.socialLogin(code);
     }
 
     @PostMapping("/logout")

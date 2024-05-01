@@ -2,8 +2,11 @@ package com.example.newsper.service;
 
 import com.example.newsper.attributes.OAuthAttributes;
 import com.example.newsper.entity.UserEntity;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -12,6 +15,9 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,11 +29,43 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     @Autowired
     private UserService userService;
 
-    public void socialLogin(String code, String registrationId) {
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    String clientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    String clientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    String redirectUri;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public void socialLogin(String code) {
         System.out.println("code = " + code);
-        System.out.println("registrationId = " + registrationId);
-        log.info("code = "+code);
-        log.info("code = "+registrationId);
+        String accessToken = getAccessToken(code);
+        System.out.println("accessToken = " + accessToken);
+        log.info("accessToken : "+accessToken);
+    }
+
+    private String getAccessToken(String authorizationCode) {
+
+        String tokenUri = "https://oauth2.googleapis.com/token";
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", authorizationCode);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("redirect_uri", redirectUri);
+        params.add("grant_type", "authorization_code");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity entity = new HttpEntity(params, headers);
+
+        ResponseEntity<JsonNode> responseNode = restTemplate.exchange(tokenUri, HttpMethod.POST, entity, JsonNode.class);
+        JsonNode accessTokenNode = responseNode.getBody();
+        return accessTokenNode.get("access_token").asText();
     }
 
     @Override
