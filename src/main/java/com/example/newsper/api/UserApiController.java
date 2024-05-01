@@ -65,7 +65,7 @@ public class UserApiController {
 
         Map<String, Object> ret = new HashMap<>();
 
-        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
+        if(mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
 
         if(dto.getId() == null || dto.getPw() == null || dto.getEmail() == null || dto.getName() == null || dto.getNickname() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
 
