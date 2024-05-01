@@ -36,10 +36,10 @@ public class AccountLockService {
         if (redisUtil.existData(id)) {
             if(Integer.parseInt(redisUtil.getData(id))>=5) {
                 redisUtil.INCRData(id);
-                return false;
+                return true;
             }
-            else return true;
+            else return false;
         }
-        else return true;
+        else return false;
     }
 }
