@@ -140,12 +140,13 @@ public class UserApiController {
         }
 
         ret.put("id",userDto.getId());
-        ret.put("pw",userDto.getPw());
         ret.put("email",userDto.getEmail());
         ret.put("name",userDto.getName());
         ret.put("nickname",userDto.getNickname());
 
         UserEntity created = userService.newUser(userDto);
+
+        ret.put("pw",created.getPw());
 
         redisUtil.deleteData(dto.getEmail());
 
@@ -278,9 +279,58 @@ public class UserApiController {
     }
 
     @GetMapping("/google")
-    public void googleLogin(@RequestParam String code) {
+    public ResponseEntity<?> googleLogin(@RequestParam String code, HttpServletResponse response) {
         System.out.println("Received authorization code: " + code);
-        oAuthService.socialLogin(code);
+        UserEntity user = oAuthService.socialLogin(code);
+
+        // 로그인 성공 => Jwt Token 발급
+        long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
+        long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
+
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
+
+        Date expiredDate1 = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken).getBody().getExpiration();
+        log.info("jwtToken : " + expiredDate1.toString());
+        Date expiredDate = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(refreshToken).getBody().getExpiration();
+        log.info("refreshToken : " + expiredDate.toString());
+
+        user.setRefreshToken(refreshToken);
+        userService.modify(user);
+
+        Map<String,Object> token = new HashMap<>();
+
+        // AccessToken 설정
+        Cookie accessCookie = new Cookie("accessToken",jwtToken);
+        accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
+        accessCookie.setSecure(true);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        response.addCookie(accessCookie);
+
+        // RefreshToken 설정
+        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
+        refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        response.addCookie(refreshCookie);
+
+        token.put("accessToken",jwtToken);
+        token.put("refreshToken",refreshToken);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("role", user.getRole());
+        map.put("name", user.getName());
+        map.put("nickname", user.getNickname());
+        map.put("email", user.getEmail());
+        map.put("introduce", user.getIntroduce());
+        map.put("id", user.getId());
+        map.put("image", user.getProfileImgPath());
+        map.put("homepage", user.getHomepage());
+        token.put("myInfo",map);
+
+        return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
     @PostMapping("/logout")

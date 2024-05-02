@@ -1,5 +1,7 @@
 package com.example.newsper.service;
 
+import com.example.newsper.dto.UserDto;
+import com.example.newsper.entity.UserEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +33,19 @@ public class OAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public void socialLogin(String code) {
+    public UserEntity socialLogin(String code) {
         String accessToken = getAccessToken(code);
         JsonNode userResourceNode = getUserResource(accessToken);
-        System.out.println("userResourceNode = " + userResourceNode);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
         String nickname = userResourceNode.get("name").asText();
-        System.out.println("id = " + id);
-        System.out.println("email = " + email);
-        System.out.println("nickname = " + nickname);
+        String picture = userResourceNode.get("picture").asText();
+
+        if(userService.findById(email) == null){
+            UserDto dto = new UserDto(email,id+email,email,nickname,nickname,picture,null,null,"associate");
+            return userService.newUser(dto);
+        } else return userService.findById(email);
     }
 
     private String getAccessToken(String authorizationCode) {
