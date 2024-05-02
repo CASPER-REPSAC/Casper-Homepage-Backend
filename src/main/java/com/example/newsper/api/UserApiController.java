@@ -22,6 +22,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -154,6 +155,36 @@ public class UserApiController {
                 ResponseEntity.status(HttpStatus.CREATED).body(ret):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
+
+    @PostMapping("/pwupdate")
+    public ResponseEntity<?> pwReset(@RequestParam String pw, HttpServletRequest request){
+        String userId = getUserId(request);
+        UserEntity user = userService.findById(userId);
+        user.setPw(passwordEncoder.encode(pw));
+        userService.modify(user);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/findid")
+    public ResponseEntity<?> findid(@RequestBody findIdDto dto){
+        UserEntity user = userService.findByEmail(dto.getEmail());
+        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
+
+        mailService.idMail(dto.getEmail(), user.getId());
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/findpw")
+    public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
+        UserEntity user = userService.findByEmail(dto.getEmail());
+        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
+
+        mailService.pwMail(user);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 
     @PostMapping("/update")
     @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글, 프로필 파일을 수정합니다.")
