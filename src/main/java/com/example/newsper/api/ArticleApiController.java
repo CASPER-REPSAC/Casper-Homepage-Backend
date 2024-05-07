@@ -312,6 +312,7 @@ public class ArticleApiController {
             @PathVariable Long articleId,
             @Parameter(description = "게시글DTO")
             @RequestBody ArticleDto dto,
+            @Parameter(description = "jwt토큰")
             HttpServletRequest request
     ){
 

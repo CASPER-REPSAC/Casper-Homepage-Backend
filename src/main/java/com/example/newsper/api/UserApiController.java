@@ -206,6 +206,8 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \"" + profileUrl + "\"}");
     }
 
+    @Operation(summary = "비밀번호 업데이트", description = "비밀번호를 업데이트합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/pwupdate")
     public ResponseEntity<?> pwReset(@RequestParam String pw, HttpServletRequest request){
         String userId = getUserId(request);
@@ -215,6 +217,8 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(summary = "ID 찾기", description = "가입시 사용된 메일로 아이디를 찾습니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/findid")
     public ResponseEntity<?> findid(@RequestBody findIdDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
@@ -225,6 +229,8 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @Operation(summary = "비밀번호 찾기", description = "가입시 사용된 메일로 초기화된 비밀번호를 전송합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/findpw")
     public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
@@ -363,7 +369,7 @@ public class UserApiController {
     @ApiResponse(responseCode = "200", description = "게시글 조회 성공")
     @ApiResponse(responseCode = "500", description = "잘못된 접근")
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(@Parameter(name = "GoogleDto", description = "test") @RequestBody GoogleDto dto, HttpServletResponse response) {
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
         String code = dto.getCode();
         System.out.println("Received authorization code: " + code);
         UserEntity user = oAuthService.socialLogin(code,dto.getName(),dto.getNickname());
