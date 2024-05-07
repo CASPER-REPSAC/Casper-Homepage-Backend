@@ -357,7 +357,7 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
-    @GetMapping("/google")
+    @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
         String code = dto.getCode();
         System.out.println("Received authorization code: " + code);
