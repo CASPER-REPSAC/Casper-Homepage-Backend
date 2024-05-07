@@ -226,7 +226,7 @@ public class UserApiController {
     @PostMapping("/findpw")
     public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
+        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || !user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
 
         mailService.pwMail(user);
 
