@@ -206,10 +206,14 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \"" + profileUrl + "\"}");
     }
 
-    @Operation(summary = "비밀번호 업데이트", description = "비밀번호를 업데이트합니다.")
+    @Operation(summary = "비밀번호 업데이트", description = "액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/pwupdate")
-    public ResponseEntity<?> pwReset(@RequestParam String pw, HttpServletRequest request){
+    public ResponseEntity<?> pwReset(
+            @Parameter(description = "새로운 비밀번호")
+            @RequestParam String pw,
+            HttpServletRequest request
+    ){
         String userId = getUserId(request);
         UserEntity user = userService.findById(userId);
         user.setPw(passwordEncoder.encode(pw));
@@ -220,7 +224,10 @@ public class UserApiController {
     @Operation(summary = "ID 찾기", description = "가입시 사용된 메일로 아이디를 찾습니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/findid")
-    public ResponseEntity<?> findid(@RequestBody findIdDto dto){
+    public ResponseEntity<?> findid(
+            @Parameter(description = "name, email JSON")
+            @RequestBody findIdDto dto
+    ){
         UserEntity user = userService.findByEmail(dto.getEmail());
         if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
 
@@ -232,7 +239,10 @@ public class UserApiController {
     @Operation(summary = "비밀번호 찾기", description = "가입시 사용된 메일로 초기화된 비밀번호를 전송합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     @PostMapping("/findpw")
-    public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
+    public ResponseEntity<?> findpw(
+            @Parameter(description = "name, email, id JSON")
+            @RequestBody findPwDto dto
+    ){
         UserEntity user = userService.findByEmail(dto.getEmail());
         if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || !user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
 
@@ -243,7 +253,7 @@ public class UserApiController {
 
 
     @PostMapping("/update")
-    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글, 프로필 파일을 수정합니다.")
+    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글, 프로필 파일을 수정합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<UserEntity> update(
             @Parameter(description = "profile API를 통해 프로필 주소를 받아와서 사용합니다.")
@@ -260,7 +270,7 @@ public class UserApiController {
     }
 
     @DeleteMapping("/withdrawal/{id}")
-    @Operation(summary= "회원 탈퇴", description= "본인, 관리자만 탈퇴 진행 가능합니다.")
+    @Operation(summary= "회원 탈퇴", description= "본인, 관리자만 탈퇴 진행 가능합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "관리자는 탈퇴가 불가능합니다.")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -425,7 +435,7 @@ public class UserApiController {
     }
 
     @PostMapping("/logout")
-    @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다.")
+    @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
@@ -456,7 +466,7 @@ public class UserApiController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다.")
+    @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "401", description = "토큰이 없거나 만료되었습니다.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
@@ -583,7 +593,7 @@ public class UserApiController {
     }
 
     @PostMapping("/auth")
-    @Operation(summary= "유저 권한 수정", description= "유저의 권한을 수정합니다.")
+    @Operation(summary= "유저 권한 수정", description= "유저의 권한을 수정합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity auth(

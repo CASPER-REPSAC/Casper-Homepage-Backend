@@ -37,7 +37,7 @@ public class CommentApiController {
     }
 
     @PostMapping("/comment")
-    @Operation(summary= "댓글 작성", description= "게시글에 댓글을 작성합니다.")
+    @Operation(summary= "댓글 작성", description= "게시글에 댓글을 작성합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "201", description = "성공")
     public ResponseEntity<CommentEntity> create(
             @Parameter(description = "게시글ID")

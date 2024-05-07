@@ -65,7 +65,7 @@ public class ArticleApiController {
     }
 
     @GetMapping("/{boardId}/{category}/{page}")
-    @Operation(summary= "게시글 리스트 조회", description= "총 페이지 수와 게시글 리스트를 반환합니다.")
+    @Operation(summary= "게시글 리스트 조회", description= "총 페이지 수와 게시글 리스트를 반환합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> list(
@@ -92,7 +92,7 @@ public class ArticleApiController {
     }
 
     @GetMapping("/view/{articleId}")
-    @Operation(summary= "게시글 상세 조회", description= "게시글 내용을 반환합니다.")
+    @Operation(summary= "게시글 상세 조회", description= "게시글 내용을 반환합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -122,7 +122,7 @@ public class ArticleApiController {
     }
 
     @PostMapping("/write")
-    @Operation(summary= "게시글 작성", description= "파일 업로드시 file API 먼저 사용")
+    @Operation(summary= "게시글 작성", description= "액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -283,7 +283,7 @@ public class ArticleApiController {
 
 
     @DeleteMapping("delete/{articleId}")
-    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다.")
+    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -303,7 +303,7 @@ public class ArticleApiController {
     }
 
     @PatchMapping("/update/{articleId}")
-    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다.")
+    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "파라미터 오류")
     @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
@@ -312,7 +312,6 @@ public class ArticleApiController {
             @PathVariable Long articleId,
             @Parameter(description = "게시글DTO")
             @RequestBody ArticleDto dto,
-            @Parameter(description = "jwt토큰")
             HttpServletRequest request
     ){
 
