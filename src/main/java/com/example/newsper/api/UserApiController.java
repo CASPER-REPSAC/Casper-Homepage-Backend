@@ -16,6 +16,8 @@ import com.example.newsper.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
@@ -357,6 +359,9 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(token);
     }
 
+    @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
+    @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = GoogleDto.class)))
+    @ApiResponse(responseCode = "500", description = "잘못된 접근")
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
         String code = dto.getCode();
