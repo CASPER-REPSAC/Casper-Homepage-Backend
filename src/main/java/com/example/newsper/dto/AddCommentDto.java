@@ -10,6 +10,6 @@ public class AddCommentDto {
     private String text;
 
     public CommentDto toCommentDto(AddCommentDto dto){
-        return new CommentDto(null,null,null,dto.getText(),null,null);
+        return new CommentDto(null,null,dto.getText(),null,null,null,null,null);
     }
 }

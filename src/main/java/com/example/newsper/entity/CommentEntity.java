@@ -24,9 +24,6 @@ public class CommentEntity {
     @Column(name="articleId", nullable = false)
     private Long articleId;
 
-    @Column(name="nickname", nullable = false)
-    private String nickname;
-
     @Column(name="text", nullable = false)
     private String text;
 
@@ -35,6 +32,12 @@ public class CommentEntity {
 
     @Column(name = "modifiedAt", nullable = false)
     private Date modifiedAt;
+
+    @Column(name = "id", nullable = false)
+    private String id;
+
+    @Column(name="nickname", nullable = false)
+    private String nickname;
 
     public static CommentEntity createComment(CommentDto dto, ArticleEntity article) {
         if (dto.getCommentId() != null)

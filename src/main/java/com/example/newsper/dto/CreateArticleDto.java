@@ -11,9 +11,6 @@ public class CreateArticleDto {
     @Schema(description = "소분류")
     private String category;
 
-    @Schema(description = "파일 유무")
-    private Boolean file;
-
     @Schema(description = "비밀글 여부")
     private Boolean hide;
 
@@ -33,6 +30,6 @@ public class CreateArticleDto {
     private Long requestId;
 
     public ArticleDto toArticleDto(CreateArticleDto dto){
-        return new ArticleDto(null,null,dto.getBoardId(),dto.getCategory(),null,null,null,dto.getTitle(),dto.getContent(),dto.getHide(),dto.getNotice(),null,dto.getFile(),dto.getPhoto(),null,dto.getRequestId());
+        return new ArticleDto(null,null,dto.getBoardId(),dto.getCategory(),null,null,null,dto.getTitle(),dto.getContent(),dto.getHide(),dto.getNotice(),null,dto.getPhoto(),null,dto.getRequestId());
     }
 }

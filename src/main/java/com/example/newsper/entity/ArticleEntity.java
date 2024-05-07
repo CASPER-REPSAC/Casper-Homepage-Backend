@@ -51,9 +51,6 @@ public class ArticleEntity {
     @Column(name = "view", nullable = false)
     private Long view;
 
-    @Column(name = "file", nullable = false)
-    private Boolean file;
-
     @Column(name = "photo", nullable = false)
     private String photo;
 

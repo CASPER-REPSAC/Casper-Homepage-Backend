@@ -1,11 +1,14 @@
 package com.example.newsper.dto;
 
 import com.example.newsper.entity.CommentEntity;
+import com.example.newsper.entity.UserEntity;
+import com.example.newsper.service.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
@@ -16,23 +19,27 @@ import java.util.Date;
 public class CommentDto {
     private Long commentId;
     private Long articleId;
-    private String nickname;
     private String text;
     private Date createdAt;
     private Date modifiedAt;
+    private String id;
+    private String nickname;
+    private String profile;
 
     public CommentEntity toEntity(){
-        return new CommentEntity(commentId,articleId,nickname,text,createdAt,modifiedAt);
+        return new CommentEntity(commentId,articleId,text,createdAt,modifiedAt,id,nickname);
     }
 
     public static CommentDto createCommentDto(CommentEntity comment) {
         return new CommentDto(
                 comment.getCommentId(),
                 comment.getArticleId(),
-                comment.getNickname(),
                 comment.getText(),
                 comment.getCreatedAt(),
-                comment.getModifiedAt()
+                comment.getModifiedAt(),
+                comment.getId(),
+                comment.getNickname(),
+                null
         );
     }
 }

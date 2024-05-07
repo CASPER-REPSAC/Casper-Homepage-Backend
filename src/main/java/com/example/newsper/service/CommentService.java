@@ -8,6 +8,7 @@ import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.repository.CommentRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,16 @@ public class CommentService {
     String secretKey;
 
     public List<CommentDto> comments(Long articleId) {
-        return commentRepository.findByArticleId(articleId)
+        List<CommentDto> dtos = commentRepository.findByArticleId(articleId)
                 .stream()
                 .map(comment -> CommentDto.createCommentDto(comment))
                 .collect(Collectors.toList());
+
+        for (CommentDto dto : dtos) {
+            dto.setProfile(userService.findById(dto.getId()).getProfileImgPath());
+        }
+
+        return dtos;
     }
 
     @Transactional
@@ -50,6 +57,7 @@ public class CommentService {
         dto.setModifiedAt(date);
         String userId = getUserId(request);
         UserEntity userEntity = userService.findById(userId);
+        dto.setId(userEntity.getId());
         dto.setNickname(userEntity.getNickname());
         CommentEntity comment = CommentEntity.createComment(dto,article);
         return commentRepository.save(comment);

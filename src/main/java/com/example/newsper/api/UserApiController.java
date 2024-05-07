@@ -156,6 +156,54 @@ public class UserApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+
+    @PostMapping("/image")
+    @Operation(summary= "프로필 사진 업로드", description= "최대 10MB 파일(gif, png, jpeg, bmp, webp)")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "파라미터 오류")
+    public ResponseEntity<?> image(
+            @Parameter(description = "Content-type:multipart/form-data, 파라미터 명: profile")
+            @RequestPart(value = "profile") MultipartFile profile
+    ) throws IOException {
+//        log.info("파일 이름 : " + profile.getOriginalFilename());
+//        log.info("파일 타입 : " + profile.getContentType());
+//        log.info("파일 크기 : " + profile.getSize());
+
+        File checkfile = new File(profile.getOriginalFilename());
+        String type = null;
+        try {
+            type = Files.probeContentType(checkfile.toPath());
+            log.info("MIME TYPE : " + type);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!type.startsWith("image") || profile.getSize() > 10485760) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        String uploadFolder = "/home/casper/newsper_profile";
+//        String uploadFolder = "C:\\Users\\koko9\\Downloads";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+        String str = sdf.format(date);
+        String datePath = str.replace("-", File.separator);
+        File uploadPath = new File(uploadFolder, datePath);
+        if (uploadPath.exists() == false) {
+            uploadPath.mkdirs();
+        }
+        /* 파일 이름 */
+        String uploadFileName = profile.getOriginalFilename();
+        /* UUID 설정 */
+        String uuid = UUID.randomUUID().toString();
+        uploadFileName = uuid + "_" + uploadFileName;
+        /* 파일 위치, 파일 이름을 합친 File 객체 */
+        File saveFile = new File(uploadPath, uploadFileName);
+        profile.transferTo(saveFile);
+        String serverUrl = "http://build.casper.or.kr";
+        String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
+
+        return ResponseEntity.status(HttpStatus.OK).body("{ \"profile\" : \"" + profileUrl + "\"}");
+    }
+
     @PostMapping("/pwupdate")
     public ResponseEntity<?> pwReset(@RequestParam String pw, HttpServletRequest request){
         String userId = getUserId(request);
@@ -310,9 +358,10 @@ public class UserApiController {
     }
 
     @GetMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestParam String code, HttpServletResponse response) {
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
+        String code = dto.getCode();
         System.out.println("Received authorization code: " + code);
-        UserEntity user = oAuthService.socialLogin(code);
+        UserEntity user = oAuthService.socialLogin(code,dto.getName(),dto.getNickname());
 
         // 로그인 성공 => Jwt Token 발급
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
