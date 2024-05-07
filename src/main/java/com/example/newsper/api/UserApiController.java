@@ -360,10 +360,10 @@ public class UserApiController {
     }
 
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
-    @ApiResponse(responseCode = "200", description = "게시글 조회 성공", content = @Content(schema = @Schema(implementation = GoogleDto.class)))
+    @ApiResponse(responseCode = "200", description = "게시글 조회 성공")
     @ApiResponse(responseCode = "500", description = "잘못된 접근")
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
+    public ResponseEntity<?> googleLogin(@Parameter(name = "GoogleDto", description = "test") @RequestBody GoogleDto dto, HttpServletResponse response) {
         String code = dto.getCode();
         System.out.println("Received authorization code: " + code);
         UserEntity user = oAuthService.socialLogin(code,dto.getName(),dto.getNickname());
