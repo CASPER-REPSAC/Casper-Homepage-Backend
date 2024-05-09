@@ -154,7 +154,6 @@ public class ArticleApiController {
         ArticleEntity created = articleService.save(article);
 
         if(files != null) {
-            Long requestId = Instant.now().toEpochMilli();
             for (MultipartFile file : files) {
                 log.info("파일 이름 : " + file.getOriginalFilename());
                 log.info("파일 타입 : " + file.getContentType());
@@ -202,13 +201,8 @@ public class ArticleApiController {
                 String serverUrl = "http://build.casper.or.kr";
                 String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
 
-                fileService.save(new FileDto(profileUrl, requestId));
+                fileService.save(new FileDto(profileUrl, created.getArticleId()));
             }
-
-            int operation = 0;
-            if (!(dto.getRequestId() == null))
-                operation = fileService.update(requestId, created.getArticleId());
-            log.info("파일 업로드 : " + operation);
         }
 
         return (created != null)?
