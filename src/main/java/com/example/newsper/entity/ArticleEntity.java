@@ -51,7 +51,7 @@ public class ArticleEntity {
     @Column(name = "view", nullable = false)
     private Long view;
 
-    @Column(name = "photo", nullable = false)
+    @Column(name = "photo")
     private String photo;
 
     @Column(name = "numOfComments", nullable = false)
