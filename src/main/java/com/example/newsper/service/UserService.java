@@ -146,7 +146,6 @@ public class UserService {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
-            log.info(e.getMessage());
             return "guest";
         }
     }

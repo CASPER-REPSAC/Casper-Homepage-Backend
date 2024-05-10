@@ -190,6 +190,7 @@ public class UserApiController {
     @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다. 액세스 토큰 필요.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
         Cookie[] cookies = request.getCookies();
+        log.info(Arrays.toString(cookies));
         for (Cookie c : cookies) {
             if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                 String id = userService.getUserId(request);
