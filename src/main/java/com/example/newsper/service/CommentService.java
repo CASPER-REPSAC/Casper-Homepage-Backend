@@ -31,8 +31,6 @@ public class CommentService {
     @Autowired
     private UserService userService;
 
-    @Value("${custom.secret-key}")
-
     public List<CommentDto> comments(Long articleId) {
         List<CommentDto> dtos = commentRepository.findByArticleId(articleId)
                 .stream()
