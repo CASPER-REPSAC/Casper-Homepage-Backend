@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,9 @@ public class UserApiController {
 
     @Autowired
     private OAuthService oAuthService;
+
+    @Value("${custom.secret-key}")
+    String secretKey;
 
     @PostMapping("/join")
     @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
@@ -187,7 +191,7 @@ public class UserApiController {
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
         Cookie[] cookies = request.getCookies();
         for (Cookie c : cookies) {
-            if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue())) {
+            if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                 String id = userService.getUserId(request);
                 UserEntity user = userService.findById(id);
                 return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));

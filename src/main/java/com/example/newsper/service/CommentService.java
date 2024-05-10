@@ -31,6 +31,9 @@ public class CommentService {
     @Autowired
     private UserService userService;
 
+    @Value("${custom.secret-key}")
+    String secretKey;
+
     public List<CommentDto> comments(Long articleId) {
         List<CommentDto> dtos = commentRepository.findByArticleId(articleId)
                 .stream()
@@ -78,7 +81,7 @@ public class CommentService {
     private String getUserId(HttpServletRequest request) {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-            return JwtTokenUtil.getLoginId(accessToken);
+            return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
             return "guest";
         }

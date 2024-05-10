@@ -39,6 +39,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Value("${custom.secret-key}")
+    String secretKey;
+
     public UserEntity newUser(UserDto dto) {
         UserEntity userEntity = dto.toEntity();
         userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
@@ -84,8 +87,8 @@ public class UserService {
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
 
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), expireTimeMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), refreshExpireTimeMs);
+        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
+        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
 
         user.setRefreshToken(refreshToken);
         modify(user);
@@ -141,7 +144,7 @@ public class UserService {
     public String getUserId(HttpServletRequest request) {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-            return JwtTokenUtil.getLoginId(accessToken);
+            return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
             return "guest";
         }
