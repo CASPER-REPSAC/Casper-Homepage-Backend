@@ -80,10 +80,9 @@ public class UserService {
         return target;
     }
 
-    public ArrayList<Object> login(UserEntity user){
+    public Map<String,Object> login(UserEntity user, HttpServletResponse response){
 
         Map<String,Object> token = new HashMap<>();
-        ArrayList<Object> ret = new ArrayList<>();
 
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
@@ -94,19 +93,13 @@ public class UserService {
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
 
-        token.put("accessToken",jwtToken);
-        token.put("refreshToken",refreshToken);
-        token.put("myInfo",user.toJSON());
-
-        ret.add(token);
-
         // AccessToken 설정
         Cookie accessCookie = new Cookie("accessToken",jwtToken);
         accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
         accessCookie.setSecure(true);
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
-        ret.add(accessCookie);
+        response.addCookie(accessCookie);
 
         // RefreshToken 설정
         Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
@@ -114,9 +107,13 @@ public class UserService {
         refreshCookie.setSecure(true);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setPath("/");
-        ret.add(refreshCookie);
+        response.addCookie(refreshCookie);
 
-        return ret;
+        token.put("accessToken",jwtToken);
+        token.put("refreshToken",refreshToken);
+        token.put("myInfo",user.toJSON());
+
+        return token;
     }
 
     public void logout(UserEntity user, HttpServletResponse response){
@@ -149,6 +146,7 @@ public class UserService {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
+            log.info(e.getMessage());
             return "guest";
         }
     }

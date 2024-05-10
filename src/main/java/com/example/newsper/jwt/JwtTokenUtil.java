@@ -14,6 +14,7 @@ public class JwtTokenUtil {
 
     @Value("${custom.secret-key}")
     String secretKey;
+
     // JWT Token 발급
     public static String createToken(String loginId, String key, long expireTimeMs) {
         // Claim = Jwt Token에 들어갈 정보
