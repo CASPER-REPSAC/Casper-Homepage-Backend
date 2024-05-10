@@ -193,9 +193,7 @@ public class UserApiController {
         for (Cookie c : cookies) {
             if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                 String id = userService.getUserId(request);
-                log.info("id : "+id);
                 UserEntity user = userService.findById(id);
-                log.info("user : "+user);
                 return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
             }
         }
