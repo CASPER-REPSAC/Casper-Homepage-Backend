@@ -2,6 +2,7 @@ package com.example.newsper.repository;
 
 import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.entity.FileEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,10 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
 
     @Query(value = "SELECT filePath FROM fileEntity WHERE articleId = :articleId", nativeQuery = true)
     List<String> getFiles(@Param("articleId") Long articleId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM fileEntity WHERE articleId = :articleId", nativeQuery = true)
+    void deletebyArticleId(@Param("articleId") Long articleId);
 
 }

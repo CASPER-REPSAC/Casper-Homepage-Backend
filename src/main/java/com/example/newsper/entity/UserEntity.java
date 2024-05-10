@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity(name="userEntity")
 @AllArgsConstructor
@@ -44,8 +46,19 @@ public class UserEntity {
     @Column(name="homepage")
     private String homepage;
 
-//    @Column(name="profileImgName")
-//    private String profileImgName;
-//
+    public Map<String, Object> toJSON(){
 
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("role", role);
+        map.put("name", name);
+        map.put("nickname", nickname);
+        map.put("email", email);
+        map.put("introduce", introduce);
+        map.put("id", id);
+        map.put("image", profileImgPath);
+        map.put("homepage", homepage);
+
+        return map;
+    }
 }

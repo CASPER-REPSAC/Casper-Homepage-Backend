@@ -3,6 +3,7 @@ package com.example.newsper.service;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
+import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -30,26 +32,12 @@ public class ArticleService {
         return articleRepository.findAllBoardListCount(boardId,category);
     }
 
-    public ArticleEntity show(Long articleId){
+    public ArticleEntity findById(Long articleId){
         return articleRepository.findById(articleId).orElse(null);
     }
 
-    public String getBoardId(Long articleId){ return articleRepository.findById(articleId).get().getBoardId(); }
-
-    public String getCreater(Long articleId){ return articleRepository.findById(articleId).get().getUserId(); }
-
-    public Boolean getHide(Long articleId) { return articleRepository.findById(articleId).get().getHide(); }
-
-    public ArticleEntity save(ArticleEntity article){
-        return articleRepository.save(article);
-    }
-
-    public ArticleEntity delete(Long articleId) {
-        ArticleEntity target = articleRepository.findById(articleId).orElse(null);
-        if (target == null)
-            return null;
-        articleRepository.delete(target);
-        return target;
+    public void delete(ArticleEntity articleEntity) {
+        articleRepository.delete(articleEntity);
     }
 
     public ArticleEntity update(Long id, ArticleDto dto) {
@@ -62,5 +50,36 @@ public class ArticleService {
         log.info(target.toString());
         ArticleEntity updated = articleRepository.save(target);
         return updated;
+    }
+
+    public boolean writerCheck(ArticleEntity article, UserEntity user) {
+        return article.getUserId().equals(user.getId()) || user.getRole().equals("admin");
+    }
+
+    public boolean isHide(ArticleEntity article, UserEntity user) {
+        if(user == null) return false;
+        else if(user.getRole().equals("associate")) return writerCheck(article,user);
+        else return true;
+    }
+
+    public boolean authCheck(String boardId, UserEntity user) {
+        if(boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
+        else if(user == null) return false;
+        else if(user.getRole().equals("associate")) return boardId.equals("associate_member_board");
+        else return true;
+    }
+
+    public ArticleEntity write(ArticleDto dto,UserEntity user){
+        dto.setUserId(user.getId());
+        dto.setNickname(user.getNickname());
+        dto.setView(0L);
+        dto.setNumOfComments(0L);
+        Date date = new Date(System.currentTimeMillis()+3600*9*1000);
+        dto.setCreatedAt(date);
+        dto.setModifiedAt(date);
+
+        ArticleEntity article = dto.toEntity();
+
+        return articleRepository.save(article);
     }
 }

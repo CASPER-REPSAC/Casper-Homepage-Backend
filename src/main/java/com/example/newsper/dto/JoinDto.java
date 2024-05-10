@@ -3,6 +3,9 @@ package com.example.newsper.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.apache.catalina.User;
+import org.hibernate.mapping.Join;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 @Getter
 public class JoinDto {
@@ -28,7 +31,11 @@ public class JoinDto {
     @Schema(description = "이메일 인증키")
     private String emailKey;
 
-    public UserDto toUserDto(JoinDto dto){
-        return new UserDto(dto.getId(),dto.getPw(),dto.getEmail(),dto.getName(),dto.getNickname(),null,null,null,null);
+    public UserDto toUserDto(){
+        return new UserDto(id,pw,email,name,nickname,null,null,null,null);
+    }
+
+    public boolean isValid() {
+        return id != null && pw != null && email != null && name != null && nickname != null && emailKey != null;
     }
 }

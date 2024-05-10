@@ -21,7 +21,6 @@ import java.util.List;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserService userService;
-    private final String secretKey;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -43,13 +42,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String token = authorizationHeader.split(" ")[1];
 
         // 전송받은 Jwt Token이 만료되었으면 => 다음 필터 진행(인증 X)
-        if(JwtTokenUtil.isExpired(token, secretKey)) {
+        if(JwtTokenUtil.isExpired(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // Jwt Token에서 loginId 추출
-        String loginId = JwtTokenUtil.getLoginId(token, secretKey);
+        String loginId = JwtTokenUtil.getLoginId(token);
 
         // 추출한 loginId로 User 찾아오기
         UserEntity loginUser = userService.findById(loginId);

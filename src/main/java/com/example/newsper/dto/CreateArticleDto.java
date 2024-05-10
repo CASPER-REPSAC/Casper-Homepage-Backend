@@ -26,10 +26,8 @@ public class CreateArticleDto {
     @Schema(description = "사진 주소")
     private String photo;
 
-    @Schema(description = "파일 업로드 시 임시 articleId")
-    private Long requestId;
 
-    public ArticleDto toArticleDto(CreateArticleDto dto){
-        return new ArticleDto(null,null,dto.getBoardId(),dto.getCategory(),null,null,null,dto.getTitle(),dto.getContent(),dto.getHide(),dto.getNotice(),null,dto.getPhoto(),null,dto.getRequestId());
+    public ArticleDto toArticleDto(){
+        return new ArticleDto(null,null,boardId,category,null,null,null,title,content,hide,notice,null,null);
     }
 }

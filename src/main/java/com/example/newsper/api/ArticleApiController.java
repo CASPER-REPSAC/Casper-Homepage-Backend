@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -37,9 +38,6 @@ import java.util.*;
 @RequestMapping("/api/article")
 public class ArticleApiController {
 
-    @Value("${custom.secret-key}")
-    String secretKey;
-
     @Autowired
     private ArticleService articleService;
 
@@ -51,11 +49,7 @@ public class ArticleApiController {
 
     @GetMapping("/album/{page}")
     @Operation(summary= "앨범 조회", description= "얼범을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    public ResponseEntity<List<ArticleList>> album(
-            @Parameter(description = "게시판 페이지")
-            @PathVariable Long page
-    ){
+    public ResponseEntity<List<ArticleList>> album(@Parameter(description = "게시판 페이지") @PathVariable Long page){
         if (page == null || page<=1) page = 1L;
         page = (page-1)*10;
         List<ArticleList> target = articleService.boardList("album","all",page);
@@ -66,20 +60,20 @@ public class ArticleApiController {
 
     @GetMapping("/{boardId}/{category}/{page}")
     @Operation(summary= "게시글 리스트 조회", description= "총 페이지 수와 게시글 리스트를 반환합니다. 액세스 토큰 필요.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
             @PathVariable Long page,
-            @Parameter(description = "공지사항:0, 정회원:1, 준회원:2, 졸업생:3, 자유게시판:4")
+            @Parameter(description = "notice_board, associate_member_board, freedom_board, full_member_board, graduation_member_board")
             @PathVariable String boardId,
             @Parameter(description = "소분류:String")
             @PathVariable(required = false) String category,
-            HttpServletRequest request){
+            HttpServletRequest request
+    ){
 
         //권한 확인
-        String userId = getUserId(request);
-        if(!authCheck(boardId, userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        if(!articleService.authCheck(boardId, user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
@@ -93,266 +87,111 @@ public class ArticleApiController {
 
     @GetMapping("/view/{articleId}")
     @Operation(summary= "게시글 상세 조회", description= "게시글 내용을 반환합니다. 액세스 토큰 필요.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
-    public ResponseEntity<?> view(
-            @Parameter(description = "게시글ID")
-            @PathVariable Long articleId,
-            HttpServletRequest request
-    ){
+    public ResponseEntity<?> view(@Parameter(description = "게시글ID") @PathVariable Long articleId, HttpServletRequest request){
         HashMap<String,Object> map = new HashMap<>();
-        //권한 확인
-        String boardId = articleService.getBoardId(articleId);
-        String userId = getUserId(request);
-        if(!authCheck(boardId, userId) || !isHide(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
-        ArticleEntity target = null;
-        try {
-            target = articleService.show(articleId);
-        } catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        target.setView(target.getView()+1L);
-        log.info(target.getView().toString());
+        ArticleEntity article = articleService.findById(articleId);
+        if(article == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+
+        if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
+
+        article.setView(article.getView()+1L);
+        log.info(article.getView().toString());
         List<String> files = fileService.getFiles(articleId);
-        map.put("article",target);
+        map.put("article",article);
         map.put("files",files);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @PostMapping("/write")
     @Operation(summary= "게시글 작성", description= "액세스 토큰 필요.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> write(
-            @Parameter(description = "Content-type:application/json, 파라미터 명: createArticleDto")
             @RequestPart(value = "createArticleDto") CreateArticleDto _dto,
-            @Parameter(description = "multipart/form-data, 파라미터 명: files")
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             HttpServletRequest request
     ) throws IOException {
-        String userId = getUserId(request);
-        if(!authCheck(_dto.getBoardId(),userId)||userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
         if(_dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
 
-        UserEntity userEntity = userService.findById(userId);
-        ArticleDto dto = _dto.toArticleDto(_dto);
-
-        dto.setUserId(userEntity.getId());
-        dto.setNickname(userEntity.getNickname());
-        dto.setView(0L);
-        dto.setNumOfComments(0L);
-        Date date = new Date(System.currentTimeMillis()+3600*9*1000);
-        dto.setCreatedAt(date);
-        dto.setModifiedAt(date);
-
-        ArticleEntity article = dto.toEntity();
-
-        log.info(article.toString());
-        ArticleEntity created = articleService.save(article);
+        ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
         if(files != null) {
             for (MultipartFile file : files) {
-                log.info("파일 이름 : " + file.getOriginalFilename());
-                log.info("파일 타입 : " + file.getContentType());
-                log.info("파일 크기 : " + file.getSize());
-
-                File checkfile = new File(file.getOriginalFilename());
-                String type = null;
-
-                try {
-                    type = Files.probeContentType(checkfile.toPath());
-                    log.info("MIME TYPE : " + type);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (file.getSize() > 104857600) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-                }
-
-                String uploadFolder = "/home/casper/newsper_files";
-
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-                Date date2 = new Date();
-                String str = sdf.format(date2);
-                String datePath = str.replace("-", File.separator);
-
-                File uploadPath = new File(uploadFolder, datePath);
-
-                if (uploadPath.exists() == false) {
-                    uploadPath.mkdirs();
-                }
-
-                /* 파일 이름 */
-                String uploadFileName = file.getOriginalFilename();
-
-                /* UUID 설정 */
-                String uuid = UUID.randomUUID().toString();
-                uploadFileName = uuid + "_" + uploadFileName;
-
-                /* 파일 위치, 파일 이름을 합친 File 객체 */
-                File saveFile = new File(uploadPath, uploadFileName);
-
-                file.transferTo(saveFile);
-
-                String serverUrl = "http://build.casper.or.kr";
-                String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
-
-                fileService.save(new FileDto(profileUrl, created.getArticleId()));
+                fileService.save(new FileDto(fileService.fileUpload(file,"file"), created.getArticleId()));
             }
         }
 
-        return (created != null)?
-            ResponseEntity.status(HttpStatus.OK).body(created):
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.OK).body(created);
     }
-
-//    @PostMapping("/file")
-//    @Operation(summary= "파일 업로드", description= "파일 URL을 반환합니다.")
-//    @ApiResponse(responseCode = "200", description = "성공")
-//    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-////    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
-//    public ResponseEntity<?> update(
-//            @Parameter(description = "application/json multipart/form-data 파일 리스트")
-//            @RequestParam("files") List<MultipartFile> files
-//    ) throws IOException {
-//        HashMap<String,Long> map = new HashMap<>();
-//        Long requestId = Instant.now().toEpochMilli();
-//        for (MultipartFile file : files) {
-//            log.info("파일 이름 : " + file.getOriginalFilename());
-//            log.info("파일 타입 : " + file.getContentType());
-//            log.info("파일 크기 : " + file.getSize());
-//
-//            File checkfile = new File(file.getOriginalFilename());
-//            String type = null;
-//
-//            try {
-//                type = Files.probeContentType(checkfile.toPath());
-//                log.info("MIME TYPE : " + type);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            if (file.getSize() > 104857600) {
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//            }
-//
-//            String uploadFolder = "/home/casper/newsper_files";
-//
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//
-//            Date date = new Date();
-//            String str = sdf.format(date);
-//            String datePath = str.replace("-", File.separator);
-//
-//            File uploadPath = new File(uploadFolder, datePath);
-//
-//            if (uploadPath.exists() == false) {
-//                uploadPath.mkdirs();
-//            }
-//
-//            /* 파일 이름 */
-//            String uploadFileName = file.getOriginalFilename();
-//
-//            /* UUID 설정 */
-//            String uuid = UUID.randomUUID().toString();
-//            uploadFileName = uuid + "_" + uploadFileName;
-//
-//            /* 파일 위치, 파일 이름을 합친 File 객체 */
-//            File saveFile = new File(uploadPath, uploadFileName);
-//
-//            file.transferTo(saveFile);
-//
-//            String serverUrl = "http://build.casper.or.kr";
-//            String profileUrl = serverUrl + "/profile/" + datePath + "/" + uploadFileName;
-//
-//            fileService.save(new FileDto(profileUrl,requestId));
-//        }
-//        map.put("requestId",requestId);
-//        return ResponseEntity.status(HttpStatus.OK).body(map);
-//    }
-
-
 
     @DeleteMapping("delete/{articleId}")
     @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다. 액세스 토큰 필요.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
     public ResponseEntity<?> delete(
             @Parameter(description = "게시글ID")
             @PathVariable Long articleId,
             HttpServletRequest request
     ){
 
-        String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        ArticleEntity article = articleService.findById(articleId);
 
-        ArticleEntity deleted = articleService.delete(articleId);
-        return (deleted != null) ?
-                ResponseEntity.status(HttpStatus.OK).build():
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+
+        List<String> files = fileService.getFiles(articleId);
+
+        for(String file : files){
+            fileService.delete(file,"file");
+            fileService.delete(articleId);
+
+        }
+
+        articleService.delete(article);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PatchMapping("/update/{articleId}")
-    @Operation(summary= "게시글 삭제", description= "게시글을 삭제합나다. 액세스 토큰 필요.")
-    @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "파라미터 오류")
-    @ApiResponse(responseCode = "401", description = "권한이 없습니다.")
+    @Operation(summary= "게시글 수정", description= "게시글을 수정합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> update(
             @Parameter(description = "게시글ID")
             @PathVariable Long articleId,
             @Parameter(description = "게시글DTO")
             @RequestBody ArticleDto dto,
-            HttpServletRequest request
-    ){
+            HttpServletRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) throws IOException {
 
-        String userId = getUserId(request);
-        if(!writerCheck(articleId,userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+
+        ArticleEntity article = articleService.findById(articleId);
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+
+        List<String> oldFiles = fileService.getFiles(articleId);
+
+        if(oldFiles != null){
+            for(String file : oldFiles){
+                fileService.delete(file,"file");
+                fileService.delete(articleId);
+            }
+        }
 
         ArticleEntity updated = articleService.update(articleId,dto);
+
+        if(files != null) {
+            for (MultipartFile file : files) {
+                fileService.save(new FileDto(fileService.fileUpload(file,"file"), articleId));
+            }
+        }
+
         return (updated != null) ?
                 ResponseEntity.status(HttpStatus.OK).body(updated):
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    private boolean authCheck(String boardId, String userId) {
-        String userAuth;
-        if(userId.equals("guest")) userAuth = "guest";
-        else userAuth = userService.getAuth(userId);
-        System.out.println("userAuth = " + userAuth);
-        System.out.println("boardId = " + boardId);
-        if(userAuth.equals("associate") && (boardId.equals("associate_member_board")||boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
-        else if(userAuth.equals("guest") && (boardId.equals("freedom_board")||boardId.equals("notice_board"))) return true;
-        else return userAuth.equals("active") || userAuth.equals("rest") || userAuth.equals("graduate") || userAuth.equals("admin");
-    }
-
-    private boolean isHide(Long articleId, String userId) {
-        String userAuth;
-        if(!articleService.getHide(articleId)) return true;
-        if(userId.equals("guest")) userAuth = "guest";
-        else userAuth = userService.getAuth(userId);
-
-        if(userAuth.equals("associate")) return articleService.getCreater(articleId).equals(userId);
-        else return !userAuth.equals("guest");
-    }
-
-
-    private boolean writerCheck(Long articleId, String userId) {
-        String creater = articleService.getCreater(articleId);
-        String userAuth = userService.getAuth(userId);
-        return userId.equals(creater) || userAuth.equals("admin");
-    }
-
-    private String getUserId(HttpServletRequest request) {
-        try {
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-            return JwtTokenUtil.getLoginId(accessToken, secretKey);
-        } catch(Exception e){
-            return "guest";
-        }
     }
 
     private Map<String, Object> setErrorCodeBody(int code){
