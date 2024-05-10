@@ -164,7 +164,11 @@ public class UserApiController {
 
         accountLockService.deleteCount(dto.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        ArrayList<Object> ret = userService.login(user);
+        response.addCookie((Cookie) ret.get(1));
+        response.addCookie((Cookie) ret.get(2));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ret.get(0));
     }
 
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
@@ -172,7 +176,11 @@ public class UserApiController {
     public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.socialLogin(dto.getCode(),dto.getName(),dto.getNickname());
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        ArrayList<Object> ret = userService.login(user);
+        response.addCookie((Cookie) ret.get(1));
+        response.addCookie((Cookie) ret.get(2));
+
+        return ResponseEntity.status(HttpStatus.OK).body(ret.get(0));
     }
 
     @PostMapping("/logout")
@@ -194,7 +202,12 @@ public class UserApiController {
             if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                 String id = userService.getUserId(request);
                 UserEntity user = userService.findById(id);
-                return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+
+                ArrayList<Object> ret = userService.login(user);
+                response.addCookie((Cookie) ret.get(1));
+                response.addCookie((Cookie) ret.get(2));
+
+                return ResponseEntity.status(HttpStatus.OK).body((Map<String, Object>) ret.get(0));
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
