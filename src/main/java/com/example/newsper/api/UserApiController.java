@@ -203,7 +203,10 @@ public class UserApiController {
     @GetMapping("/show")
     @Operation(summary= "유저 정보 조회", description= "유저 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id){
+        log.info("show API input id ="+ id);
         UserEntity user = userService.findById(id);
+        log.info("show API user");
+        log.info(id);
         return ResponseEntity.status(HttpStatus.OK).body(user.toJSON());
     }
 
