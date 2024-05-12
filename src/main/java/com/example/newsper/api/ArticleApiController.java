@@ -102,7 +102,9 @@ public class ArticleApiController {
         log.info(article.getView().toString());
         List<String> files = fileService.getFiles(articleId);
 
-        map.put("article",article.addAuthorInfo(user.getProfileImgPath(),user.getIntroduce()));
+        UserEntity author = userService.findById(article.getUserId());
+
+        map.put("article",article.addAuthorInfo(author.getProfileImgPath(),author.getIntroduce()));
         map.put("files",files);
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
