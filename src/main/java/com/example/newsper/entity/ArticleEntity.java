@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity(name="articleEntity")
 @AllArgsConstructor
@@ -62,6 +64,27 @@ public class ArticleEntity {
         if (article.content != null){
             this.content = article.content;
         }
+    }
+
+    public Map<String,Object> addAuthorInfo(String profile, String introduce){
+        Map<String,Object> map = new java.util.HashMap<>();
+        map.put("articleId",articleId);
+        map.put("userId",userId);
+        map.put("profile",profile);
+        map.put("introduce",introduce);
+        map.put("boardId",boardId);
+        map.put("category",category);
+        map.put("createdAt",createdAt);
+        map.put("modifiedAt",modifiedAt);
+        map.put("nickname",nickname);
+        map.put("title",title);
+        map.put("content",content);
+        map.put("hide",hide);
+        map.put("notice",notice);
+        map.put("view",view);
+        map.put("numOfComments",numOfComments);
+
+        return map;
     }
 }
 

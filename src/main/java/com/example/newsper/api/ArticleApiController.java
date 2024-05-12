@@ -100,8 +100,10 @@ public class ArticleApiController {
         article.setView(article.getView()+1L);
         log.info(article.getView().toString());
         List<String> files = fileService.getFiles(articleId);
-        map.put("article",article);
+
+        map.put("article",article.addAuthorInfo(user.getProfileImgPath(),user.getIntroduce()));
         map.put("files",files);
+
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
