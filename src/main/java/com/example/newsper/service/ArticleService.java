@@ -57,6 +57,8 @@ public class ArticleService {
     }
 
     public boolean isHide(ArticleEntity article, UserEntity user) {
+        if(!article.getHide()) return true;
+
         if(user == null) return false;
         else if(user.getRole().equals("associate")) return writerCheck(article,user);
         else return true;

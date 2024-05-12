@@ -88,6 +88,7 @@ public class ArticleApiController {
     @GetMapping("/view/{articleId}")
     @Operation(summary= "게시글 상세 조회", description= "게시글 내용을 반환합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> view(@Parameter(description = "게시글ID") @PathVariable Long articleId, HttpServletRequest request){
+        log.info("View API Logging");
         HashMap<String,Object> map = new HashMap<>();
 
         ArticleEntity article = articleService.findById(articleId);
