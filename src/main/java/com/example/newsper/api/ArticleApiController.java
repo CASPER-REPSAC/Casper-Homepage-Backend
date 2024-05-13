@@ -100,7 +100,7 @@ public class ArticleApiController {
 
         article.setView(article.getView()+1L);
         log.info(article.getView().toString());
-        List<String> files = fileService.getFiles(articleId);
+        List<Object> files = fileService.getFileNames(articleId);
 
         UserEntity author = userService.findById(article.getUserId());
 

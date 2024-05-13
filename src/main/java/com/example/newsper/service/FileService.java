@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,6 +32,19 @@ public class FileService {
 
     public List<String> getFiles(Long articleId){
         return fileRepository.getFiles(articleId);
+    }
+
+    public List<Object> getFileNames(Long articleId){
+        List<String> files = fileRepository.getFiles(articleId);
+        List<Object> ret = new ArrayList<>();
+        for(String file : files){
+            Map<String,Object> map = new HashMap<>();
+            map.put("name",file.substring(79,file.length()-1));
+            map.put("src",file);
+
+            ret.add(map);
+        }
+        return ret;
     }
 
     public boolean isImage(MultipartFile file){
