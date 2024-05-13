@@ -220,7 +220,10 @@ public class UserApiController {
     @Operation(summary= "유저 권한 수정", description= "유저의 권한을 수정합니다. 액세스 토큰 필요.")
     public ResponseEntity auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto){
         String userId = userService.getUserId(request);
+
         if(!userId.equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(dto.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UserEntity user = userService.findById(dto.getId());
         userService.roleChange(user, dto.getRole());
