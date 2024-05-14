@@ -56,7 +56,7 @@ public class UserApiController {
 
     @PostMapping("/join")
     @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
-    public ResponseEntity<?> join(@RequestPart(value = "joinDto") JoinDto dto) {
+    public ResponseEntity<?> join(@RequestBody JoinDto dto) {
         UserEntity user = userService.findById(dto.getId());
         UserDto userDto = dto.toUserDto();
 
