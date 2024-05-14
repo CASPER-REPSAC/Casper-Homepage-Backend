@@ -33,6 +33,9 @@ public class MailApiController {
     @Operation(summary= "인증코드 확인", description= "인증 코드 유효성을 확인합니다.")
     @PostMapping("/code")
     public ResponseEntity<String> sendEmailPath(@RequestParam(value = "email") String email,@RequestParam(value = "code") String code) {
+        log.info("/api/mail/code API start");
+        log.info("email : "+email);
+        log.info("code : "+code);
         if(mailService.verifyEmailCode(email,code)) return ResponseEntity.status(HttpStatus.OK).build();
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
