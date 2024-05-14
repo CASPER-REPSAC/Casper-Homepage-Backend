@@ -29,4 +29,11 @@ public class MailApiController {
         mailService.sendEmail(email_addr);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @Operation(summary= "인증코드 확인", description= "인증 코드 유효성을 확인합니다.")
+    @PostMapping("/code")
+    public ResponseEntity<String> sendEmailPath(@RequestParam(value = "email") String email,@RequestParam(value = "code") String code) {
+        if(mailService.verifyEmailCode(email,code)) return ResponseEntity.status(HttpStatus.OK).build();
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 }
