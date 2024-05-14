@@ -56,18 +56,13 @@ public class UserApiController {
 
     @PostMapping("/join")
     @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
-    public ResponseEntity<?> join(@RequestPart(value = "joinDto") JoinDto dto, @RequestPart(value = "profile", required = false) MultipartFile profile) throws IOException {
+    public ResponseEntity<?> join(@RequestPart(value = "joinDto") JoinDto dto) {
         UserEntity user = userService.findById(dto.getId());
         UserDto userDto = dto.toUserDto();
 
         if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
         if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
         if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
-
-        if(profile != null) {
-            if(!fileService.isImage(profile)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-402));
-            userDto.setProfileImgPath(fileService.fileUpload(profile,"profile"));
-        }
 
         userService.newUser(userDto);
         redisUtil.deleteData(dto.getEmail());

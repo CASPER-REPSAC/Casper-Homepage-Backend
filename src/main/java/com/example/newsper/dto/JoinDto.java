@@ -25,9 +25,6 @@ public class JoinDto {
     @Schema(description = "표시할 별명")
     private String nickname;
 
-    @Schema(description = "프로필 사진 URL")
-    private String profileImgPath;
-
     @Schema(description = "이메일 인증키")
     private String emailKey;
 
