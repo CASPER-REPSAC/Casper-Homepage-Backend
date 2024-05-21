@@ -32,7 +32,7 @@ public class BoardApiController {
     @Operation(summary= "게시글 소분류 조회", description= "게시글 분류를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> category(
-            @Parameter(description = "notice_board, free_board, full_member_board, associate_member_board, graduate_board")
+            @Parameter(description = "notice_board, freedom_board, full_member_board, associate_member_board, graduate_board")
             @RequestParam String board
     ){
         List<String> target = boardService.findCategory(board);
