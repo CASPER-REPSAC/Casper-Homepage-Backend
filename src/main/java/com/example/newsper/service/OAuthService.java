@@ -39,7 +39,7 @@ public class OAuthService {
         String nickname = userResourceNode.get("name").asText();
 
         if(userService.findById(email) == null){
-            UserDto dto = new UserDto(email,id+email,email,nickname, nickname,null,null,null,"associate");
+            UserDto dto = new UserDto(email,id+email,email, nickname, email,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
     }
