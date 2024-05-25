@@ -165,7 +165,7 @@ public class UserApiController {
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
-        UserEntity user = oAuthService.socialLogin(dto.getCode(),dto.getName(),dto.getNickname());
+        UserEntity user = oAuthService.socialLogin(dto.getCode());
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }

@@ -30,15 +30,16 @@ public class OAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public UserEntity socialLogin(String code,String name, String nickname) {
+    public UserEntity socialLogin(String code) {
         String accessToken = getAccessToken(code);
         JsonNode userResourceNode = getUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
+        String nickname = userResourceNode.get("name").asText();
 
         if(userService.findById(email) == null){
-            UserDto dto = new UserDto(email,id+email,email,name,nickname,null,null,null,"associate");
+            UserDto dto = new UserDto(email,id+email,email,nickname, nickname,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
     }
