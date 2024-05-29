@@ -25,7 +25,6 @@ public class OAuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     String clientSecret;
 
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     public UserEntity socialLogin(String code, String redirectUri) {

@@ -181,6 +181,7 @@ public class UserApiController {
         url.append(contextPath);
 
         String redirectUri = url.toString()+"/login/google-login";
+        log.info("redirectUri : "+redirectUri);
 
         UserEntity user = oAuthService.socialLogin(dto.getCode(), redirectUri);
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
