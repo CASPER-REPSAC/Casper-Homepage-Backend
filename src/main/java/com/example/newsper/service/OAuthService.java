@@ -32,10 +32,12 @@ public class OAuthService {
 
     public UserEntity socialLogin(String code) {
         String accessToken = getAccessToken(code);
+        log.info("code = "+code);
         JsonNode userResourceNode = getUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
+        log.info("email = "+email);
         String nickname = userResourceNode.get("name").asText();
 
         if(userService.findById(email) == null){

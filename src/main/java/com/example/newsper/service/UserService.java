@@ -116,40 +116,6 @@ public class UserService {
         return token;
     }
 
-    public Map<String,Object> login(UserEntity user){
-
-        Map<String,Object> token = new HashMap<>();
-
-        long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
-        long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
-
-        String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
-
-        user.setRefreshToken(refreshToken);
-        userRepository.save(user);
-
-        // AccessToken 설정
-        Cookie accessCookie = new Cookie("accessToken",jwtToken);
-        accessCookie.setMaxAge((int) (expireTimeMs / 1000)); // 초 단위로 변경
-        accessCookie.setSecure(true);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setPath("/");
-
-        // RefreshToken 설정
-        Cookie refreshCookie = new Cookie("refreshToken",refreshToken);
-        refreshCookie.setMaxAge((int) (refreshExpireTimeMs / 1000)); // 초 단위로 변경
-        refreshCookie.setSecure(true);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/");
-
-        token.put("accessToken",jwtToken);
-        token.put("refreshToken",refreshToken);
-        token.put("myInfo",user.toJSON());
-
-        return token;
-    }
-
     public void logout(UserEntity user, HttpServletResponse response){
 
         user.setRefreshToken(null);

@@ -170,17 +170,6 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 
-    @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
-    @GetMapping("/google")
-    public ResponseEntity<?> googleLogin2(@RequestBody GoogleDto dto) {
-
-        log.info("Code : "+dto.getCode());
-        UserEntity user = oAuthService.socialLogin(dto.getCode());
-        log.info("Email : "+user.getEmail());
-
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user));
-    }
-
     @PostMapping("/logout")
     @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
