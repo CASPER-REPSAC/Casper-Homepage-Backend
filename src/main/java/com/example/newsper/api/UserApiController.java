@@ -166,8 +166,7 @@ public class UserApiController {
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
         log.info("googleCode : "+dto.getCode());
-        log.info("googleCode : "+dto.getCode().replaceAll("4%2F", "4/0"));
-        UserEntity user = oAuthService.socialLogin(dto.getCode().replaceAll("4%2F", "4/0"));
+        UserEntity user = oAuthService.socialLogin(dto.getCode());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 
