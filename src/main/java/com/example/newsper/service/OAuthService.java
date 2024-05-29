@@ -25,13 +25,11 @@ public class OAuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    String redirectUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public UserEntity socialLogin(String code) {
-        String accessToken = getAccessToken(code);
+    public UserEntity socialLogin(String code, String redirectUri) {
+        String accessToken = getAccessToken(code, redirectUri);
         log.info("code = "+code);
         JsonNode userResourceNode = getUserResource(accessToken);
 
@@ -46,7 +44,7 @@ public class OAuthService {
         } else return userService.findById(email);
     }
 
-    private String getAccessToken(String authorizationCode) {
+    private String getAccessToken(String authorizationCode, String redirectUri) {
 
         String tokenUri = "https://oauth2.googleapis.com/token";
 
