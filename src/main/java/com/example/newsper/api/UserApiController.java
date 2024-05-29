@@ -164,26 +164,12 @@ public class UserApiController {
 
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response, HttpServletRequest request) {
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
 
         log.info("googleCode : "+dto.getCode());
+        log.info("redirectUri : "+dto.getRedirectUri());
 
-        String scheme = request.getScheme();             // http or https
-        String serverName = request.getServerName();     // example.com
-        int serverPort = request.getServerPort();        // 80, 443, or custom port
-        String contextPath = request.getContextPath();   // ""
-
-        StringBuilder url = new StringBuilder();
-        url.append(scheme).append("://").append(serverName);
-        if (serverPort != 80 && serverPort != 443) {
-            url.append(":").append(serverPort);
-        }
-        url.append(contextPath);
-
-        String redirectUri = url.toString()+"/login/google-login";
-        log.info("redirectUri : "+redirectUri);
-
-        UserEntity user = oAuthService.socialLogin(dto.getCode(), redirectUri);
+        UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 

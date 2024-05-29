@@ -28,8 +28,8 @@ public class OAuthService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public UserEntity socialLogin(String code, String redirectUri) {
+
         String accessToken = getAccessToken(code, redirectUri);
-        log.info("code = "+code);
         JsonNode userResourceNode = getUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
