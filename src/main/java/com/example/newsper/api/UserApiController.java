@@ -190,7 +190,8 @@ public class UserApiController {
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
         Cookie[] cookies = request.getCookies();
         if(cookies == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        for (Cookie c : cookies) {
+        for (Cookie c : Objects.requireNonNull(cookies)) {
+            if(c == null || c.getName() == null || c.getValue() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
                 String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
                 UserEntity user = userService.findById(id);
