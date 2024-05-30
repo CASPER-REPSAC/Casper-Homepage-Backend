@@ -169,8 +169,7 @@ public class UserApiController {
         log.info("googleCode : "+dto.getCode());
         log.info("redirectUri : "+dto.getRedirectUri());
 
-        //UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
-        UserEntity user = oAuthService.socialLogin(dto.getCode(), "https://new-casper.vercel.app/login/google-login");
+        UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 
@@ -188,18 +187,22 @@ public class UserApiController {
     @PostMapping("/refresh")
     @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다. 액세스 토큰 필요.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
-        if(request.getCookies() == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        Cookie[] cookies = request.getCookies();
-        if(cookies == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        for (Cookie c : Objects.requireNonNull(cookies)) {
-            if(c == null || c.getName() == null || c.getValue() == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
-                String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
-                UserEntity user = userService.findById(id);
-                return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        try {
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            for (Cookie c : Objects.requireNonNull(cookies)) {
+                if (c == null || c.getName() == null || c.getValue() == null)
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                if (c.getName().equals("refreshToken") && !JwtTokenUtil.isExpired(c.getValue(), secretKey)) {
+                    String id = JwtTokenUtil.getLoginId(c.getValue(), secretKey);
+                    UserEntity user = userService.findById(id);
+                    return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
+                }
             }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/show")
