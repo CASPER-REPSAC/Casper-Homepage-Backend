@@ -188,6 +188,7 @@ public class UserApiController {
     @PostMapping("/refresh")
     @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다. 액세스 토큰 필요.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
+        if(request.getCookies() == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         Cookie[] cookies = request.getCookies();
         if(cookies == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         for (Cookie c : Objects.requireNonNull(cookies)) {
