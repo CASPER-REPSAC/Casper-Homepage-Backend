@@ -94,7 +94,7 @@ public class UserApiController {
     @Operation(summary = "비밀번호 찾기", description = "가입시 사용된 메일로 초기화된 비밀번호를 전송합니다.")
     @PostMapping("/findpw")
     public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
-        UserEntity user = userService.findByEmail(dto.getEmail());
+        UserEntity user = userService.findById(dto.getId());
         if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || !user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
 
         mailService.pwMail(user);

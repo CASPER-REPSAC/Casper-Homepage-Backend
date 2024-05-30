@@ -36,7 +36,6 @@ public class OAuthService {
         String email = userResourceNode.get("email").asText();
         log.info("email = "+email);
 
-        log.info("User Data : "+userService.findById(email).getEmail());
         if(userService.findById(email) == null){
             UserDto dto = new UserDto(email,id+email,email, email, email,null,null,null,"associate");
             return userService.newUser(dto);
