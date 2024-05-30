@@ -169,7 +169,8 @@ public class UserApiController {
         log.info("googleCode : "+dto.getCode());
         log.info("redirectUri : "+dto.getRedirectUri());
 
-        UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
+        //UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
+        UserEntity user = oAuthService.socialLogin(dto.getCode(), "https://new-casper.vercel.app/login/google-login");
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 
