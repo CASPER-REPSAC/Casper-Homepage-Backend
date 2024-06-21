@@ -21,6 +21,6 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM fileEntity WHERE id = :id", nativeQuery = true)
-    void deletebyArticleId(@Param("articleId") Long id);
+    void deletebyArticleId(@Param("id") Long id);
 
 }
