@@ -12,15 +12,15 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<FileEntity, String> {
     @Modifying
-    @Query(value = "UPDATE fileEntity SET articleId = :articleId WHERE articleId = :requestId", nativeQuery = true)
-    int update(@Param("requestId") Long requestId, @Param("articleId") String articleId);
+    @Query(value = "UPDATE fileEntity SET id = :id WHERE id = :requestId", nativeQuery = true)
+    int update(@Param("requestId") Long requestId, @Param("id") String id);
 
     @Query(value = "SELECT filePath FROM fileEntity WHERE id = :id", nativeQuery = true)
-    List<String> getFiles(@Param("articleId") String id);
+    List<String> getFiles(@Param("id") String id);
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM fileEntity WHERE articleId = :articleId", nativeQuery = true)
-    void deletebyArticleId(@Param("articleId") Long articleId);
+    @Query(value = "DELETE FROM fileEntity WHERE id = :id", nativeQuery = true)
+    void deletebyArticleId(@Param("articleId") Long id);
 
 }
