@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class CreateArticleDto {
-    @Schema(description = "보드 타입 : notice_board, free_board, associate_member_board, full_member_board, graduate_member_board")
+    @Schema(description = "보드 타입 : notice_board, freedom_board, associate_board, full_board, graduate_board")
     private String boardId;
 
     @Schema(description = "소분류")

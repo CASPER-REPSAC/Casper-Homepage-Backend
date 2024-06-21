@@ -63,7 +63,7 @@ public class ArticleApiController {
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
             @PathVariable Long page,
-            @Parameter(description = "notice_board, associate_member_board, freedom_board, full_member_board, graduation_member_board")
+            @Parameter(description = "notice_board, associate_board, freedom_board, full_board, graduation_board")
             @PathVariable String boardId,
             @Parameter(description = "소분류:String")
             @PathVariable(required = false) String category,

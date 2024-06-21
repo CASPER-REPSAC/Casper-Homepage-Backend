@@ -67,7 +67,7 @@ public class ArticleService {
     public boolean authCheck(String boardId, UserEntity user) {
         if(boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
         else if(user == null) return false;
-        else if(user.getRole().equals("associate")) return boardId.equals("associate_member_board");
+        else if(user.getRole().equals("associate")) return boardId.equals("associate_board");
         else return true;
     }
 
