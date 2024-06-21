@@ -5,6 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class UserModifyDto {
+
+    @Schema(description = "사용자 이름")
+    private String name;
+
     @Schema(description = "수정 될 닉네임")
     private String nickname;
 
@@ -13,7 +17,4 @@ public class UserModifyDto {
 
     @Schema(description = "수정 될 소개 글")
     private String introduce;
-
-    @Schema(description = "수정 될 프로필 이미지 URL")
-    private String profileImgPath;
 }

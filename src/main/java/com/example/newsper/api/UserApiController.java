@@ -118,6 +118,7 @@ public class UserApiController {
         userEntity.setNickname(dto.getNickname());
         userEntity.setHomepage(dto.getHomepage());
         userEntity.setIntroduce(dto.getIntroduce());
+        userEntity.setName(dto.getName());
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
     }
