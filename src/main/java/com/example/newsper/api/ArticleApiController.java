@@ -114,9 +114,8 @@ public class ArticleApiController {
     @Operation(summary= "게시글 작성", description= "액세스 토큰 필요.")
     public ResponseEntity<?> write(
             @RequestPart(value = "createArticleDto") CreateArticleDto _dto,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
             HttpServletRequest request
-    ) throws IOException {
+    ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
@@ -124,11 +123,7 @@ public class ArticleApiController {
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
-        if(files != null) {
-            for (MultipartFile file : files) {
-                fileService.save(new FileDto(fileService.fileUpload(file,"file"), created.getArticleId()));
-            }
-        }
+        if(!(_dto.getRequestId() == null)) fileService.update(_dto.getRequestId(),String.valueOf(created.getArticleId()));
 
         return ResponseEntity.status(HttpStatus.OK).body(created);
     }
@@ -147,12 +142,11 @@ public class ArticleApiController {
 
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
-        List<String> files = fileService.getFiles(articleId);
+        List<String> files = fileService.getFiles(String.valueOf(articleId));
 
         for(String file : files){
             fileService.delete(file,"file");
             fileService.delete(articleId);
-
         }
 
         articleService.delete(article);
@@ -167,8 +161,7 @@ public class ArticleApiController {
             @PathVariable Long articleId,
             @Parameter(description = "게시글DTO")
             @RequestBody ArticleDto dto,
-            HttpServletRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files
+            HttpServletRequest request
     ) throws IOException {
 
         String userId = userService.getUserId(request);
@@ -177,22 +170,7 @@ public class ArticleApiController {
         ArticleEntity article = articleService.findById(articleId);
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
-        List<String> oldFiles = fileService.getFiles(articleId);
-
-        if(oldFiles != null){
-            for(String file : oldFiles){
-                fileService.delete(file,"file");
-                fileService.delete(articleId);
-            }
-        }
-
         ArticleEntity updated = articleService.update(articleId,dto);
-
-        if(files != null) {
-            for (MultipartFile file : files) {
-                fileService.save(new FileDto(fileService.fileUpload(file,"file"), articleId));
-            }
-        }
 
         return (updated != null) ?
                 ResponseEntity.status(HttpStatus.OK).body(updated):

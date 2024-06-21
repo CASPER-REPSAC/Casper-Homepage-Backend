@@ -17,4 +17,7 @@ public class UserModifyDto {
 
     @Schema(description = "수정 될 소개 글")
     private String introduce;
+
+    @Schema(description = "임시 프로필 사진 ID")
+    private Long requestId;
 }

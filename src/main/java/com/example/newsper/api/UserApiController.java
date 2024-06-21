@@ -104,21 +104,28 @@ public class UserApiController {
 
 
     @PostMapping("/update")
-    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글, 프로필 파일을 수정합니다. 액세스 토큰 필요.")
-    public ResponseEntity<UserEntity> update(@RequestPart(value = "userModifyDto") UserModifyDto dto, HttpServletRequest request, @RequestPart(value = "profile", required = false) MultipartFile profile
-    ) throws IOException {
+    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
+    public ResponseEntity<UserEntity> update(@RequestPart(value = "userModifyDto") UserModifyDto dto, HttpServletRequest request) throws IOException {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
-
-        if(profile != null) {
-            fileService.delete(userEntity.getProfileImgPath(),"profile");
-            userEntity.setProfileImgPath(fileService.fileUpload(profile, "profile"));
-        }
 
         userEntity.setNickname(dto.getNickname());
         userEntity.setHomepage(dto.getHomepage());
         userEntity.setIntroduce(dto.getIntroduce());
         userEntity.setName(dto.getName());
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
+    }
+
+    @PostMapping("/profile")
+    @Operation(summary= "프로필 사진 변경", description= "프로필 사진을 변경합니다.")
+    public ResponseEntity<UserEntity> profile(@RequestParam Long requestId, HttpServletRequest request) {
+        String userId = userService.getUserId(request);
+        UserEntity userEntity = userService.findById(userId);
+
+        fileService.update(requestId, userId);
+        fileService.delete(userEntity.getProfileImgPath(),"profile");
+        userEntity.setProfileImgPath(fileService.getFiles(userId).get(0));
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
     }
@@ -209,10 +216,7 @@ public class UserApiController {
     @GetMapping("/show")
     @Operation(summary= "유저 정보 조회", description= "유저 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id){
-        log.info("show API input id ="+ id);
         UserEntity user = userService.findById(id);
-        log.info("show API user");
-        log.info(id);
         return ResponseEntity.status(HttpStatus.OK).body(user.toJSON());
     }
 

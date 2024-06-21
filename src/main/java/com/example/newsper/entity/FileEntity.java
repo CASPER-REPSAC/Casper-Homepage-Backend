@@ -18,8 +18,8 @@ public class FileEntity {
     @Column(name="filePath")
     private String filePath;
 
-    @Column(name="articleId")
-    private Long articleId;
+    @Column(name="id")
+    private String id;
 
 
 }

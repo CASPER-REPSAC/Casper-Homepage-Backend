@@ -30,12 +30,16 @@ public class FileService {
         fileRepository.save(fileDto.toEntity());
     }
 
-    public List<String> getFiles(Long articleId){
-        return fileRepository.getFiles(articleId);
+    public void update(Long requestId, String id){
+        fileRepository.update(requestId, id);
+    }
+
+    public List<String> getFiles(String id){
+        return fileRepository.getFiles(id);
     }
 
     public List<Object> getFileNames(Long articleId){
-        List<String> files = fileRepository.getFiles(articleId);
+        List<String> files = fileRepository.getFiles(String.valueOf(articleId));
         List<Object> ret = new ArrayList<>();
         for(String file : files){
             Map<String,Object> map = new HashMap<>();
@@ -45,18 +49,6 @@ public class FileService {
             ret.add(map);
         }
         return ret;
-    }
-
-    public boolean isImage(MultipartFile file){
-        File checkfile = new File(file.getOriginalFilename());
-        String type = null;
-        try {
-            type = Files.probeContentType(checkfile.toPath());
-            log.info("MIME TYPE : " + type);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return type.startsWith("image") && file.getSize() <= 10485760;
     }
 
     public String fileUpload(MultipartFile file, String fileType) throws IOException {

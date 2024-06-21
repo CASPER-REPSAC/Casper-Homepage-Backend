@@ -13,9 +13,9 @@ import lombok.ToString;
 @Setter
 public class FileDto {
     private String filePath;
-    private Long articleId;
+    private String id;
 
     public FileEntity toEntity() {
-        return new FileEntity(filePath,articleId);
+        return new FileEntity(filePath,id);
     }
 }
