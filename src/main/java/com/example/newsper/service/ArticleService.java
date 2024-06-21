@@ -65,10 +65,23 @@ public class ArticleService {
     }
 
     public boolean authCheck(String boardId, UserEntity user) {
-        if(boardId.equals("freedom_board")||boardId.equals("notice_board")) return true;
-        else if(user == null) return false;
-        else if(user.getRole().equals("associate")) return boardId.equals("associate_board");
-        else return true;
+        log.info("게시판 권한 체크");
+        if(boardId.equals("freedom_board")||boardId.equals("notice_board")) {
+            log.info("자유 게시판, 공지사항은 누구나 열람 가능합니다");
+            return true;
+        }
+        else if(user == null) {
+            log.info("유저 데이터에 조회할 수 없습니다");
+            return false;
+        }
+        else if(user.getRole().equals("associate")) {
+            log.info("준회원은 준회원 게시판 열람이 가능합니다");
+            return boardId.equals("associate_board");
+        }
+        else {
+            log.info("정회원은 모든 게시판 열람이 가능합니다");
+            return true;
+        }
     }
 
     public ArticleEntity write(ArticleDto dto,UserEntity user){
