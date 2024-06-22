@@ -35,16 +35,20 @@ public class FileApiController {
             @RequestPart(value = "files") List<MultipartFile> files,
             @Parameter(description ="article, file") @RequestParam String type
     ) throws IOException {
-        Map<String, Long> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
+        List<String> urls = new ArrayList<>();
         Long requestId = Instant.now().toEpochMilli();
 
         if(files != null) {
             for (MultipartFile file : files) {
-                fileService.save(new FileDto(fileService.fileUpload(file,type), String.valueOf(requestId)));
+                String url = fileService.fileUpload(file,type);
+                urls.add(url);
+                fileService.save(new FileDto(url, String.valueOf(requestId)));
             }
         }
 
-        map.put("requestId",requestId);
+        map.put("requestId", requestId);
+        map.put("fileUrls", urls);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 

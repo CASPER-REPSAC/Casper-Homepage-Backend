@@ -105,7 +105,7 @@ public class UserApiController {
 
     @PostMapping("/update")
     @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
-    public ResponseEntity<UserEntity> update(@RequestPart(value = "userModifyDto") UserModifyDto dto, HttpServletRequest request) throws IOException {
+    public ResponseEntity<UserEntity> update(@RequestBody UserModifyDto dto, HttpServletRequest request) throws IOException {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
 

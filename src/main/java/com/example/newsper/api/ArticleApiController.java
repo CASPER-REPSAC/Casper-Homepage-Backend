@@ -113,7 +113,7 @@ public class ArticleApiController {
     @PostMapping("/write")
     @Operation(summary= "게시글 작성", description= "액세스 토큰 필요.")
     public ResponseEntity<?> write(
-            @RequestPart(value = "createArticleDto") CreateArticleDto _dto,
+            @RequestBody CreateArticleDto _dto,
             HttpServletRequest request
     ) {
         String userId = userService.getUserId(request);
