@@ -123,7 +123,11 @@ public class ArticleApiController {
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
-        if(!(_dto.getRequestId() == null)) fileService.update(_dto.getRequestId(),String.valueOf(created.getArticleId()));
+        if(!(_dto.getRequestId() == null)) {
+            for(Long requsetId : _dto.getRequestId()) {
+                fileService.update(requsetId, String.valueOf(created.getArticleId()));
+            }
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(created);
     }
@@ -171,7 +175,11 @@ public class ArticleApiController {
 
         ArticleEntity updated = articleService.update(articleId,dto);
 
-        if(!(dto.getRequestId() == null)) fileService.update(dto.getRequestId(),String.valueOf(updated.getArticleId()));
+        if(!(dto.getRequestId() == null)) {
+            for(Long requsetId : dto.getRequestId()) {
+                fileService.update(requsetId, String.valueOf(updated.getArticleId()));
+            }
+        }
 
         return (updated != null) ?
                 ResponseEntity.status(HttpStatus.OK).body(updated):

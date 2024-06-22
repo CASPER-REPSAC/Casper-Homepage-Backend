@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.w3c.dom.Text;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -28,8 +29,7 @@ public class ArticleDto {
     private Boolean notice;
     private Long view;
     private Long numOfComments;
-
-    private Long requestId;
+    private List<Long> requestId;
 
     public ArticleEntity toEntity(){
         return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments);

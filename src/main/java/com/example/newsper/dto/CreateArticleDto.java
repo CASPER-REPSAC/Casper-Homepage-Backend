@@ -3,6 +3,8 @@ package com.example.newsper.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class CreateArticleDto {
     @Schema(description = "보드 타입 : notice_board, freedom_board, associate_board, full_board, graduate_board")
@@ -27,7 +29,7 @@ public class CreateArticleDto {
     private String photo;
 
     @Schema(description = "임시 파일 ID")
-    private Long requestId;
+    private List<Long> requestId;
 
 
     public ArticleDto toArticleDto(){
