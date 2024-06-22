@@ -29,6 +29,8 @@ public class ArticleDto {
     private Long view;
     private Long numOfComments;
 
+    private Long requestId;
+
     public ArticleEntity toEntity(){
         return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments);
     }

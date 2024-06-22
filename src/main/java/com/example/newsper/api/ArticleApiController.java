@@ -143,7 +143,6 @@ public class ArticleApiController {
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         List<String> files = fileService.getFiles(String.valueOf(articleId));
-
         for(String file : files){
             fileService.delete(file,"file");
             fileService.delete(articleId);
@@ -171,6 +170,8 @@ public class ArticleApiController {
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
         ArticleEntity updated = articleService.update(articleId,dto);
+
+        if(!(dto.getRequestId() == null)) fileService.update(dto.getRequestId(),String.valueOf(updated.getArticleId()));
 
         return (updated != null) ?
                 ResponseEntity.status(HttpStatus.OK).body(updated):

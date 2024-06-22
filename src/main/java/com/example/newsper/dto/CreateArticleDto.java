@@ -31,6 +31,6 @@ public class CreateArticleDto {
 
 
     public ArticleDto toArticleDto(){
-        return new ArticleDto(null,null,boardId,category,null,null,null,title,content,hide,notice,null,null);
+        return new ArticleDto(null,null,boardId,category,null,null,null,title,content,hide,notice,null,null,requestId);
     }
 }
