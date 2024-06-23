@@ -37,13 +37,12 @@ public class FileApiController {
     ) throws IOException {
         Map<String, Object> map = new HashMap<>();
         List<String> urls = new ArrayList<>();
-        Long requestId = Instant.now().toEpochMilli();
 
         if(files != null) {
             for (MultipartFile file : files) {
                 String url = fileService.fileUpload(file,type);
                 urls.add(url);
-                fileService.save(new FileDto(url, String.valueOf(requestId)));
+                fileService.save(new FileDto(url, type));
             }
         }
 
