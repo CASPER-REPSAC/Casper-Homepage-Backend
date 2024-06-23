@@ -177,10 +177,10 @@ public class ArticleApiController {
 
         ArticleEntity updated = articleService.update(articleId,dto);
 
-        if(!(dto.getUrls() == null)) {
+        if(dto.getUrls() != null) {
             for(String url : dto.getUrls()) {
-                if(fileService.findById(url) == null) {
-                    FileEntity fileEntity = fileService.findById(url);
+                FileEntity fileEntity = fileService.findById(url);
+                if(fileEntity.getConnectId() == null) {
                     fileEntity.setConnectId(String.valueOf(updated.getArticleId()));
                     fileService.modify(fileEntity);
                 }
