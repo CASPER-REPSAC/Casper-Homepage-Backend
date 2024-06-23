@@ -11,16 +11,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface FileRepository extends JpaRepository<FileEntity, String> {
-    @Modifying
-    @Query(value = "UPDATE fileEntity SET id = :id WHERE id = :requestId", nativeQuery = true)
-    int update(@Param("requestId") Long requestId, @Param("id") String id);
 
-    @Query(value = "SELECT filePath FROM fileEntity WHERE id = :id", nativeQuery = true)
-    List<String> getFiles(@Param("id") String id);
+//    @Modifying
+//    @Query(value = "UPDATE fileEntity SET id = :id WHERE filePath = :url", nativeQuery = true)
+//    void update(@Param("connectId") String requestId, @Param("id") String id);
 
-    @Transactional
-    @Modifying
-    @Query(value = "DELETE FROM fileEntity WHERE id = :id", nativeQuery = true)
-    void deletebyArticleId(@Param("id") Long id);
+    @Query(value = "SELECT filePath FROM fileEntity WHERE connectId = :connectId", nativeQuery = true)
+    List<String> getUrls(@Param("connectId") String connectId);
+
+//    @Transactional
+//    @Modifying
+//    @Query(value = "DELETE FROM fileEntity WHERE id = :id", nativeQuery = true)
+//    void deletebyArticleId(@Param("id") Long id);
 
 }

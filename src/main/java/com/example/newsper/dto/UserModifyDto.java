@@ -1,6 +1,7 @@
 package com.example.newsper.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
 import lombok.Getter;
 
 @Getter
@@ -17,4 +18,7 @@ public class UserModifyDto {
 
     @Schema(description = "수정 될 소개 글")
     private String introduce;
+
+    @Schema(description = "수정 될 프로필 URL")
+    private String profileImgPath;
 }

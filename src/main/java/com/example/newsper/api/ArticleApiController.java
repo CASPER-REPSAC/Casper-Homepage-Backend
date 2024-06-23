@@ -5,6 +5,7 @@ import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
+import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.ArticleService;
@@ -123,9 +124,11 @@ public class ArticleApiController {
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
-        if(!(_dto.getRequestId() == null)) {
-            for(Long requsetId : _dto.getRequestId()) {
-                fileService.update(requsetId, String.valueOf(created.getArticleId()));
+        if(!(_dto.getUrls() == null)) {
+            for(String url : _dto.getUrls()) {
+                FileEntity fileEntity = fileService.findById(url);
+                fileEntity.setConnectId(String.valueOf(created.getArticleId()));
+                fileService.modify(fileEntity);
             }
         }
 
@@ -139,17 +142,16 @@ public class ArticleApiController {
             @PathVariable Long articleId,
             HttpServletRequest request
     ){
-
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         ArticleEntity article = articleService.findById(articleId);
 
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
-        List<String> files = fileService.getFiles(String.valueOf(articleId));
-        for(String file : files){
-            fileService.delete(file,"file");
-            fileService.delete(articleId);
+        List<String> urls = fileService.getUrls(String.valueOf(articleId));
+
+        for(String url : urls){
+            fileService.delete(url);
         }
 
         articleService.delete(article);
@@ -175,9 +177,13 @@ public class ArticleApiController {
 
         ArticleEntity updated = articleService.update(articleId,dto);
 
-        if(!(dto.getRequestId() == null)) {
-            for(Long requsetId : dto.getRequestId()) {
-                fileService.update(requsetId, String.valueOf(updated.getArticleId()));
+        if(!(dto.getUrls() == null)) {
+            for(String url : dto.getUrls()) {
+                if(fileService.findById(url) == null) {
+                    FileEntity fileEntity = fileService.findById(url);
+                    fileEntity.setConnectId(String.valueOf(updated.getArticleId()));
+                    fileService.modify(fileEntity);
+                }
             }
         }
 

@@ -29,7 +29,7 @@ public class ArticleDto {
     private Boolean notice;
     private Long view;
     private Long numOfComments;
-    private List<Long> requestId;
+    private List<String> urls;
 
     public ArticleEntity toEntity(){
         return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments);

@@ -114,18 +114,10 @@ public class UserApiController {
         userEntity.setIntroduce(dto.getIntroduce());
         userEntity.setName(dto.getName());
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
-    }
-
-    @PostMapping("/profile")
-    @Operation(summary= "프로필 사진 변경", description= "프로필 사진을 변경합니다.")
-    public ResponseEntity<UserEntity> profile(@RequestParam Long requestId, HttpServletRequest request) {
-        String userId = userService.getUserId(request);
-        UserEntity userEntity = userService.findById(userId);
-
-        fileService.update(requestId, userId);
-        fileService.delete(userEntity.getProfileImgPath(),"profile");
-        userEntity.setProfileImgPath(fileService.getFiles(userId).get(0));
+        if(!userEntity.getProfileImgPath().equals(dto.getProfileImgPath())) {
+            fileService.delete(userEntity.getProfileImgPath());
+            userEntity.setProfileImgPath(dto.getProfileImgPath());
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
     }
@@ -142,7 +134,7 @@ public class UserApiController {
 
 
         if(target.getProfileImgPath() != null) {
-            fileService.delete(target.getProfileImgPath(),"profile");
+            fileService.delete(target.getProfileImgPath());
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();

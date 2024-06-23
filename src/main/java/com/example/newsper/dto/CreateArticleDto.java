@@ -28,11 +28,11 @@ public class CreateArticleDto {
     @Schema(description = "사진 주소")
     private String photo;
 
-    @Schema(description = "임시 파일 ID")
-    private List<Long> requestId;
+    @Schema(description = "파일 URLs")
+    private List<String> urls;
 
 
     public ArticleDto toArticleDto(){
-        return new ArticleDto(null,null,boardId,category,null,null,null,title,content,hide,notice,null,null,requestId);
+        return new ArticleDto(null,null,boardId,category,null,null,null,title,content,hide,notice,null,null,urls);
     }
 }

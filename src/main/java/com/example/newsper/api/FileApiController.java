@@ -47,7 +47,6 @@ public class FileApiController {
             }
         }
 
-        map.put("requestId", requestId);
         map.put("fileUrls", urls);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
@@ -55,10 +54,9 @@ public class FileApiController {
     @DeleteMapping("/delete")
     @Operation(summary= "파일 삭제", description= "파일을 삭제합니다.")
     public ResponseEntity<?> write(
-            @RequestParam String url,
-            @Parameter(description ="article, file") @RequestParam String type
+            @RequestParam String url
     ){
-        fileService.delete(url,type);
+        fileService.delete(url);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

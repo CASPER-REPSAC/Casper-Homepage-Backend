@@ -1,6 +1,8 @@
 package com.example.newsper.service;
 
 import com.example.newsper.dto.FileDto;
+import com.example.newsper.entity.FileEntity;
+import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +32,24 @@ public class FileService {
         fileRepository.save(fileDto.toEntity());
     }
 
-    public void update(Long requestId, String id){
-        fileRepository.update(requestId, id);
+    public void modify(FileEntity fileEntity){
+        fileRepository.save(fileEntity);
     }
 
-    public List<String> getFiles(String id){
-        return fileRepository.getFiles(id);
+    public FileEntity findById(String id){ return fileRepository.findById(id).orElse(null); }
+
+    public List<String> getUrls(String id){
+        return fileRepository.getUrls(id);
     }
+
+//    public void update(String requestId, String id){
+//        fileRepository.update(requestId, id);
+//    }
+
+
 
     public List<Object> getFileNames(Long articleId){
-        List<String> files = fileRepository.getFiles(String.valueOf(articleId));
+        List<String> files = fileRepository.getUrls(String.valueOf(articleId));
         List<Object> ret = new ArrayList<>();
         for(String file : files){
             Map<String,Object> map = new HashMap<>();
@@ -82,7 +92,10 @@ public class FileService {
         return serverUrl + "/"+fileType+"/" + datePath + "/" + uploadFileName;
     }
 
-    public void delete(String path,String fileType){
+    public void delete(String path){
+        FileEntity fileEntity = fileRepository.findById(path).orElse(null);
+        String fileType = fileEntity.getType();
+
         String filePath = "/home/casper/newsper_"+fileType;
         String result = path.substring("http://build.casper.or.kr/".length());
 
@@ -91,11 +104,11 @@ public class FileService {
 
         // 파일 삭제
         file.delete();
-
     }
 
-    public void delete(Long articleId){
-        fileRepository.deletebyArticleId(articleId);
-    }
+//    public void delete(String articleId){
+//        FileService fileEntity
+//        fileRepository.deletebyArticleId(articleId);
+//    }
 
 }
