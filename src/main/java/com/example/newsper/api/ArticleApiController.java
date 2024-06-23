@@ -177,15 +177,15 @@ public class ArticleApiController {
 
         ArticleEntity updated = articleService.update(articleId,dto);
 
-        if(!(dto.getUrls() == null)) {
-            for(String url : dto.getUrls()) {
-                if(fileService.findById(url) == null) {
-                    FileEntity fileEntity = fileService.findById(url);
-                    fileEntity.setConnectId(String.valueOf(updated.getArticleId()));
-                    fileService.modify(fileEntity);
-                }
-            }
-        }
+//        if(!(dto.getUrls() == null)) {
+//            for(String url : dto.getUrls()) {
+//                if(fileService.findById(url) == null) {
+//                    FileEntity fileEntity = fileService.findById(url);
+//                    fileEntity.setConnectId(String.valueOf(updated.getArticleId()));
+//                    fileService.modify(fileEntity);
+//                }
+//            }
+//        }
 
         return (updated != null) ?
                 ResponseEntity.status(HttpStatus.OK).body(updated):

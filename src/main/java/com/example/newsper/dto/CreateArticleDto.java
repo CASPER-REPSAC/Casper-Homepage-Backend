@@ -25,9 +25,6 @@ public class CreateArticleDto {
     @Schema(description = "내용")
     private String content;
 
-    @Schema(description = "사진 주소")
-    private String photo;
-
     @Schema(description = "파일 URLs")
     private List<String> urls;
 
