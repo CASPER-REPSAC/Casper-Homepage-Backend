@@ -2,6 +2,7 @@ package com.example.newsper.api;
 
 import java.io.IOException;
 import com.example.newsper.dto.*;
+import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.redis.RedisUtil;
@@ -114,8 +115,13 @@ public class UserApiController {
         userEntity.setIntroduce(dto.getIntroduce());
         userEntity.setName(dto.getName());
 
-        if(!userEntity.getProfileImgPath().equals(dto.getProfileImgPath())) {
-            fileService.delete(userEntity.getProfileImgPath());
+        if(dto.getProfileImgPath() != null) {
+            if(userEntity.getProfileImgPath() != null) fileService.delete(userEntity.getProfileImgPath());
+
+            FileEntity fileEntity = fileService.findById(dto.getProfileImgPath());
+            fileEntity.setConnectId(String.valueOf(userEntity.getId()));
+            fileService.modify(fileEntity);
+
             userEntity.setProfileImgPath(dto.getProfileImgPath());
         }
 

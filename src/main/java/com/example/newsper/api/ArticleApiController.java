@@ -124,7 +124,7 @@ public class ArticleApiController {
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
-        if(!(_dto.getUrls() == null)) {
+        if(_dto.getUrls() != null) {
             for(String url : _dto.getUrls()) {
                 FileEntity fileEntity = fileService.findById(url);
                 fileEntity.setConnectId(String.valueOf(created.getArticleId()));

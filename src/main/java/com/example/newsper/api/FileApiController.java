@@ -46,7 +46,7 @@ public class FileApiController {
             }
         }
 
-        map.put("fileUrls", urls);
+        map.put("urls", urls);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
