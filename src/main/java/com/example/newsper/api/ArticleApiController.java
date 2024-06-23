@@ -132,7 +132,11 @@ public class ArticleApiController {
             }
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(created);
+        HashMap<String,Object> map = new HashMap<>();
+        List<Object> files = fileService.getFileNames(created.getArticleId());
+        map.put("article",created);
+        map.put("files",files);
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @DeleteMapping("delete/{articleId}")
