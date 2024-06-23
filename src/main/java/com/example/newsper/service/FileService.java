@@ -104,6 +104,8 @@ public class FileService {
 
         // 파일 삭제
         file.delete();
+
+        fileRepository.delete(fileEntity);
     }
 
 //    public void delete(String articleId){
