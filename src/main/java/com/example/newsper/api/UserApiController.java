@@ -107,7 +107,9 @@ public class UserApiController {
     @PostMapping("/update")
     @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
     public ResponseEntity<UserEntity> update(@RequestBody UserModifyDto dto, HttpServletRequest request) throws IOException {
+        log.info("User Update API Logging");
         String userId = userService.getUserId(request);
+        log.info("User ID : "+userId);
         UserEntity userEntity = userService.findById(userId);
 
         userEntity.setNickname(dto.getNickname());
