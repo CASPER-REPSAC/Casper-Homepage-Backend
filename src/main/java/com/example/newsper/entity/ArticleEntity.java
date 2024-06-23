@@ -57,16 +57,6 @@ public class ArticleEntity {
     @Column(name = "numOfComments", nullable = false)
     private Long numOfComments;
 
-    public void patch(ArticleEntity article) {
-        if (article.title != null){
-            this.title = article.title;
-        }
-
-        if (article.content != null){
-            this.content = article.content;
-        }
-    }
-
     public Map<String,Object> addAuthorInfo(String profile, String introduce){
         Map<String,Object> map = new java.util.HashMap<>();
         map.put("articleId",articleId);

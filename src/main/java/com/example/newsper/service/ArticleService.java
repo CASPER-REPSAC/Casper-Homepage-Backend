@@ -41,14 +41,23 @@ public class ArticleService {
     }
 
     public ArticleEntity update(Long id, ArticleDto dto) {
-        ArticleEntity article = dto.toEntity();
         ArticleEntity target = articleRepository.findById(id).orElse(null);
-        if (target == null || !id.equals(article.getArticleId())){
+
+        if (target == null){
+            log.info("target is null");
             return null;
         }
-        target.patch(article);
-        log.info(target.toString());
+
+        if (dto.getTitle() != null){
+            target.setTitle(dto.getTitle());
+        }
+
+        if (dto.getContent() != null){
+            target.setContent(dto.getContent());
+        }
+
         ArticleEntity updated = articleRepository.save(target);
+        log.info(updated.toString());
         return updated;
     }
 
