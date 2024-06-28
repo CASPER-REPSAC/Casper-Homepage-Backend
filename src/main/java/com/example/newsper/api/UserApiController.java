@@ -172,12 +172,23 @@ public class UserApiController {
 
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     @PostMapping("/google")
-    public ResponseEntity<?> googleLogin(@RequestBody GoogleDto dto, HttpServletResponse response) {
+    public ResponseEntity<?> googleLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
 
         log.info("googleCode : "+dto.getCode());
         log.info("redirectUri : "+dto.getRedirectUri());
 
-        UserEntity user = oAuthService.socialLogin(dto.getCode(), dto.getRedirectUri());
+        UserEntity user = oAuthService.google(dto.getCode(), dto.getRedirectUri());
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+    }
+
+    @Operation(summary = "깃허브 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
+    @PostMapping("/github")
+    public ResponseEntity<?> githubLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
+
+        log.info("githubCode : "+dto.getCode());
+        log.info("redirectUri : "+dto.getRedirectUri());
+
+        UserEntity user = oAuthService.github(dto.getCode(), dto.getRedirectUri());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
     }
 
