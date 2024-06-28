@@ -12,6 +12,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
+
 @Slf4j
 @Service
 public class OAuthService {
@@ -36,6 +38,7 @@ public class OAuthService {
     public UserEntity google(String code, String redirectUri) {
 
         String accessToken = getGoogleAccessToken(code, redirectUri);
+        log.info("AccessToken = "+accessToken);
         JsonNode userResourceNode = getGoogleUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
@@ -97,6 +100,7 @@ public class OAuthService {
     public UserEntity github(String code, String redirectUri) {
 
         String accessToken = getGithubAccessToken(code, redirectUri);
+        log.info("AccessToken = "+accessToken);
         JsonNode userResourceNode = getGithubUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
@@ -115,19 +119,25 @@ public class OAuthService {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
-        params.add("client_id", googleClientId);
-        params.add("client_secret", googleClientSecret);
+        params.add("client_id", githubClientId);
+        params.add("client_secret", githubClientSecret);
         params.add("redirect_uri", redirectUri);
-        params.add("grant_type", "authorization_code");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        HttpEntity entity = new HttpEntity(params, headers);
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(params, headers);
 
-        ResponseEntity<JsonNode> responseNode = restTemplate.exchange(tokenUri, HttpMethod.POST, entity, JsonNode.class);
-        JsonNode accessTokenNode = responseNode.getBody();
-        return accessTokenNode.get("access_token").asText();
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JsonNode> response = restTemplate.exchange(tokenUri, HttpMethod.POST, entity, JsonNode.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            JsonNode responseBody = response.getBody();
+            return responseBody != null ? responseBody.get("access_token").asText() : null;
+        } else {
+            throw new RuntimeException("Failed to get access token: " + response.getStatusCode());
+        }
     }
 
     private JsonNode getGithubUserResource(String accessToken) {
