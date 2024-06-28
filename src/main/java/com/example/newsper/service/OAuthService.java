@@ -111,7 +111,7 @@ public class OAuthService {
 
     private String getGithubAccessToken(String authorizationCode, String redirectUri) {
 
-        String tokenUri = "https://github/login/oauth/access_token";
+        String tokenUri = "https://github.com/login/oauth/access_token";
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
