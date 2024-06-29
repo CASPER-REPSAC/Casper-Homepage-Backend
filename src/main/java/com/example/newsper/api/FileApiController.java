@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +42,14 @@ public class FileApiController {
 
         if(files != null) {
             for (MultipartFile file : files) {
+
+                log.info("파일 이름 : " + file.getOriginalFilename());
+                log.info("파일 크기 : " + file.getSize());
+
+                if (file.getSize() > 10000000) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-401));
+                }
+
                 String url = fileService.fileUpload(file,type);
                 urls.add(url);
                 fileService.save(new FileDto(url, type));
@@ -57,5 +67,25 @@ public class FileApiController {
     ){
         fileService.delete(url);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    private Map<String, Object> setErrorCodeBody(int code){
+        Map<String, Object> responseBody = new HashMap<>();
+        //responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
+        //responseBody.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        responseBody.put("code", code);
+
+        if(code == -101) responseBody.put("message", "로그인 아이디를 찾을 수 없음");
+        else if(code == -102) responseBody.put("message", "로그인 패스워드 불일치");
+        else if(code == -201) responseBody.put("message", "회원 가입 파라미터 누락");
+        else if(code == -202) responseBody.put("message", "회원 가입 이메일 인증 오류");
+        else if(code == -203) responseBody.put("message", "회원 가입 ID 중복");
+        else if(code == -301) responseBody.put("message", "게시판 접근 권한 없음");
+        else if(code == -302) responseBody.put("message", "게시글 쓰기 권한 없음");
+        else if(code == -303) responseBody.put("message", "게시글 수정/삭제 권한 없음");
+        else if(code == -401) responseBody.put("message", "파일 용량 10MB 초과");
+        else if(code == -1) responseBody.put("message", "지정되지 않은 에러");
+
+        return responseBody;
     }
 }
