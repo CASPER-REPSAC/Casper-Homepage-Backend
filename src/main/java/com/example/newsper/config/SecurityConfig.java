@@ -23,7 +23,7 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -50,13 +50,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/user/join").permitAll()
                                 .requestMatchers("/api/article").permitAll()
                                 .requestMatchers("/api/mail").permitAll()
-                                .requestMatchers("/error").permitAll()
-                                .anyRequest().authenticated()
+//                                .anyRequest().authenticated()
 //                                .requestMatchers("/**").authenticated()
 //                                .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
 //                                .requestMatchers("/admin/**").hasRole("ADMIN")
 //                                .anyRequest().authenticated()
-//                                .anyRequest().permitAll()
+                                .anyRequest().permitAll()
 
                 )
                 .headers((headers) -> headers
