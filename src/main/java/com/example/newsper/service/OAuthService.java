@@ -43,10 +43,11 @@ public class OAuthService {
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
+        String name = userResourceNode.get("name").asText();
         log.info("email = "+email);
 
         if(userService.findById(email) == null){
-            UserDto dto = new UserDto(email,id+email,email, email, email,null,null,null,"associate");
+            UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
     }
@@ -82,21 +83,6 @@ public class OAuthService {
         return restTemplate.exchange(resourceUri, HttpMethod.GET, entity, JsonNode.class).getBody();
     }
 
-//    public UserEntity github(String code, String redirectUri) {
-//
-//        String accessToken = getAccessToken(code, redirectUri);
-//        JsonNode userResourceNode = getUserResource(accessToken);
-//
-//        String id = userResourceNode.get("id").asText();
-//        String email = userResourceNode.get("email").asText();
-//        log.info("email = "+email);
-//
-//        if(userService.findById(email) == null){
-//            UserDto dto = new UserDto(email,id+email,email, email, email,null,null,null,"associate");
-//            return userService.newUser(dto);
-//        } else return userService.findById(email);
-//    }
-
     public UserEntity github(String code, String redirectUri) {
 
         String accessToken = getGithubAccessToken(code, redirectUri);
@@ -105,10 +91,11 @@ public class OAuthService {
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
+        String name = userResourceNode.get("name").asText();
         log.info("email = "+email);
 
         if(userService.findById(email) == null){
-            UserDto dto = new UserDto(email,id+email,email, email, email,null,null,null,"associate");
+            UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
     }
