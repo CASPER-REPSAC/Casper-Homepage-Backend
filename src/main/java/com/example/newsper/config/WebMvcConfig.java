@@ -11,6 +11,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/profile/**")
                 .addResourceLocations("file:///home/casper/newsper_profile/");
         registry.addResourceHandler("/file/**")
-                .addResourceLocations("file:///home/casper/newsper_file/");
+                .addResourceLocations("file:///home/casper/newsper_article/");
     }
 }
