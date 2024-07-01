@@ -120,7 +120,7 @@ public class ArticleApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
-        if(_dto.getBoardId().equals("notice_board")&&!(userService.getAuth(userId).equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 

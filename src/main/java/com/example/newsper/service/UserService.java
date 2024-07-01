@@ -59,10 +59,6 @@ public class UserService {
 
     public UserEntity findByEmail(String email) { return userRepository.findByEmail(email); }
 
-    public String getAuth(String id){
-        return userRepository.findById(id).get().getRole().toString();
-    }
-
     public Map<String, Object> showall(String role) {
         List<UserEntity> users = userRepository.findAll();
         List<Map<String, Object>> userList = new ArrayList<>();
