@@ -10,7 +10,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/profile/**")
                 .addResourceLocations("file:///home/casper/newsper_profile/");
-        registry.addResourceHandler("/file/**")
+        registry.addResourceHandler("/article/**")
                 .addResourceLocations("file:///home/casper/newsper_article/");
     }
 }
