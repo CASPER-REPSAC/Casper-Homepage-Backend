@@ -106,20 +106,20 @@ public class CommentService {
         String boardId = Objects.requireNonNull(articleRepository.findById(articleId).orElse(null)).getBoardId();
         log.info("댓글 권한 체크");
 
-        if(user == null) {
+        if(boardId.equals("freedom_board")||boardId.equals("notice_board")) {
+            log.info("자유 게시판, 공지사항은 누구나 열람 가능합니다");
+            return true;
+        }
+        else if(user == null) {
             log.info("유저 데이터에 조회할 수 없습니다");
             return false;
         }
-        else if(boardId.equals("freedom_board")) {
-            log.info("자유 게시판은 누구나 댓글 작성이 가능합니다");
-            return true;
-        }
         else if(user.getRole().equals("associate")) {
-            log.info("준회원은 준회원 게시판에 댓글을 작성할 수 있습니다");
+            log.info("준회원은 준회원 게시판 열람이 가능합니다");
             return boardId.equals("associate_board");
         }
         else {
-            log.info("정회원은 모든 게시판에 댓글을 작성할 수 있습니다");
+            log.info("정회원은 모든 게시판 열람이 가능합니다");
             return true;
         }
     }

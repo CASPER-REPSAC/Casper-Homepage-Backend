@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -39,7 +40,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(Customizer.withDefaults()) // CORS 활성화
                 .addFilterBefore(new JwtTokenFilter(userService, secretKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
@@ -50,15 +53,9 @@ public class SecurityConfig {
                                 .requestMatchers("/api/user/join").permitAll()
                                 .requestMatchers("/api/article").permitAll()
                                 .requestMatchers("/api/mail").permitAll()
-//                                .anyRequest().authenticated()
-//                                .requestMatchers("/**").authenticated()
-//                                .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
-//                                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                                .anyRequest().authenticated()
                                 .anyRequest().permitAll()
-
                 )
-                .headers((headers) -> headers
+                .headers(headers -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
                 .build();
