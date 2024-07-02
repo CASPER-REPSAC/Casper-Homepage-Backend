@@ -14,4 +14,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/article/**")
                 .addResourceLocations("file:///home/casper/newsper_article/");
     }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("https://casper.or.kr")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 }

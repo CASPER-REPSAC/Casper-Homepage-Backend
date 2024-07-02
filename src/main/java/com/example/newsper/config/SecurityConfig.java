@@ -34,43 +34,36 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(Customizer.withDefaults()) // CORS 활성화
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(new JwtTokenFilter(userService, secretKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/api/user/login").permitAll()
-                                .requestMatchers("/api/user/refresh").permitAll()
-                                .requestMatchers("/api/user/google").permitAll()
-                                .requestMatchers("/api/user/github").permitAll()
-                                .requestMatchers("/api/user/join").permitAll()
-                                .requestMatchers("/api/article").permitAll()
-                                .requestMatchers("/api/mail").permitAll()
-                                .anyRequest().permitAll()
+                                authorizeRequests
+                                        .requestMatchers("/api/user/login").permitAll()
+                                        .requestMatchers("/api/user/refresh").permitAll()
+                                        .requestMatchers("/api/user/google").permitAll()
+                                        .requestMatchers("/api/user/github").permitAll()
+                                        .requestMatchers("/api/user/join").permitAll()
+                                        .requestMatchers("/api/article").permitAll()
+                                        .requestMatchers("/api/mail").permitAll()
+//                                .anyRequest().authenticated()
+//                                .requestMatchers("/**").authenticated()
+//                                .requestMatchers("/manager/**").hasAnyRole("ADMIN", "MANAGER")
+//                                .requestMatchers("/admin/**").hasRole("ADMIN")
+//                                .anyRequest().authenticated()
+                                        .anyRequest().permitAll()
+
                 )
-                .headers(headers -> headers
+                .headers((headers) -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
                 .build();
-    }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://casper.or.kr","https://oauth2.googleapis.com/token","https://www.googleapis.com/oauth2/v2/userinfo","https://github.com/login/oauth/access_token","https://api.github.com/user"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
     @Bean
