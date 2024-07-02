@@ -111,8 +111,11 @@ public class UserApiController {
         String userId = userService.getUserId(request);
         log.info("User ID : "+userId);
         UserEntity userEntity = userService.findById(userId);
+        if(!dto.getNickname().equals(userEntity.getNickname())){
+            userEntity.setNickname(dto.getNickname());
+            userService.changeNickname(userEntity);
+        }
 
-        userEntity.setNickname(dto.getNickname());
         userEntity.setHomepage(dto.getHomepage());
         userEntity.setIntroduce(dto.getIntroduce());
         userEntity.setName(dto.getName());

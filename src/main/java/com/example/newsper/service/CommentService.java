@@ -11,6 +11,7 @@ import com.example.newsper.repository.CommentRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -18,9 +19,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
@@ -45,6 +48,10 @@ public class CommentService {
         }
 
         return dtos;
+    }
+
+    public CommentEntity findById(Long commentId){
+        return commentRepository.findById(commentId).orElse(null);
     }
 
     @Transactional
@@ -84,6 +91,36 @@ public class CommentService {
             return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch(Exception e){
             return "guest";
+        }
+    }
+
+    public boolean writerCheck(CommentEntity comment, HttpServletRequest request) {
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        return comment.getId().equals(user.getId()) || user.getRole().equals("admin");
+    }
+
+    public boolean authCheck(Long articleId, HttpServletRequest request) {
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        String boardId = Objects.requireNonNull(articleRepository.findById(articleId).orElse(null)).getBoardId();
+        log.info("댓글 권한 체크");
+
+        if(user == null) {
+            log.info("유저 데이터에 조회할 수 없습니다");
+            return false;
+        }
+        else if(boardId.equals("freedom_board")) {
+            log.info("자유 게시판은 누구나 댓글 작성이 가능합니다");
+            return true;
+        }
+        else if(user.getRole().equals("associate")) {
+            log.info("준회원은 준회원 게시판에 댓글을 작성할 수 있습니다");
+            return boardId.equals("associate_board");
+        }
+        else {
+            log.info("정회원은 모든 게시판에 댓글을 작성할 수 있습니다");
+            return true;
         }
     }
 }

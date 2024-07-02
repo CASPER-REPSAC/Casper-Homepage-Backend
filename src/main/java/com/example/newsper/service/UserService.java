@@ -3,6 +3,8 @@ package com.example.newsper.service;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.repository.ArticleRepository;
+import com.example.newsper.repository.CommentRepository;
 import com.example.newsper.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
@@ -35,6 +37,12 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ArticleRepository articleRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -130,6 +138,11 @@ public class UserService {
         accessCookie.setHttpOnly(true);
         accessCookie.setPath("/");
         response.addCookie(accessCookie);
+    }
+
+    public void changeNickname(UserEntity userEntity){
+        articleRepository.changeNicknameInArticle(userEntity.getNickname(), userEntity.getId());
+        commentRepository.changeNicknameInComment(userEntity.getNickname(), userEntity.getId());
     }
 
     public void roleChange(UserEntity user,String role){
