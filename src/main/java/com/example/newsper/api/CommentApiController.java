@@ -94,7 +94,7 @@ public class CommentApiController {
     ){
 
         if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
-        
+
         commentService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

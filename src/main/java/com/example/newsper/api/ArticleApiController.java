@@ -196,6 +196,15 @@ public class ArticleApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+//    @GetMapping("/search")
+//    public ResponseEntity<?> search(
+//            @RequestParam String boardId,
+//            @RequestParam String searchType,
+//            @RequestParam String contents
+//    ){
+//        if
+//    }
+
     private Map<String, Object> setErrorCodeBody(int code){
         Map<String, Object> responseBody = new HashMap<>();
         //responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
