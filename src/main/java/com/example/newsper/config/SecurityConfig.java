@@ -63,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://casper.or.kr"));
+        configuration.setAllowedOrigins(List.of("https://casper.or.kr","https://oauth2.googleapis.com/token","https://www.googleapis.com/oauth2/v2/userinfo","https://github.com/login/oauth/access_token","https://api.github.com/user"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
