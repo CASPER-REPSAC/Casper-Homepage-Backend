@@ -70,9 +70,9 @@ public class ArticleApiController {
         page = (page-1)*10;
         int maxPageNum = articleService.getMaxPageNum(boardId,category);
         List<ArticleListDto> target = articleService.boardList(boardId,category,page);
-        for(ArticleListDto article: target){
-            article.setFile(fileService.getFileNames(article.getArticleId()) != null);
-        }
+//        for(ArticleListDto article: target){
+//            article.setFile(fileService.getFileNames(article.getArticleId()) != null);
+//        }
         map.put("maxPageNum",Math.ceil((double) maxPageNum /10.0));
         map.put("articleList", target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
