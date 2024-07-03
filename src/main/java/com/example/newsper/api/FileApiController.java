@@ -53,6 +53,11 @@ public class FileApiController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-401));
                 }
 
+                if (file.getOriginalFilename() == null || file.getOriginalFilename().length() > 100) {
+                    log.info("파일 이름이 너무 길거나 null입니다.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-402));
+                }
+
                 String url = fileService.fileUpload(file,type);
                 Map<String, Object> map = new HashMap<>();
                 map.put("name",file.getOriginalFilename());
