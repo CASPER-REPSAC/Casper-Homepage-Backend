@@ -49,7 +49,7 @@ public class OAuthService {
         if(userService.findByEmail(email) == null){
             UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
-        } else return userService.findById(email);
+        } else return userService.findByEmail(email);
     }
 
     private String getGoogleAccessToken(String authorizationCode, String redirectUri) {
@@ -97,7 +97,7 @@ public class OAuthService {
         if(userService.findByEmail(email) == null){
             UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
-        } else return userService.findById(email);
+        } else return userService.findByEmail(email);
     }
 
     private String getGithubAccessToken(String authorizationCode, String redirectUri) {
