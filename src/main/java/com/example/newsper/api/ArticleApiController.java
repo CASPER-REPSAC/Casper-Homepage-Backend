@@ -8,6 +8,7 @@ import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.ArticleService;
+import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.FileService;
 import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +33,9 @@ public class ArticleApiController {
 
     @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private ErrorCodeService errorCodeService;
 
     @Autowired
     private UserService userService;
@@ -64,7 +68,7 @@ public class ArticleApiController {
         //권한 확인
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(!articleService.authCheck(boardId, user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
+        if(!articleService.authCheck(boardId, user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
 
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
@@ -87,7 +91,7 @@ public class ArticleApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
+        if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
 
         article.setView(article.getView()+1L);
         log.info(article.getView().toString());
@@ -109,8 +113,8 @@ public class ArticleApiController {
     ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
-        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
+        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
@@ -142,7 +146,7 @@ public class ArticleApiController {
         UserEntity user = userService.findById(userId);
         ArticleEntity article = articleService.findById(articleId);
 
-        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
 
         articleService.delete(article);
 
@@ -163,7 +167,7 @@ public class ArticleApiController {
         UserEntity user = userService.findById(userId);
 
         ArticleEntity article = articleService.findById(articleId);
-        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
 
         ArticleEntity updated = articleService.update(articleId,dto);
 
@@ -191,22 +195,4 @@ public class ArticleApiController {
 //        if
 //    }
 
-    private Map<String, Object> setErrorCodeBody(int code){
-        Map<String, Object> responseBody = new HashMap<>();
-        //responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
-        //responseBody.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        responseBody.put("code", code);
-
-        if(code == -101) responseBody.put("message", "로그인 아이디를 찾을 수 없음");
-        else if(code == -102) responseBody.put("message", "로그인 패스워드 불일치");
-        else if(code == -201) responseBody.put("message", "회원 가입 파라미터 누락");
-        else if(code == -202) responseBody.put("message", "회원 가입 이메일 인증 오류");
-        else if(code == -203) responseBody.put("message", "회원 가입 ID 중복");
-        else if(code == -301) responseBody.put("message", "게시판 접근 권한 없음");
-        else if(code == -302) responseBody.put("message", "게시글 쓰기 권한 없음");
-        else if(code == -303) responseBody.put("message", "게시글 수정/삭제 권한 없음");
-        else if(code == -1) responseBody.put("message", "지정되지 않은 에러");
-
-        return responseBody;
-    }
 }

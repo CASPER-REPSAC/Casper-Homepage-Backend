@@ -38,6 +38,9 @@ public class UserApiController {
     private UserService userService;
 
     @Autowired
+    private ErrorCodeService errorCodeService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -61,9 +64,9 @@ public class UserApiController {
         UserEntity user = userService.findById(dto.getId());
         UserDto userDto = dto.toUserDto();
 
-        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-202));
-        if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-201));
-        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-203));
+        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-202));
+        if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-201));
+        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
 
         userService.newUser(userDto);
         redisUtil.deleteData(dto.getEmail());
@@ -86,7 +89,7 @@ public class UserApiController {
     @PostMapping("/findid")
     public ResponseEntity<?> findid(@RequestBody findIdDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
+        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-106));
         mailService.idMail(dto.getEmail(), user.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -96,7 +99,7 @@ public class UserApiController {
     @PostMapping("/findpw")
     public ResponseEntity<?> findpw(@RequestBody findPwDto dto){
         UserEntity user = userService.findById(dto.getId());
-        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || !user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(setErrorCodeBody(-106));
+        if(user == null || !user.getName().equals(dto.getName()) || !user.getEmail().equals(dto.getEmail()) || !user.getId().equals(dto.getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-106));
 
         mailService.pwMail(user);
 
@@ -156,16 +159,16 @@ public class UserApiController {
     public ResponseEntity<?> login(@RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.findById(dto.getId());
 
-        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-105));
+        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-105));
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
         if(user == null) {
             accountLockService.setCount(dto.getId());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-101));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-101));
         }
         if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
             accountLockService.setCount(dto.getId());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-102));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-102));
         }
 
         accountLockService.deleteCount(dto.getId());
@@ -254,11 +257,5 @@ public class UserApiController {
         userService.roleChange(user, dto.getRole());
 
         return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    private Map<String, Object> setErrorCodeBody(int code){
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("code", code);
-        return responseBody;
     }
 }

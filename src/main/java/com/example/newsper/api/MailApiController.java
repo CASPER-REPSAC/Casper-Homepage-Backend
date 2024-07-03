@@ -1,6 +1,8 @@
 package com.example.newsper.api;
 
+import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.MailService;
+import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,10 +25,17 @@ public class MailApiController {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ErrorCodeService errorCodeService;
+
     @Operation(summary= "인증 메일 전송", description= "인증 메일을 전송합니다.")
     @PostMapping("/send")
-    public ResponseEntity<String> sendEmailPath(@RequestParam(value = "email") String email_addr) {
-        mailService.sendEmail(email_addr);
+    public ResponseEntity<?> sendEmailPath(@RequestParam(value = "email") String email) {
+        if(userService.findByEmail(email) != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
+        mailService.sendEmail(email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

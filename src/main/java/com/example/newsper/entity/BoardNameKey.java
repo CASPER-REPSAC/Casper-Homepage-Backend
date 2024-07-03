@@ -1,8 +1,10 @@
 package com.example.newsper.entity;
 
 import com.example.newsper.dto.BoardDto;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,9 +18,11 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Data
 public class BoardNameKey implements Serializable {
+    @NotNull
     @Column(name = "boardName")
     private String boardName;
 
+    @NotNull
     @Column(name = "subBoardName")
     private String subBoardName;
 }

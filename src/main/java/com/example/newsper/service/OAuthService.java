@@ -46,7 +46,7 @@ public class OAuthService {
         String name = userResourceNode.get("name").asText();
         log.info("email = "+email);
 
-        if(userService.findById(email) == null){
+        if(userService.findByEmail(email) == null){
             UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
@@ -94,7 +94,7 @@ public class OAuthService {
         String name = userResourceNode.get("name").asText();
         log.info("email = "+email);
 
-        if(userService.findById(email) == null){
+        if(userService.findByEmail(email) == null){
             UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
             return userService.newUser(dto);
         } else return userService.findById(email);
