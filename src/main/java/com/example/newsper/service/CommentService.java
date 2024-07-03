@@ -32,6 +32,9 @@ public class CommentService {
     private ArticleRepository articleRepository;
 
     @Autowired
+    private ArticleService articleService;
+
+    @Autowired
     private UserService userService;
 
     @Value("${custom.secret-key}")
@@ -93,6 +96,13 @@ public class CommentService {
             return "guest";
         }
     }
+
+    public void commentCount(Long articleId, int count){
+        ArticleEntity articleEntity = articleService.findById(articleId);
+        articleEntity.setNumOfComments(articleEntity.getNumOfComments()+count);
+        articleService.save(articleEntity);
+    }
+
 
     public boolean writerCheck(CommentEntity comment, HttpServletRequest request) {
         String userId = userService.getUserId(request);

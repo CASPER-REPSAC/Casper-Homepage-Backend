@@ -88,7 +88,7 @@ public class FileService {
 
         file.transferTo(saveFile);
 
-        String serverUrl = "http://build.casper.or.kr";
+        String serverUrl = "https://build.casper.or.kr";
         return serverUrl + "/"+fileType+"/" + datePath + "/" + uploadFileName;
     }
 
@@ -97,7 +97,7 @@ public class FileService {
         String fileType = fileEntity.getType();
 
         String filePath = "/home/casper/newsper_"+fileType;
-        String result = path.substring("http://build.casper.or.kr/".length());
+        String result = path.substring("https://build.casper.or.kr/".length());
 
         // 파일 객체 생성
         File file = new File(filePath+result);

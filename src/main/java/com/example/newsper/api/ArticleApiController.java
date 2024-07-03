@@ -1,36 +1,25 @@
 package com.example.newsper.api;
 
 import com.example.newsper.dto.ArticleDto;
+import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.dto.CreateArticleDto;
-import com.example.newsper.dto.FileDto;
 import com.example.newsper.entity.ArticleEntity;
-import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.jwt.JwtTokenUtil;
 import com.example.newsper.service.ArticleService;
 import com.example.newsper.service.FileService;
 import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.*;
 
 @Tag(name= "Article", description = "게시글 API")
@@ -50,10 +39,10 @@ public class ArticleApiController {
 
     @GetMapping("/album/{page}")
     @Operation(summary= "앨범 조회", description= "얼범을 조회합니다.")
-    public ResponseEntity<List<ArticleList>> album(@Parameter(description = "게시판 페이지") @PathVariable Long page){
+    public ResponseEntity<?> album(@Parameter(description = "게시판 페이지") @PathVariable Long page){
         if (page == null || page<=1) page = 1L;
         page = (page-1)*10;
-        List<ArticleList> target = articleService.boardList("album","all",page);
+        List<ArticleListDto> target = articleService.boardList("album","all",page);
 
         log.info(target.toString());
         return ResponseEntity.status(HttpStatus.OK).body(target);
@@ -80,7 +69,10 @@ public class ArticleApiController {
         Map<String, Object> map = new HashMap<>();
         page = (page-1)*10;
         int maxPageNum = articleService.getMaxPageNum(boardId,category);
-        List<ArticleList> target = articleService.boardList(boardId,category,page);
+        List<ArticleListDto> target = articleService.boardList(boardId,category,page);
+        for(ArticleListDto article: target){
+            article.setFile(fileService.getFileNames(article.getArticleId()) != null);
+        }
         map.put("maxPageNum",Math.ceil((double) maxPageNum /10.0));
         map.put("articleList", target);
         return ResponseEntity.status(HttpStatus.OK).body(map);

@@ -2,6 +2,7 @@ package com.example.newsper.api;
 
 import com.example.newsper.dto.AddCommentDto;
 import com.example.newsper.dto.CommentDto;
+import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.ArticleService;
@@ -49,6 +50,8 @@ public class CommentApiController {
         if(!commentService.authCheck(articleId, request) || !articleService.isHide(articleService.findById(articleId),user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         List<CommentDto> dtos = commentService.comments(articleId);
+        commentService.commentCount(articleId,dtos.size());
+
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
 
@@ -62,6 +65,7 @@ public class CommentApiController {
             HttpServletRequest request
     ){
         if(!commentService.authCheck(articleId,request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
+        commentService.commentCount(articleId,1);
 
         CommentEntity created = commentService.create(articleId,dto,request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -89,11 +93,13 @@ public class CommentApiController {
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> delete(
             @Parameter(description = "댓글ID")
+            @PathVariable Long articleId,
             @PathVariable Long id,
             HttpServletRequest request
-    ){
+){
 
         if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
+        commentService.commentCount(articleId,-1);
 
         commentService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).build();

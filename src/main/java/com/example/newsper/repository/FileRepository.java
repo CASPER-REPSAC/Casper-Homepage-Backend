@@ -19,6 +19,7 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
     @Query(value = "SELECT filePath FROM fileEntity WHERE connectId = :connectId", nativeQuery = true)
     List<String> getUrls(@Param("connectId") String connectId);
 
+
 //    @Transactional
 //    @Modifying
 //    @Query(value = "DELETE FROM fileEntity WHERE id = :id", nativeQuery = true)

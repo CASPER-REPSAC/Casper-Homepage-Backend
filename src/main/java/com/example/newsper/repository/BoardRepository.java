@@ -1,6 +1,5 @@
 package com.example.newsper.repository;
 
-import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.BoardEntity;
 import com.example.newsper.entity.BoardNameKey;
 import org.springframework.data.jpa.repository.JpaRepository;
