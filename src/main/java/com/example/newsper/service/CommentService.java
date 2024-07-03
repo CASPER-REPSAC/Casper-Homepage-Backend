@@ -68,7 +68,7 @@ public class CommentService {
         ArticleEntity article = articleRepository.findById(articleId).orElseThrow(() -> new IllegalArgumentException("댓글 생성 실패!"));
         CommentDto dto = _dto.toCommentDto(_dto);
         dto.setArticleId(articleId);
-        Date date = new Date(System.currentTimeMillis()+3600*9*1000);
+        Date date = new Date(System.currentTimeMillis());
         dto.setCreatedAt(date);
         dto.setModifiedAt(date);
         String userId = getUserId(request);

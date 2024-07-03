@@ -115,7 +115,7 @@ public class ArticleService {
         dto.setNickname(user.getNickname());
         dto.setView(0L);
         dto.setNumOfComments(0L);
-        Date date = new Date(System.currentTimeMillis()+3600*9*1000);
+        Date date = new Date(System.currentTimeMillis());
         dto.setCreatedAt(date);
         dto.setModifiedAt(date);
 
