@@ -66,7 +66,7 @@ public class UserApiController {
 
         if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-202));
         if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-201));
-        if(user != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
+        if(user != null||dto.getId().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
 
         userService.newUser(userDto);
         redisUtil.deleteData(dto.getEmail());
