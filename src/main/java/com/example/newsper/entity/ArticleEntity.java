@@ -57,6 +57,9 @@ public class ArticleEntity {
     @Column(name = "numOfComments", nullable = false)
     private Long numOfComments;
 
+    @Column(name = "file", nullable = true)
+    private boolean file;
+
     public Map<String,Object> addAuthorInfo(String profile, String introduce){
         Map<String,Object> map = new java.util.HashMap<>();
         map.put("articleId",articleId);
@@ -74,6 +77,7 @@ public class ArticleEntity {
         map.put("notice",notice);
         map.put("view",view);
         map.put("numOfComments",numOfComments);
+        map.put("file",file);
 
         return map;
     }

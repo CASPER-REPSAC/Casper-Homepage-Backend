@@ -3,6 +3,7 @@ package com.example.newsper.service;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.entity.ArticleEntity;
+import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    public List<ArticleListDto> boardList(String boardId, String category, Long listNum){
+    public List<ArticleList> boardList(String boardId, String category, Long listNum){
         if(category.equals("all")) return articleRepository.findByBoardListAll(boardId, listNum);
         else return articleRepository.findByBoardList(boardId,category,listNum);
     }

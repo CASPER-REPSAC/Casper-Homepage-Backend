@@ -32,6 +32,6 @@ public class ArticleDto {
     private List<String> urls;
 
     public ArticleEntity toEntity(){
-        return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments);
+        return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments,false);
     }
 }

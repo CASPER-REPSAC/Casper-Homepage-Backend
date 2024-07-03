@@ -4,6 +4,7 @@ import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.entity.ArticleEntity;
+import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.ArticleService;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.FacesRequestAttributes;
 
 import java.io.IOException;
 import java.util.*;
@@ -42,8 +44,7 @@ public class ArticleApiController {
     public ResponseEntity<?> album(@Parameter(description = "게시판 페이지") @PathVariable Long page){
         if (page == null || page<=1) page = 1L;
         page = (page-1)*10;
-        List<ArticleListDto> target = articleService.boardList("album","all",page);
-
+        List<ArticleList> target = articleService.boardList("album","all",page);
         log.info(target.toString());
         return ResponseEntity.status(HttpStatus.OK).body(target);
     }
@@ -69,10 +70,7 @@ public class ArticleApiController {
         Map<String, Object> map = new HashMap<>();
         page = (page-1)*10;
         int maxPageNum = articleService.getMaxPageNum(boardId,category);
-        List<ArticleListDto> target = articleService.boardList(boardId,category,page);
-//        for(ArticleListDto article: target){
-//            article.setFile(fileService.getFileNames(article.getArticleId()) != null);
-//        }
+        List<ArticleList> target = articleService.boardList(boardId,category,page);
         map.put("maxPageNum",Math.ceil((double) maxPageNum /10.0));
         map.put("articleList", target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
@@ -120,6 +118,8 @@ public class ArticleApiController {
             for(String url : _dto.getUrls()) {
                 FileEntity fileEntity = fileService.findById(url);
                 fileEntity.setConnectId(String.valueOf(created.getArticleId()));
+                created.setFile(true);
+                articleService.save(created);
                 fileService.modify(fileEntity);
             }
         }
