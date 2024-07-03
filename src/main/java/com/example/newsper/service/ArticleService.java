@@ -4,6 +4,7 @@ import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
+import com.example.newsper.entity.BoardEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,9 @@ public class ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private FileService fileService;
+
     public List<ArticleList> boardList(String boardId, String category, Long listNum){
         if(category.equals("all")) return articleRepository.findByBoardListAll(boardId, listNum);
         else return articleRepository.findByBoardList(boardId,category,listNum);
@@ -37,7 +41,15 @@ public class ArticleService {
         return articleRepository.findById(articleId).orElse(null);
     }
 
+    public List<ArticleEntity> findByBoardName(BoardEntity boardEntity) { return articleRepository.findByBoardName(boardEntity.getBoardNameKey().getBoardName(), boardEntity.getBoardNameKey().getSubBoardName()); }
+
     public void delete(ArticleEntity articleEntity) {
+        List<String> urls = fileService.getUrls(String.valueOf(articleEntity.getArticleId()));
+
+        for(String url : urls){
+            fileService.delete(url);
+        }
+
         articleRepository.delete(articleEntity);
     }
 

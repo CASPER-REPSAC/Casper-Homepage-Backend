@@ -144,12 +144,6 @@ public class ArticleApiController {
 
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
 
-        List<String> urls = fileService.getUrls(String.valueOf(articleId));
-
-        for(String url : urls){
-            fileService.delete(url);
-        }
-
         articleService.delete(article);
 
         return ResponseEntity.status(HttpStatus.OK).build();

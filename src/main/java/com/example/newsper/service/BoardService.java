@@ -26,14 +26,23 @@ public class BoardService {
 
     @Autowired
     private BoardRepository boardRepository;
+
+    @Autowired
+    private ArticleService articleService;
+
     public BoardEntity save(BoardEntity entity){
         return boardRepository.save(entity);
     }
 
     public BoardEntity delete(BoardEntity boardEntity){
         boardRepository.delete(boardEntity);
+        List<ArticleEntity> articles = articleService.findByBoardName(boardEntity);
+        for(ArticleEntity article : articles){
+            articleService.delete(article);
+        }
         return boardEntity;
     }
+
     public void update(BoardEntity boardEntity, BoardDto dto) {
         boardRepository.update(boardEntity.getBoardNameKey().getBoardName(),boardEntity.getBoardNameKey().getSubBoardName(),dto.getBoardName(), dto.getSubBoardName());
     }
