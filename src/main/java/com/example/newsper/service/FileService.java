@@ -53,7 +53,7 @@ public class FileService {
         List<Object> ret = new ArrayList<>();
         for(String file : files){
             Map<String,Object> map = new HashMap<>();
-            map.put("name",file.substring(82));
+            map.put("name",file.substring(83));
             map.put("src",file);
 
             ret.add(map);

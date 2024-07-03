@@ -37,8 +37,7 @@ public class FileApiController {
             @RequestPart(value = "files") List<MultipartFile> files,
             @Parameter(description ="article, file") @RequestParam String type
     ) throws IOException {
-        Map<String, Object> map = new HashMap<>();
-        List<String> urls = new ArrayList<>();
+        List<Map<String, Object>> ret = new ArrayList<>();
 
         if(files != null) {
             for (MultipartFile file : files) {
@@ -51,13 +50,15 @@ public class FileApiController {
                 }
 
                 String url = fileService.fileUpload(file,type);
-                urls.add(url);
+                Map<String, Object> map = new HashMap<>();
+                map.put("name",file.getOriginalFilename());
+                map.put("url",url);
+                ret.add(map);
                 fileService.save(new FileDto(url, type));
             }
         }
 
-        map.put("urls", urls);
-        return ResponseEntity.status(HttpStatus.OK).body(map);
+        return ResponseEntity.status(HttpStatus.OK).body(ret);
     }
 
     @DeleteMapping("/delete")
