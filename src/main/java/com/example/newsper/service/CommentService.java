@@ -57,6 +57,12 @@ public class CommentService {
         return commentRepository.findById(commentId).orElse(null);
     }
 
+    public void commentCount(Long articleId){
+        ArticleEntity articleEntity = articleService.findById(articleId);
+        articleEntity.setNumOfComments((long) comments(articleId).size());
+        articleService.save(articleEntity);
+    }
+
     @Transactional
     public CommentEntity create(Long articleId, AddCommentDto _dto, HttpServletRequest request) {
         ArticleEntity article = articleRepository.findById(articleId).orElseThrow(() -> new IllegalArgumentException("댓글 생성 실패!"));
@@ -70,6 +76,7 @@ public class CommentService {
         dto.setId(userEntity.getId());
         dto.setNickname(userEntity.getNickname());
         CommentEntity comment = CommentEntity.createComment(dto,article);
+
         return commentRepository.save(comment);
     }
 
@@ -92,17 +99,10 @@ public class CommentService {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
             return JwtTokenUtil.getLoginId(accessToken, secretKey);
-        } catch(Exception e){
+        } catch (Exception e) {
             return "guest";
         }
     }
-
-    public void commentCount(Long articleId, int count){
-        ArticleEntity articleEntity = articleService.findById(articleId);
-        articleEntity.setNumOfComments(articleEntity.getNumOfComments()+count);
-        articleService.save(articleEntity);
-    }
-
 
     public boolean writerCheck(CommentEntity comment, HttpServletRequest request) {
         String userId = userService.getUserId(request);

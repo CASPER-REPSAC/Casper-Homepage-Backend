@@ -7,6 +7,7 @@ public interface ArticleList {
     String getTitle();
     String getNickname();
     Long getArticleId();
+    String getBoardId();
     Long getView();
     Boolean getFile();
     Boolean getHide();

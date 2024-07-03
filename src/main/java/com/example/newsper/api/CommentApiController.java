@@ -50,7 +50,6 @@ public class CommentApiController {
         if(!commentService.authCheck(articleId, request) || !articleService.isHide(articleService.findById(articleId),user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-301));
 
         List<CommentDto> dtos = commentService.comments(articleId);
-        commentService.commentCount(articleId,dtos.size());
 
         return ResponseEntity.status(HttpStatus.OK).body(dtos);
     }
@@ -65,9 +64,8 @@ public class CommentApiController {
             HttpServletRequest request
     ){
         if(!commentService.authCheck(articleId,request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-302));
-        commentService.commentCount(articleId,1);
-
         CommentEntity created = commentService.create(articleId,dto,request);
+        commentService.commentCount(articleId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -99,9 +97,8 @@ public class CommentApiController {
 ){
 
         if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(setErrorCodeBody(-303));
-        commentService.commentCount(articleId,-1);
-
         commentService.delete(id);
+        commentService.commentCount(articleId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
