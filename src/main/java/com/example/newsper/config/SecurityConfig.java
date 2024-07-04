@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(userService, secretKey), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->
                                 authorizeRequests
+                                        .requestMatchers("/proxy/api/user/google").permitAll()
+                                        .requestMatchers("/proxy/api/user/refresh").permitAll()
                                         .requestMatchers("/api/user/login").permitAll()
                                         .requestMatchers("/api/user/refresh").permitAll()
                                         .requestMatchers("/api/user/google").permitAll()
