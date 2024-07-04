@@ -18,9 +18,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://oauth2.googleapis.com", "https://www.googleapis.com", "https://github.com", "https://api.github.com")
+//                .allowedOrigins("https://oauth2.googleapis.com", "https://www.googleapis.com", "https://github.com", "https://api.github.com")
+                .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false);
+                .allowCredentials(true);
     }
 }
