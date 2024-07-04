@@ -18,9 +18,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // 모든 경로에 대해 허용
-                .allowedOrigins("https://casper.or.kr", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://github.com", "https://api.github.com")  // 모든 도메인 허용
-                .allowedMethods("*")  // 모든 HTTP 메서드 허용
+                .allowedOrigins("https://casper.or.kr", "https://oauth2.googleapis.com", "https://www.googleapis.com", "https://github.com", "https://api.github.com")
+                .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH")
                 .allowedHeaders("*")  // 모든 헤더 허용
-                .allowCredentials(true);
+                .allowCredentials(false);
     }
 }
