@@ -22,6 +22,9 @@ public class ErrorCodeService {
         else if(code == -301) responseBody.put("message", "게시판 접근 권한 없음");
         else if(code == -302) responseBody.put("message", "게시글 쓰기 권한 없음");
         else if(code == -303) responseBody.put("message", "게시글 수정/삭제 권한 없음");
+        else if(code == -401) responseBody.put("message", "파일 용량 10MB 초과");
+        else if(code == -402) responseBody.put("message", "파일 이름이 너무 길거나 NULL");
+        else if(code == -501) responseBody.put("message", "관리자의 권한은 바꿀 수 없음");
         else if(code == -1) responseBody.put("message", "지정되지 않은 에러");
 
         return responseBody;

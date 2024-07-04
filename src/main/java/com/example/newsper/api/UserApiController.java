@@ -249,6 +249,7 @@ public class UserApiController {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
 
+        if(dto.getRole().equals("admin")) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(-501));
         if(!userEntity.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         if(dto.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         if(dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
