@@ -1,5 +1,7 @@
 package com.example.newsper.service;
 
+import com.example.newsper.entity.ArticleEntity;
+import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.repository.UserRepository;
@@ -46,4 +48,15 @@ public class AccountLockService {
     public void deleteCount(String id){
         redisUtil.deleteData(id);
     }
+
+    public boolean isArticleVisited(UserEntity user, ArticleEntity article) {
+        if(redisUtil.existData(user.getId()+"_"+article.getArticleId())){
+            redisUtil.setDataExpire(user.getId()+"_"+article.getArticleId(),"visited",5*60L);
+            return true;
+        } else{
+            redisUtil.setDataExpire(user.getId()+"_"+article.getArticleId(),"visited",5*60L);
+            return false;
+        }
+    }
+
 }

@@ -7,10 +7,8 @@ import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.service.ArticleService;
-import com.example.newsper.service.ErrorCodeService;
-import com.example.newsper.service.FileService;
-import com.example.newsper.service.UserService;
+import com.example.newsper.redis.RedisUtil;
+import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,6 +40,9 @@ public class ArticleApiController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private AccountLockService accountLockService;
 
     @GetMapping("/album/{page}")
     @Operation(summary= "앨범 조회", description= "얼범을 조회합니다.")
@@ -93,7 +94,9 @@ public class ArticleApiController {
 
         if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
 
-        article.setView(article.getView()+1L);
+        if(!accountLockService.isArticleVisited(user,article))
+            article.setView(article.getView()+1L);
+
         log.info(article.getView().toString());
         List<Object> files = fileService.getFileNames(articleId);
 
