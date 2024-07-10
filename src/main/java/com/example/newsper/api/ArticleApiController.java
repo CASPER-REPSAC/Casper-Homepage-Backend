@@ -94,7 +94,7 @@ public class ArticleApiController {
 
         if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
 
-        if(!accountLockService.isArticleVisited(user,article))
+        if(!userId.equals("guest")&&!accountLockService.isArticleVisited(user,article))
             article.setView(article.getView()+1L);
 
         log.info(article.getView().toString());
