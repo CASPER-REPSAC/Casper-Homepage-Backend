@@ -102,9 +102,13 @@ public class ArticleApiController {
 
         UserEntity author = userService.findById(article.getUserId());
 
-        map.put("article",article.addAuthorInfo(author.getProfileImgPath(),author.getIntroduce()));
-        map.put("files",files);
+        if(author == null){
+            map.put("article",article.addAuthorInfo(null, null));
+        } else {
+            map.put("article",article.addAuthorInfo(author.getProfileImgPath(),author.getIntroduce()));
+        }
 
+        map.put("files",files);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
