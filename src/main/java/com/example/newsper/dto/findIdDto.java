@@ -5,9 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class findIdDto {
-    @Schema(description = "성명")
-    private String name;
-
     @Schema(description = "이메일")
     private String email;
 }
