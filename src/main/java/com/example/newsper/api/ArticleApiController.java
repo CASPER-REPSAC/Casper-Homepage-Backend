@@ -74,9 +74,9 @@ public class ArticleApiController {
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
         page = (page-1)*10;
-        int maxPageNum = articleService.getMaxPageNum(boardId,category);
+        double maxPageNum = articleService.getMaxPageNum(boardId,category);
         List<ArticleList> target = articleService.boardList(boardId,category,page);
-        map.put("maxPageNum",Math.ceil((double) maxPageNum /10.0));
+        map.put("maxPageNum",Math.ceil(maxPageNum/10.0));
         map.put("articleList", target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
