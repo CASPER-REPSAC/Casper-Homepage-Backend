@@ -21,6 +21,10 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity,Long> {
     @Query(value = "SELECT count(*) FROM articleEntity WHERE boardId = :boardId and category = :category", nativeQuery = true)
     int findAllBoardListCount(@Param("boardId") String boardId, @Param("category") String category);
 
+    @Query(value = "SELECT count(*) FROM articleEntity WHERE boardId = :boardId", nativeQuery = true)
+    int findAllBoardListCount2(@Param("boardId") String boardId);
+
+
     @Modifying
     @Query(value = "UPDATE articleEntity SET nickname = :nickname WHERE userId = :userId", nativeQuery = true)
     void changeNicknameInArticle(@Param("nickname") String nickname, @Param("userId") String userId);

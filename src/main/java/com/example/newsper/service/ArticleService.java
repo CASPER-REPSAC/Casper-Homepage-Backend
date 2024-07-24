@@ -34,6 +34,7 @@ public class ArticleService {
     }
 
     public int getMaxPageNum(String boardId, String category){
+        if(category.equals("all")) return articleRepository.findAllBoardListCount2(boardId);
         return articleRepository.findAllBoardListCount(boardId,category);
     }
 
