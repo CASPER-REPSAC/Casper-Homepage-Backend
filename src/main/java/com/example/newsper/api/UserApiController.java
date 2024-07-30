@@ -89,6 +89,8 @@ public class UserApiController {
     @PostMapping("/findid")
     public ResponseEntity<?> findid(@RequestBody findIdDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
+        if(user == null) log.info("가입된 이메일 없음 : "+dto.getEmail());
+        else log.info("가입된 이메일 발견 : "+user.getEmail());
         if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-106));
         mailService.idMail(dto.getEmail(), user.getId());
 
