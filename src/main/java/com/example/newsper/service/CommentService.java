@@ -95,6 +95,11 @@ public class CommentService {
         commentRepository.delete(target);
     }
 
+    public void deleteByArticle(Long articleId){
+        List<CommentEntity> comments = commentRepository.findByArticleId(articleId);
+        commentRepository.deleteAll(comments);
+    }
+
     private String getUserId(HttpServletRequest request) {
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];

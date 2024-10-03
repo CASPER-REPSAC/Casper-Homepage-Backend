@@ -33,6 +33,9 @@ public class ArticleApiController {
     private ArticleService articleService;
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private ErrorCodeService errorCodeService;
 
     @Autowired
@@ -156,6 +159,7 @@ public class ArticleApiController {
 
         if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
 
+        commentService.deleteByArticle(articleId);
         articleService.delete(article);
 
         return ResponseEntity.status(HttpStatus.OK).build();

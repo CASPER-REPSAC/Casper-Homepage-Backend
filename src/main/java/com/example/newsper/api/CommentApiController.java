@@ -98,7 +98,7 @@ public class CommentApiController {
             @PathVariable Long articleId,
             @PathVariable Long id,
             HttpServletRequest request
-){
+    ){
 
         if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
         commentService.delete(id);

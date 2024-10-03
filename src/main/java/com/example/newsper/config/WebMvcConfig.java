@@ -19,6 +19,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:" + homePath + "/article/");
         registry.addResourceHandler("/assignment/**")
                 .addResourceLocations("file:" + homePath + "/assignment/");
+        registry.addResourceHandler("/submit/**")
+                .addResourceLocations("file:" + homePath + "/submit/");
     }
 
     @Override

@@ -3,9 +3,7 @@ package com.example.newsper.service;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
-import com.example.newsper.repository.ArticleRepository;
-import com.example.newsper.repository.CommentRepository;
-import com.example.newsper.repository.UserRepository;
+import com.example.newsper.repository.*;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +38,12 @@ public class UserService {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @Autowired
+    private SubmitRepository submitRepository;
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -143,6 +147,8 @@ public class UserService {
     public void changeNickname(UserEntity userEntity){
         articleRepository.changeNicknameInArticle(userEntity.getNickname(), userEntity.getId());
         commentRepository.changeNicknameInComment(userEntity.getNickname(), userEntity.getId());
+        assignmentRepository.changeNicknameInAssignment(userEntity.getNickname(), userEntity.getId());
+        submitRepository.changeNicknameInSubmit(userEntity.getNickname(), userEntity.getId());
     }
 
     public void roleChange(UserEntity user,String role){
