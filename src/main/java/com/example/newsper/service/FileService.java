@@ -7,6 +7,7 @@ import com.example.newsper.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ public class FileService {
 
     @Autowired
     private FileRepository fileRepository;
+    private final String homePath = "C:\\Users\\ine\\Downloads";
+    private final String serverUrl = "http://localhost:8080";
 
     public void save(FileDto fileDto){
         fileRepository.save(fileDto.toEntity());
@@ -38,8 +41,8 @@ public class FileService {
 
     public FileEntity findById(String id){ return fileRepository.findById(id).orElse(null); }
 
-    public List<String> getUrls(String id){
-        return fileRepository.getUrls(id);
+    public List<String> getUrls(String id, String type){
+        return fileRepository.getUrls(id, type);
     }
 
 //    public void update(String requestId, String id){
@@ -48,8 +51,8 @@ public class FileService {
 
 
 
-    public List<Object> getFileNames(Long articleId){
-        List<String> files = fileRepository.getUrls(String.valueOf(articleId));
+    public List<Object> getFileNames(Long id, String type){
+        List<String> files = fileRepository.getUrls(String.valueOf(id),type);
         List<Object> ret = new ArrayList<>();
         for(String file : files){
             Map<String,Object> map = new HashMap<>();
@@ -62,8 +65,7 @@ public class FileService {
     }
 
     public String fileUpload(MultipartFile file, String fileType) throws IOException {
-        String uploadFolder = "/home/casper/newsper_"+fileType;
-
+        String uploadFolder = homePath+File.separator+fileType;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         Date date = new Date();
@@ -72,7 +74,7 @@ public class FileService {
 
         File uploadPath = new File(uploadFolder, datePath);
 
-        if (uploadPath.exists() == false) {
+        if (!uploadPath.exists()) {
             uploadPath.mkdirs();
         }
 
@@ -85,32 +87,28 @@ public class FileService {
 
         /* 파일 위치, 파일 이름을 합친 File 객체 */
         File saveFile = new File(uploadPath, uploadFileName);
+        log.info("저장할 경로: " + saveFile.getAbsolutePath());
 
         file.transferTo(saveFile);
 
-        String serverUrl = "https://build.casper.or.kr";
-        return serverUrl + "/"+fileType+"/" + datePath + "/" + uploadFileName;
+        return serverUrl + ("/"+fileType+"/" + datePath + "/" + uploadFileName).replace("/", File.separator);
     }
 
     public void delete(String path){
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
-        String fileType = fileEntity.getType();
 
-        String filePath = "/home/casper/newsper_"+fileType;
-        String result = path.substring("https://build.casper.or.kr/".length());
+        String filePath = homePath;
+        String result = path.substring(serverUrl.length());
 
         // 파일 객체 생성
         File file = new File(filePath+result);
+        log.info(filePath);
+        log.info(result);
+        log.info(filePath+result);
 
         // 파일 삭제
         file.delete();
 
         fileRepository.delete(fileEntity);
     }
-
-//    public void delete(String articleId){
-//        FileService fileEntity
-//        fileRepository.deletebyArticleId(articleId);
-//    }
-
 }

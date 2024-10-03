@@ -39,7 +39,7 @@ public class FileApiController {
     @Operation(summary= "파일 업로드", description= "파일을 업로드 합니다.")
     public ResponseEntity<?> write(
             @RequestPart(value = "files") List<MultipartFile> files,
-            @Parameter(description ="article, file") @RequestParam String type
+            @Parameter(description ="article, profile, assignment") @RequestParam String type
     ) throws IOException {
         List<Map<String, Object>> ret = new ArrayList<>();
 

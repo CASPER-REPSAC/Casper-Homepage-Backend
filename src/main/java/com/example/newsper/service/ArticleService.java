@@ -45,7 +45,7 @@ public class ArticleService {
     public List<ArticleEntity> findByBoardName(BoardEntity boardEntity) { return articleRepository.findByBoardName(boardEntity.getBoardNameKey().getBoardName(), boardEntity.getBoardNameKey().getSubBoardName()); }
 
     public void delete(ArticleEntity articleEntity) {
-        List<String> urls = fileService.getUrls(String.valueOf(articleEntity.getArticleId()));
+        List<String> urls = fileService.getUrls(String.valueOf(articleEntity.getArticleId()),"article");
 
         for(String url : urls){
             fileService.delete(url);

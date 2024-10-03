@@ -16,8 +16,8 @@ public interface FileRepository extends JpaRepository<FileEntity, String> {
 //    @Query(value = "UPDATE fileEntity SET id = :id WHERE filePath = :url", nativeQuery = true)
 //    void update(@Param("connectId") String requestId, @Param("id") String id);
 
-    @Query(value = "SELECT filePath FROM fileEntity WHERE connectId = :connectId", nativeQuery = true)
-    List<String> getUrls(@Param("connectId") String connectId);
+    @Query(value = "SELECT filePath FROM fileEntity WHERE connectId = :connectId AND type = :type", nativeQuery = true)
+    List<String> getUrls(@Param("connectId") String connectId, @Param("type") String type);
 
 
 //    @Transactional
