@@ -28,7 +28,7 @@ public class FileService {
 
     @Autowired
     private FileRepository fileRepository;
-    private final String homePath="/home/casper/newsper/";
+    private final String homePath="/home/casper/";
     private final String serverUrl="https://build.casper.or.kr";
 
     public void save(FileDto fileDto){

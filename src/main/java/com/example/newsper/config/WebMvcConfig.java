@@ -12,7 +12,7 @@ import java.io.File;
 public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String homePath="/home/casper/newsper/";
+        String homePath="/home/casper/";
         registry.addResourceHandler("/profile/**")
                 .addResourceLocations("file://" + homePath + "profile/");
         registry.addResourceHandler("/article/**")
