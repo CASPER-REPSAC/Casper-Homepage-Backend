@@ -1,14 +1,17 @@
 package com.example.newsper.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class SubmitListDto {
 
     @Schema(description = "제출 ID")

@@ -19,6 +19,6 @@ public interface AssignmentRepository extends JpaRepository<AssignmentEntity,Lon
     @Query(value = "SELECT count(*) FROM assignmentEntity", nativeQuery = true)
     int assignmentCount();
 
-    @Query(value = "SELECT assignmentId, title, category, deadline, userId, nickname, '마감됨' AS progress FROM assignmentEntity ORDER BY assignmentId DESC LIMIT :listNum, 10", nativeQuery = true)
-    List<AssignmentListDto> AssignmentList(@Param("listNum") Long listNum);
+    @Query(value = "SELECT assignmentId, title, category, deadline, userId, name, '마감됨' AS progress FROM assignmentEntity ORDER BY assignmentId DESC LIMIT :listNum, 10", nativeQuery = true)
+    List<Object[]> AssignmentList(@Param("listNum") Long listNum);
 }

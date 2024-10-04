@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -59,6 +62,17 @@ public class AssignmentService {
     }
 
     public List<AssignmentListDto> assignmentList(Long listNum){
-        return assignmentRepository.AssignmentList(listNum);
+        List<Object[]> obj = assignmentRepository.AssignmentList(listNum);
+
+        return obj.stream()
+                .map(row -> new AssignmentListDto(
+                        (Long) row[0],      // assignmentId
+                        (String) row[1],    // title
+                        (String) row[2],    // category
+                        (Date) row[3],      // deadline
+                        (String) row[4],    // userId
+                        (String) row[5],    // name
+                        (String) row[6]))   // progress
+                .collect(Collectors.toList());
     }
 }

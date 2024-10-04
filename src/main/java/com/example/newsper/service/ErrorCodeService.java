@@ -25,7 +25,18 @@ public class ErrorCodeService {
         else if(code == -401) responseBody.put("message", "파일 용량 10MB 초과");
         else if(code == -402) responseBody.put("message", "파일 이름이 너무 길거나 NULL");
         else if(code == -501) responseBody.put("message", "관리자의 권한은 바꿀 수 없음");
-        else if(code == -1) responseBody.put("message", "지정되지 않은 에러");
+        else if(code == -601) responseBody.put("message", "정회원 이상 과제작성 가능");
+        else if(code == -602) responseBody.put("message", "과제 수정은 본인만 가능");
+        else if(code == -603) responseBody.put("message", "로그인 후 사용 가능");
+        else if(code == -604) responseBody.put("message", "파일 5개 초과");
+        else if(code == -701) responseBody.put("message", "다른 준회원의 과제 조회 불가");
+        else if(code == -702) responseBody.put("message", "준회원만 과제 제출 가능");
+        else if(code == -703) responseBody.put("message", "한 개의 과제만 제출 가능");
+        else if(code == -704) responseBody.put("message", "마감된 과제");
+        else if(code == -705) responseBody.put("message", "과제 수정은 본인만 가능");
+        else if(code == -706) responseBody.put("message", "관리자, 제출자, 출제자만 삭제 가능");
+        else if(code == -707) responseBody.put("message", "파일 5개 초과");
+        else responseBody.put("message", "지정되지 않은 에러");
 
         return responseBody;
     }

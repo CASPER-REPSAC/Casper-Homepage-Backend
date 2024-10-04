@@ -23,8 +23,8 @@ public interface SubmitRepository extends JpaRepository<SubmitEntity, Long> {
     @Query(value = "SELECT * FROM submitEntity WHERE userId = :userId", nativeQuery = true)
     SubmitEntity findByUserId(@Param("userId") String userId);
 
-    @Query(value = "SELECT submitId, name, submitDate, score, null AS Urls FROM submitEntity WHERE assignmentId = :assignmentId", nativeQuery = true)
-    List<SubmitListDto> findByAssignmentId2(@Param("assignmentId") Long assignmentId);
+    @Query(value = "SELECT submitId, name, submitDate, score FROM submitEntity WHERE assignmentId = :assignmentId", nativeQuery = true)
+    List<Object[]> findByAssignmentId2(@Param("assignmentId") Long assignmentId);
 
 
 }

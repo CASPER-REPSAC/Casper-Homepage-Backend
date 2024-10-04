@@ -48,7 +48,9 @@ public class AssignmentApiController {
     ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
+        if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
+        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
+
         AssignmentEntity created = dto.toEntity(user);
         assignmentService.save(created);
 
@@ -64,7 +66,7 @@ public class AssignmentApiController {
         List<Object> files = fileService.getFileNames(created.getAssignmentId(),"assignment");
         map.put("assignment", created);
         map.put("files", files);
-        return ResponseEntity.status(HttpStatus.OK).body(map);
+        return ResponseEntity.status(HttpStatus.CREATED).body(map);
     }
 
     @PatchMapping("/edit/{assignmentId}")
@@ -79,7 +81,8 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
-        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-602));
+        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
 
         AssignmentEntity updated = assignmentService.update(assignmentEntity,dto);
 
@@ -94,7 +97,7 @@ public class AssignmentApiController {
         }
 
         return (updated != null) ?
-                ResponseEntity.status(HttpStatus.OK).body(updated):
+                ResponseEntity.status(HttpStatus.OK).build():
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
@@ -108,7 +111,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
 
-        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-602));
 
         submitService.deleteByAssignment(assignmentId);
         assignmentService.delete(assignmentEntity);
@@ -124,7 +127,7 @@ public class AssignmentApiController {
             HttpServletRequest request
     ){
         String userId = userService.getUserId(request);
-
+        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-603));
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
         page = (page-1)*10;
@@ -144,11 +147,15 @@ public class AssignmentApiController {
             HttpServletRequest request
     ){
         String userId = userService.getUserId(request);
+        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-603));
         UserEntity user = userService.findById(userId);
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
         Map<String, Object> map = new HashMap<>();
         map.put("assignment",assignmentEntity);
+
+        List<Object> assignmentFiles = fileService.getFileNames(assignmentId,"assignment");
+        map.put("assignmentFiles", assignmentFiles);
 
         if(!(user.getRole().equals("associate")||user.getRole().equals("guest"))){
             List<SubmitListDto> dtos = submitService.findByAssignmentId(assignmentId);
@@ -162,22 +169,41 @@ public class AssignmentApiController {
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
-    @PostMapping("/grade/{assignmentId}")
+    @PostMapping("/grade")
     @Operation(summary= "과제 채점", description= "과제를 채점합니다.")
     public ResponseEntity<?> grade(
             @Parameter(description = "과제 ID")
-            @PathVariable List<SubmitListDto> dtos,
+            @RequestBody List<SubmitGradeDto> dtos,
             HttpServletRequest request
     ){
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
-        for(SubmitListDto dto : dtos){
+        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
+        for(SubmitGradeDto dto : dtos){
             SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
             submitEntity.setScore(dto.getScore());
             submitService.save(submitEntity);
         }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/feedback")
+    @Operation(summary= "과제 피드백", description= "과제에 피드백을 부여합니다.")
+    public ResponseEntity<?> grade(
+            @Parameter(description = "과제 ID")
+            @RequestBody SubmitFeedbackDto dto,
+            HttpServletRequest request
+    ){
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+
+        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
+
+        SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
+        submitEntity.setFeedback(dto.getFeedback());
+        submitService.save(submitEntity);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -189,7 +215,7 @@ public class AssignmentApiController {
             if(date.getTime() >= dto.getDeadline().getTime()){
                 dto.setProgress("마감됨");
             } else{
-                if(submitEntity != null) {
+                if(submitEntity != null && submitEntity.getAssignmentId().equals(dto.getAssignmentId())) {
                     if(submitEntity.getScore() != null)
                         dto.setProgress("채점완료");
                     else

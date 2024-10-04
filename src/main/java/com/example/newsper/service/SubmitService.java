@@ -1,5 +1,6 @@
 package com.example.newsper.service;
 
+import com.example.newsper.dto.AssignmentListDto;
 import com.example.newsper.dto.CreateSubmitDto;
 import com.example.newsper.dto.SubmitListDto;
 import com.example.newsper.entity.CommentEntity;
@@ -11,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -21,6 +24,9 @@ public class SubmitService {
 
     @Autowired
     private SubmitRepository submitRepository;
+
+    @Autowired
+    private FileService fileService;
     public SubmitEntity findById(Long submitId){
         return submitRepository.findById(submitId).orElse(null);
     }
@@ -32,8 +38,19 @@ public class SubmitService {
     public SubmitEntity save(SubmitEntity submitEntity) { return submitRepository.save(submitEntity); }
 
     public List<SubmitListDto> findByAssignmentId(Long assignmentId){
-        return submitRepository.findByAssignmentId2(assignmentId);
+        List<Object[]> obj = submitRepository.findByAssignmentId2(assignmentId);
+
+        return obj.stream()
+                .map(row -> new SubmitListDto(
+                        (Long) row[0],      // submitId
+                        (String) row[1],    // name
+                        (Date) row[2],      // submitDate
+                        (Long) row[3],      // score
+                        fileService.getFileNames((Long) row[0], "submit"))    // urls
+                )
+                .collect(Collectors.toList());
     }
+
     public SubmitEntity update(SubmitEntity submitEntity, CreateSubmitDto dto){
         submitEntity.setContent(dto.getContent());
         submitRepository.save(submitEntity);

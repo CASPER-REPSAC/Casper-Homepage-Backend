@@ -49,7 +49,7 @@ public class FileApiController {
                 log.info("파일 이름 : " + file.getOriginalFilename());
                 log.info("파일 크기 : " + file.getSize());
 
-                if (file.getSize() > 10000000) {
+                if (file.getSize() > 5000000) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-401));
                 }
 
