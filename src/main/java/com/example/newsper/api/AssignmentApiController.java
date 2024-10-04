@@ -49,7 +49,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
-        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
 
         AssignmentEntity created = dto.toEntity(user);
         assignmentService.save(created);
@@ -82,7 +82,7 @@ public class AssignmentApiController {
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
         if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-602));
-        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
 
         AssignmentEntity updated = assignmentService.update(assignmentEntity,dto);
 

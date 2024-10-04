@@ -83,7 +83,7 @@ public class SubmitApiController {
         if(!user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-702));
         if(submitService.findByUserId(userId) != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-703));
         if(assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-704));
-        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-707));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-707));
 
         SubmitEntity created = dto.toEntity(user,assignmentId);
         submitRepository.save(created);
@@ -118,7 +118,7 @@ public class SubmitApiController {
 
         if(!submitEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-705));
         if(assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-704));
-        if(dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-707));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-707));
 
         SubmitEntity updated = submitService.update(submitEntity,dto);
 
