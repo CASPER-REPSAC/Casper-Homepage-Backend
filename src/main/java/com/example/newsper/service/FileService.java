@@ -28,8 +28,8 @@ public class FileService {
 
     @Autowired
     private FileRepository fileRepository;
-    private final String homePath = "C:\\Users\\ine\\Downloads";
-    private final String serverUrl = "http://localhost:8080";
+    private final String homePath="/home/casper/newsper/";
+    private final String serverUrl="https://build.casper.or.kr";
 
     public void save(FileDto fileDto){
         fileRepository.save(fileDto.toEntity());
@@ -56,7 +56,9 @@ public class FileService {
         List<Object> ret = new ArrayList<>();
         for(String file : files){
             Map<String,Object> map = new HashMap<>();
-            map.put("name",file.substring(83));
+            String fileName = file.substring(file.lastIndexOf("/") + 1);
+            String extractedFileName = fileName.substring(fileName.indexOf("_") + 1);
+            map.put("name",extractedFileName);
             map.put("src",file);
 
             ret.add(map);
@@ -96,7 +98,6 @@ public class FileService {
 
     public void delete(String path){
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
-
         String filePath = homePath;
         String result = path.substring(serverUrl.length());
 

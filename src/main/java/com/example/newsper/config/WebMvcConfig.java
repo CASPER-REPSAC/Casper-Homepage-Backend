@@ -12,15 +12,15 @@ import java.io.File;
 public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String homePath = "C:/Users/ine/Downloads";
+        String homePath="/home/casper/newsper/";
         registry.addResourceHandler("/profile/**")
-                .addResourceLocations("file:" + homePath + "/profile/");
+                .addResourceLocations("file://" + homePath + "profile/");
         registry.addResourceHandler("/article/**")
-                .addResourceLocations("file:" + homePath + "/article/");
+                .addResourceLocations("file://" + homePath + "article/");
         registry.addResourceHandler("/assignment/**")
-                .addResourceLocations("file:" + homePath + "/assignment/");
+                .addResourceLocations("file://" + homePath + "assignment/");
         registry.addResourceHandler("/submit/**")
-                .addResourceLocations("file:" + homePath + "/submit/");
+                .addResourceLocations("file://" + homePath + "submit/");
     }
 
     @Override
