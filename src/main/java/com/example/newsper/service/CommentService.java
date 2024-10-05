@@ -47,7 +47,9 @@ public class CommentService {
                 .collect(Collectors.toList());
 
         for (CommentDto dto : dtos) {
-            dto.setProfile(userService.findById(dto.getId()).getProfileImgPath());
+            UserEntity userEntity = userService.findById(dto.getId());
+            if(userEntity != null)
+                dto.setProfile(userService.findById(dto.getId()).getProfileImgPath());
         }
 
         return dtos;
