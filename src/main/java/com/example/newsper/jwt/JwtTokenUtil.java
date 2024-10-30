@@ -2,15 +2,16 @@ package com.example.newsper.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 @Slf4j
 
 public class JwtTokenUtil {
-    private static Long expireTime = 1000L * 60 * 60;
+    private static final Long expireTime = 1000L * 60 * 60;
 
     @Value("${custom.secret-key}")
     String secretKey;
@@ -19,14 +20,14 @@ public class JwtTokenUtil {
     public static String createToken(String loginId, String key, long expireTimeMs) {
         // Claim = Jwt Token에 들어갈 정보
         // Claim에 loginId를 넣어 줌으로써 나중에 loginId를 꺼낼 수 있음
-        Claims claims = Jwts.claims();
+        Claims claims = Jwts.claims().build();
+        SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes());
         claims.put("loginId", loginId);
-
         return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expireTimeMs))
-                .signWith(SignatureAlgorithm.HS256, key)
+                .claims(claims)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expireTimeMs))
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -48,6 +49,7 @@ public class JwtTokenUtil {
 
     // SecretKey를 사용해 Token Parsing
     private static Claims extractClaims(String token, String secretKey) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }
 }

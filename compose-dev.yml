@@ -1,0 +1,32 @@
+services:
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+        environment:
+            - REDIS_HOST=redis
+            # Just Random secret key for Dev
+            - SECRET_KEY=2J6U2IBJa0qgYMYDDG6IneqPhPX9eTEYP76VSbZ36n7rjVoaLISOTg21NOO4XnmyryZnPH3A4OQPSAyEmepLUWnVHXJndzvJFDspoz38sIqBrpDvPcNkHuysbyzCB9f9
+            - MAIL_HOST=smtp.gmail.com
+            - MAIL_PORT=587
+            - MAIL_USERNAME=something@gmail.com
+            - MAIL_PASSWORD=yourpassword
+            - GOOGLE_CLIENT_ID=yourclientid
+            - GOOGLE_CLIENT_SECRET=yourclientsecret
+            - GITHUB_CLIENT_ID=yourclientid
+            - GITHUB_CLIENT_SECRET=yourclientsecret
+            - MAX_FILE_SIZE=1000MB
+            - MYSQL_HOST=jdbc:mysql://mysql:3306/newsper?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+            - MYSQL_USER=newsper
+            - MYSQL_PASSWORD=newsper
+    mysql:
+        image: mysql:9.1.0
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: newsper
+            MYSQL_USER: newsper
+            MYSQL_PASSWORD: newsper
+    redis:
+        image: redis:7.4.1

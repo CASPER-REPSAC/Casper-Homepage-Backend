@@ -2,21 +2,16 @@ package com.example.newsper.service;
 
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.entity.FileEntity;
-import com.example.newsper.entity.UserEntity;
 import com.example.newsper.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -28,7 +23,7 @@ public class FileService {
 
     @Autowired
     private FileRepository fileRepository;
-    private final String homePath="/home/casper/";
+    private final String uploadPath ="/home/casper/";
     private final String serverUrl="https://build.casper.or.kr";
 
     public void save(FileDto fileDto){
@@ -67,7 +62,7 @@ public class FileService {
     }
 
     public String fileUpload(MultipartFile file, String fileType) throws IOException {
-        String uploadFolder = homePath+File.separator+fileType;
+        String uploadFolder = uploadPath + File.separator + fileType;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         Date date = new Date();
@@ -89,7 +84,7 @@ public class FileService {
 
         /* 파일 위치, 파일 이름을 합친 File 객체 */
         File saveFile = new File(uploadPath, uploadFileName);
-        log.info("저장할 경로: " + saveFile.getAbsolutePath());
+        log.info("저장할 경로: {}", saveFile.getAbsolutePath());
 
         file.transferTo(saveFile);
 
@@ -98,14 +93,14 @@ public class FileService {
 
     public void delete(String path){
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
-        String filePath = homePath;
+        String filePath = uploadPath;
         String result = path.substring(serverUrl.length());
 
         // 파일 객체 생성
         File file = new File(filePath+result);
         log.info(filePath);
         log.info(result);
-        log.info(filePath+result);
+        log.info("{}: {}", filePath, result);
 
         // 파일 삭제
         file.delete();
