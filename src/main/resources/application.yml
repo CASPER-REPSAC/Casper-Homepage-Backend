@@ -1,5 +1,5 @@
 custom:
-  secret-key: "2J6U2IBJa0qgYMYDDG6IneqPhPX9eTEYP76VSbZ36n7rjVoaLISOTg21NOO4XnmyryZnPH3A4OQPSAyEmepLUWnVHXJndzvJFDspoz38sIqBrpDvPcNkHuysbyzCB9f9"
+  secret-key: ${SECRET_KEY}
 spring:
   mail:
     host: ${MAIL_HOST}
