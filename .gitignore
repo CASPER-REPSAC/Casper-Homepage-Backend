@@ -11,6 +11,7 @@
 .settings
 .springBeans
 .sts4-cache
+.env
 .gradle/
 bin/
 !**/src/main/**/bin/
