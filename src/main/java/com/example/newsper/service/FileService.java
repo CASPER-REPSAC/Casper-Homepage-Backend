@@ -6,6 +6,7 @@ import com.example.newsper.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +25,8 @@ public class FileService {
     @Autowired
     private FileRepository fileRepository;
     private final String uploadPath ="/home/casper/";
-    private final String serverUrl="https://build.casper.or.kr";
+    @Value("${custom.server.url}")
+    private String serverUrl;
 
     public void save(FileDto fileDto){
         fileRepository.save(fileDto.toEntity());

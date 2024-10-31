@@ -31,6 +31,7 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
 	implementation 'commons-io:commons-io:2.17.0'
+	implementation "me.paulschwarz:spring-dotenv:4.0.0"
 	compileOnly 'org.projectlombok:lombok:1.18.34'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok:1.18.34'

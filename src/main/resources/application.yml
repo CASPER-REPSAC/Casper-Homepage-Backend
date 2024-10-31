@@ -1,5 +1,7 @@
 custom:
   secret-key: ${SECRET_KEY}
+  server:
+    url: ${SERVER_URL}
 spring:
   mail:
     host: ${MAIL_HOST}
