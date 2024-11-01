@@ -20,9 +20,8 @@ public class JwtTokenUtil {
     public static String createToken(String loginId, String key, long expireTimeMs) {
         // Claim = Jwt Token에 들어갈 정보
         // Claim에 loginId를 넣어 줌으로써 나중에 loginId를 꺼낼 수 있음
-        Claims claims = Jwts.claims().build();
         SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes());
-        claims.put("loginId", loginId);
+        Claims claims = Jwts.claims().add("loginId", loginId).build();
         return Jwts.builder()
                 .claims(claims)
                 .issuedAt(new Date(System.currentTimeMillis()))
