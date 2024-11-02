@@ -1,4 +1,6 @@
-build
-.gradle
-.idea
+build/
+data/
+.gradle/
+.idea/
 .env
+.database.env

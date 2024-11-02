@@ -5,20 +5,18 @@ services:
             dockerfile: Dockerfile
         ports:
             - "8080:8080"
-        env_file: .env
+        volumes:
+            -   ./data:/home
+        env_file:
+            - .env
+            - .database.env
     mysql:
         image: mysql:9.1.0
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: newsper
-            MYSQL_USER: newsper
-            MYSQL_PASSWORD: newsper
+        env_file:
+            -   .database.env
     redis:
         image: redis:7.4.1
     frontend:
         image: jiseong5036/casper-frontend:latest
         ports:
             - "3000:3000"
-        environment:
-            NEXT_PUBLIC_API_URL: http://backend:8000
-            NODE_ENV: development

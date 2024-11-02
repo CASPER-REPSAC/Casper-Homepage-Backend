@@ -12,8 +12,10 @@
 .springBeans
 .sts4-cache
 .env
+.database.env
 .gradle/
 build/
+data/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
