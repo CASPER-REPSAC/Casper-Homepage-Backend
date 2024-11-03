@@ -1,14 +1,12 @@
 package com.example.newsper.dto;
 
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.entity.UserEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
 
 @Getter
 @AllArgsConstructor
@@ -40,7 +38,7 @@ public class UserDto {
 
 
     public UserEntity toEntity() {
-        return new UserEntity(id,pw,email,name,nickname,"associate",introduce,null,profileImgPath,homepage);
+        return new UserEntity(id,pw,email,name,nickname, UserRole.ASSOCIATE,introduce,null,profileImgPath,homepage);
     }
 }
 

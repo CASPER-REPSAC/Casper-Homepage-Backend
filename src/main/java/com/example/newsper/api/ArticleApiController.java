@@ -1,6 +1,7 @@
 package com.example.newsper.api;
 
 import com.example.newsper.constant.ErrorCode;
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.entity.ArticleEntity;
@@ -123,7 +124,7 @@ public class ArticleApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
-        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
+        if(_dto.getBoardId().equals("notice_board")&&user.getRole() != UserRole.ADMIN) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 

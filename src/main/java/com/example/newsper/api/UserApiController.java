@@ -3,6 +3,7 @@ package com.example.newsper.api;
 import java.io.IOException;
 
 import com.example.newsper.constant.ErrorCode;
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
@@ -144,7 +145,7 @@ public class UserApiController {
         String userId = userService.getUserId(request);
         UserEntity target = userService.findById(userId);
 
-        if(target.getRole().equals("admin")) userService.delete(id);
+        if(target.getRole() == UserRole.ADMIN) userService.delete(id);
         else if(target.getId().equals(id)) userService.delete(target.getId());
         else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -249,9 +250,8 @@ public class UserApiController {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
 
-        if(dto.getRole().equals("admin")) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(ErrorCode.ADMIN_PERMISSION_UNCHANGEABLE));
-        if(!userEntity.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if(dto.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if(dto.getRole() == UserRole.ADMIN) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(ErrorCode.ADMIN_PERMISSION_UNCHANGEABLE));
+        if(userEntity.getRole() != UserRole.ADMIN) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         if(dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UserEntity user = userService.findById(dto.getId());

@@ -1,5 +1,6 @@
 package com.example.newsper.service;
 
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.ArticleDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
@@ -75,14 +76,14 @@ public class ArticleService {
     }
 
     public boolean writerCheck(ArticleEntity article, UserEntity user) {
-        return article.getUserId().equals(user.getId()) || user.getRole().equals("admin");
+        return article.getUserId().equals(user.getId()) || user.getRole() == UserRole.ADMIN;
     }
 
     public boolean isHide(ArticleEntity article, UserEntity user) {
         if(!article.getHide()) return true;
 
         if(user == null) return false;
-        else if(user.getRole().equals("associate")) return writerCheck(article,user);
+        else if(user.getRole() == UserRole.ASSOCIATE) return writerCheck(article,user);
         else return true;
     }
 
@@ -96,7 +97,7 @@ public class ArticleService {
             log.info("유저 데이터에 조회할 수 없습니다");
             return false;
         }
-        else if(user.getRole().equals("associate")) {
+        else if(user.getRole() == UserRole.ASSOCIATE) {
             log.info("준회원은 준회원 게시판 열람이 가능합니다");
             return boardId.equals("associate_board");
         }

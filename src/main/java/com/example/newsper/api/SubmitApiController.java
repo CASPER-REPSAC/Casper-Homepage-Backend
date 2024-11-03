@@ -1,7 +1,7 @@
 package com.example.newsper.api;
 
 import com.example.newsper.constant.ErrorCode;
-import com.example.newsper.dto.CommentDto;
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.CreateSubmitDto;
 import com.example.newsper.entity.*;
 import com.example.newsper.repository.SubmitRepository;
@@ -58,7 +58,7 @@ public class SubmitApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate") && !submitEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_VIEW_MEMBER_ONLY));
+        if(user.getRole() == UserRole.ASSOCIATE && !submitEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_VIEW_MEMBER_ONLY));
 
         List<Object> files = fileService.getFileNames(submitId,"submit");
 
@@ -81,7 +81,7 @@ public class SubmitApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(!user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_MEMBER_ONLY));
+        if(user.getRole() != UserRole.ASSOCIATE) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_MEMBER_ONLY));
         if(submitService.findByUserId(userId) != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_ONE_ONLY));
         if(assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CLOSED));
         if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED_AGAIN));
@@ -154,7 +154,7 @@ public class SubmitApiController {
         SubmitEntity submitEntity = submitService.findById(submitId);
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
 
-        if(!(user.getRole().equals("admin") || assignmentEntity.getUserId().equals(userId) || submitEntity.getUserId().equals(userId))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_DELETE_LIMITED));
+        if(!(user.getRole() == UserRole.ADMIN || assignmentEntity.getUserId().equals(userId) || submitEntity.getUserId().equals(userId))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_DELETE_LIMITED));
         if(assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CLOSED));
 
         submitService.delete(submitEntity);

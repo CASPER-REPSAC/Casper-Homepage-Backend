@@ -1,5 +1,6 @@
 package com.example.newsper.service;
 
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.AddCommentDto;
 import com.example.newsper.dto.CommentDto;
 import com.example.newsper.entity.ArticleEntity;
@@ -42,7 +43,7 @@ public class CommentService {
     public List<CommentDto> comments(Long articleId) {
         List<CommentDto> dtos = commentRepository.findByArticleId(articleId)
                 .stream()
-                .map(comment -> CommentDto.createCommentDto(comment))
+                .map(CommentDto::createCommentDto)
                 .collect(Collectors.toList());
 
         for (CommentDto dto : dtos) {
@@ -113,7 +114,7 @@ public class CommentService {
     public boolean writerCheck(CommentEntity comment, HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        return comment.getId().equals(user.getId()) || user.getRole().equals("admin");
+        return comment.getId().equals(user.getId()) || user.getRole() == UserRole.ADMIN;
     }
 
     public boolean authCheck(Long articleId, HttpServletRequest request) {
@@ -130,7 +131,7 @@ public class CommentService {
             log.info("유저 데이터에 조회할 수 없습니다");
             return false;
         }
-        else if(user.getRole().equals("associate")) {
+        else if(user.getRole() == UserRole.ASSOCIATE) {
             log.info("준회원은 준회원 게시판 열람이 가능합니다");
             return boardId.equals("associate_board");
         }

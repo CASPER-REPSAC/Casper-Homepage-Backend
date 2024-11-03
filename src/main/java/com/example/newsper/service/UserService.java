@@ -1,5 +1,6 @@
 package com.example.newsper.service;
 
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.jwt.JwtTokenUtil;
@@ -142,7 +143,7 @@ public class UserService {
         submitRepository.changeNicknameInSubmit(userEntity.getNickname(), userEntity.getId());
     }
 
-    public void roleChange(UserEntity user,String role){
+    public void roleChange(UserEntity user, UserRole role){
         user.setRole(role);
         userRepository.save(user);
     }

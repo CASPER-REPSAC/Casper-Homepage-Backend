@@ -1,5 +1,6 @@
 package com.example.newsper.dto;
 
+import com.example.newsper.constant.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -10,6 +11,6 @@ public class RoleDto {
     private String id;
 
     @Schema(description = "부여할 권한")
-    private String role;
+    private UserRole role;
 
 }

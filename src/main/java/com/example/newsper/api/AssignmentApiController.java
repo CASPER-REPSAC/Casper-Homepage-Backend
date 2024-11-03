@@ -1,6 +1,7 @@
 package com.example.newsper.api;
 
 import com.example.newsper.constant.ErrorCode;
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.*;
 import com.example.newsper.service.*;
@@ -48,7 +49,7 @@ public class AssignmentApiController {
     ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
+        if(user == null || user.getRole() == UserRole.ASSOCIATE) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
         if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
 
         AssignmentEntity created = dto.toEntity(user);
@@ -157,7 +158,7 @@ public class AssignmentApiController {
         List<Object> assignmentFiles = fileService.getFileNames(assignmentId,"assignment");
         map.put("assignmentFiles", assignmentFiles);
 
-        if(!(user.getRole().equals("associate")||user.getRole().equals("guest"))){
+        if(!(user.getRole() == UserRole.ASSOCIATE||user.getRole() == UserRole.GUEST)){
             List<SubmitListDto> dtos = submitService.findByAssignmentId(assignmentId);
             for(SubmitListDto dto : dtos){
                 List<Object> files = fileService.getFileNames(dto.getSubmitId(),"submit");
@@ -179,7 +180,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
+        if(user.getRole() == UserRole.ASSOCIATE||user.getRole() == UserRole.GUEST) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
         for(SubmitGradeDto dto : dtos){
             SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
             submitEntity.setScore(dto.getScore());
@@ -199,7 +200,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
+        if(user.getRole() == UserRole.ASSOCIATE || user.getRole() == UserRole.GUEST) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
 
         SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
         submitEntity.setFeedback(dto.getFeedback());

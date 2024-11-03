@@ -1,5 +1,7 @@
 package com.example.newsper.entity;
 
+import com.example.newsper.constant.UserRole;
+import com.example.newsper.util.UserRoleConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,7 +33,9 @@ public class UserEntity {
     private String nickname;
 
     @Column(name="role")
-    private String role;
+//    @Enumerated(EnumType.STRING)
+//    난 바보똥멍청이야 이거 땜에 1시간 날렸어
+    private UserRole role;
 
     @Column(name="introduce")
     private String introduce;
@@ -49,7 +53,7 @@ public class UserEntity {
 
         Map<String, Object> map = new HashMap<>();
 
-        map.put("role", role);
+        map.put("role", role.getRole());
         map.put("name", name);
         map.put("nickname", nickname);
         map.put("email", email);
