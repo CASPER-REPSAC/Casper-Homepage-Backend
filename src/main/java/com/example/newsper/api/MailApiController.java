@@ -1,20 +1,16 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.MailService;
 import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 
 @RestController
 @Slf4j
@@ -34,7 +30,7 @@ public class MailApiController {
     @Operation(summary= "인증 메일 전송", description= "인증 메일을 전송합니다.")
     @PostMapping("/send")
     public ResponseEntity<?> sendEmailPath(@RequestParam(value = "email") String email) {
-        if(userService.findByEmail(email) != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
+        if(userService.findByEmail(email) != null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
         mailService.sendEmail(email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

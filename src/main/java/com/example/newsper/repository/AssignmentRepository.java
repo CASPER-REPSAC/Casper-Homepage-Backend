@@ -1,9 +1,6 @@
 package com.example.newsper.repository;
 
-import com.example.newsper.dto.AssignmentListDto;
-import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.AssignmentEntity;
-import com.example.newsper.entity.SubmitEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

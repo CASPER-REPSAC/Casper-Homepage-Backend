@@ -1,7 +1,5 @@
 package com.example.newsper.entity;
 
-import com.example.newsper.dto.BoardDto;
-import com.example.newsper.dto.CommentDto;
 import jakarta.persistence.*;
 import lombok.*;
 

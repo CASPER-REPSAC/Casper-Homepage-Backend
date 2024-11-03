@@ -1,7 +1,5 @@
 package com.example.newsper.entity;
 
-import com.example.newsper.dto.BoardDto;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;

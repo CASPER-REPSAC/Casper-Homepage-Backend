@@ -1,6 +1,8 @@
 package com.example.newsper.api;
 
 import java.io.IOException;
+
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
@@ -9,7 +11,6 @@ import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,12 +18,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 import java.util.*;
 
 @Tag(name= "User", description = "유저 API")
@@ -64,9 +64,9 @@ public class UserApiController {
         UserEntity user = userService.findById(dto.getId());
         UserDto userDto = dto.toUserDto();
 
-        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-202));
-        if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-201));
-        if(user != null||dto.getId().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-203));
+        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_EMAIL_VERIFICATION_ERROR));
+        if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_MISSING_PARAMETER));
+        if(user != null||dto.getId().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
 
         userService.newUser(userDto);
         redisUtil.deleteData(dto.getEmail());
@@ -91,7 +91,7 @@ public class UserApiController {
         UserEntity user = userService.findByEmail(dto.getEmail());
         if(user == null) log.info("가입된 이메일 없음 : "+dto.getEmail());
         else log.info("가입된 이메일 발견 : "+user.getEmail());
-        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-106));
+        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
         mailService.idMail(dto.getEmail(), user.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -101,7 +101,7 @@ public class UserApiController {
     @PostMapping("/findpw")
     public ResponseEntity<?> findpw(@RequestBody findIdDto dto){
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(-106));
+        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
 
         mailService.pwMail(user);
 
@@ -161,16 +161,16 @@ public class UserApiController {
     public ResponseEntity<?> login(@RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.findById(dto.getId());
 
-        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-105));
+        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_EXCEED_ATTEMPTS));
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
         if(user == null) {
             accountLockService.setCount(dto.getId());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-101));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_ID_NOT_FOUND));
         }
         if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
             accountLockService.setCount(dto.getId());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-102));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_PASSWORD_MISMATCH));
         }
 
         accountLockService.deleteCount(dto.getId());
@@ -249,7 +249,7 @@ public class UserApiController {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
 
-        if(dto.getRole().equals("admin")) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(-501));
+        if(dto.getRole().equals("admin")) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(ErrorCode.ADMIN_PERMISSION_UNCHANGEABLE));
         if(!userEntity.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         if(dto.getRole().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         if(dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

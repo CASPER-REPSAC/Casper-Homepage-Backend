@@ -1,11 +1,11 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.*;
 import com.example.newsper.entity.*;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +48,8 @@ public class AssignmentApiController {
     ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
-        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
+        if(user == null || user.getRole().equals("associate")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
 
         AssignmentEntity created = dto.toEntity(user);
         assignmentService.save(created);
@@ -81,8 +81,8 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
-        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-602));
-        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-604));
+        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_SELF_ONLY));
+        if(dto.getUrls() != null && dto.getUrls().size() > 5) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
 
         AssignmentEntity updated = assignmentService.update(assignmentEntity,dto);
 
@@ -111,7 +111,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
 
-        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-602));
+        if(!assignmentEntity.getUserId().equals(userId)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_SELF_ONLY));
 
         submitService.deleteByAssignment(assignmentId);
         assignmentService.delete(assignmentEntity);
@@ -127,7 +127,7 @@ public class AssignmentApiController {
             HttpServletRequest request
     ){
         String userId = userService.getUserId(request);
-        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-603));
+        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_REQUIRED));
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
         page = (page-1)*10;
@@ -147,7 +147,7 @@ public class AssignmentApiController {
             HttpServletRequest request
     ){
         String userId = userService.getUserId(request);
-        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-603));
+        if(userId.equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_REQUIRED));
         UserEntity user = userService.findById(userId);
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
@@ -179,7 +179,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
+        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
         for(SubmitGradeDto dto : dtos){
             SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
             submitEntity.setScore(dto.getScore());
@@ -199,7 +199,7 @@ public class AssignmentApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-601));
+        if(user.getRole().equals("associate")||user.getRole().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
 
         SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
         submitEntity.setFeedback(dto.getFeedback());

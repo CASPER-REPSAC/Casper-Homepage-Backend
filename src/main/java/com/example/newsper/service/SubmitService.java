@@ -1,9 +1,7 @@
 package com.example.newsper.service;
 
-import com.example.newsper.dto.AssignmentListDto;
 import com.example.newsper.dto.CreateSubmitDto;
 import com.example.newsper.dto.SubmitListDto;
-import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.entity.SubmitEntity;
 import com.example.newsper.repository.SubmitRepository;
 import lombok.RequiredArgsConstructor;

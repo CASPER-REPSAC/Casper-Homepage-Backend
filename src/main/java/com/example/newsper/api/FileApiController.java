@@ -1,12 +1,12 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,12 +47,12 @@ public class FileApiController {
                 log.info("파일 크기 : " + file.getSize());
 
                 if (file.getSize() > 5000000) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-401));
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_SIZE_EXCEEDED));
                 }
 
                 if (file.getOriginalFilename() == null || file.getOriginalFilename().length() > 100) {
                     log.info("파일 이름이 너무 길거나 null입니다.");
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-402));
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_NAME_INVALID));
                 }
 
                 String url = fileService.fileUpload(file,type);

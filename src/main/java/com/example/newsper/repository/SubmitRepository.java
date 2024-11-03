@@ -1,8 +1,5 @@
 package com.example.newsper.repository;
 
-import com.example.newsper.dto.SubmitListDto;
-import com.example.newsper.entity.CommentEntity;
-import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.SubmitEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

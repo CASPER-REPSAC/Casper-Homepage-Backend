@@ -1,12 +1,8 @@
 package com.example.newsper.service;
 
-import com.example.newsper.dto.AssignmentDto;
 import com.example.newsper.dto.AssignmentListDto;
 import com.example.newsper.dto.CreateAssignmentDto;
-import com.example.newsper.entity.ArticleEntity;
-import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.AssignmentEntity;
-import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.repository.AssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;

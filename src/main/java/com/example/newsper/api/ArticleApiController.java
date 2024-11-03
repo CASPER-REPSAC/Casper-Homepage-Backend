@@ -1,13 +1,12 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.ArticleDto;
-import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.dto.CreateArticleDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.FileEntity;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.FacesRequestAttributes;
 
 import java.io.IOException;
 import java.util.*;
@@ -72,7 +70,7 @@ public class ArticleApiController {
         //권한 확인
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(!articleService.authCheck(boardId, user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
+        if(!articleService.authCheck(boardId, user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_ACCESS));
 
         if (page == null || page<=1) page = 1L;
         Map<String, Object> map = new HashMap<>();
@@ -96,7 +94,7 @@ public class ArticleApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
+        if(!articleService.authCheck(article.getBoardId(), user) || !articleService.isHide(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_ACCESS));
 
         if(!userId.equals("guest")&&!accountLockService.isArticleVisited(user,article))
             article.setView(article.getView()+1L);
@@ -124,8 +122,8 @@ public class ArticleApiController {
     ) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
-        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
+        if(!articleService.authCheck(_dto.getBoardId(),user)||user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
+        if(_dto.getBoardId().equals("notice_board")&&!(user.getRole().equals("admin"))) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
 
         ArticleEntity created = articleService.write(_dto.toArticleDto(),user);
 
@@ -157,7 +155,7 @@ public class ArticleApiController {
         UserEntity user = userService.findById(userId);
         ArticleEntity article = articleService.findById(articleId);
 
-        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_EDIT_PERMISSION));
 
         commentService.deleteByArticle(articleId);
         articleService.delete(article);
@@ -179,7 +177,7 @@ public class ArticleApiController {
         UserEntity user = userService.findById(userId);
 
         ArticleEntity article = articleService.findById(articleId);
-        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!articleService.writerCheck(article,user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_EDIT_PERMISSION));
 
         ArticleEntity updated = articleService.update(articleId,dto);
 

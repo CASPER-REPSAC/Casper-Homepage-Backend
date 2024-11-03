@@ -1,7 +1,6 @@
 package com.example.newsper.service;
 
 import com.example.newsper.dto.ArticleDto;
-import com.example.newsper.dto.ArticleListDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.BoardEntity;

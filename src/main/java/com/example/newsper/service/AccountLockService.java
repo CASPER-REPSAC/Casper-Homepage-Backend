@@ -1,7 +1,6 @@
 package com.example.newsper.service;
 
 import com.example.newsper.entity.ArticleEntity;
-import com.example.newsper.entity.ArticleList;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.redis.RedisUtil;
 import com.example.newsper.repository.UserRepository;

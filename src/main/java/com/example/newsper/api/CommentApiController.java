@@ -1,8 +1,8 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.AddCommentDto;
 import com.example.newsper.dto.CommentDto;
-import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.ArticleService;
@@ -20,9 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Tag(name= "Comment", description = "댓글 API")
 @RestController
@@ -51,7 +49,7 @@ public class CommentApiController {
     ){
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-        if(!commentService.authCheck(articleId, request) || !articleService.isHide(articleService.findById(articleId),user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-301));
+        if(!commentService.authCheck(articleId, request) || !articleService.isHide(articleService.findById(articleId),user)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_ACCESS));
 
         List<CommentDto> dtos = commentService.comments(articleId);
 
@@ -67,7 +65,7 @@ public class CommentApiController {
             @RequestBody AddCommentDto dto,
             HttpServletRequest request
     ){
-        if(!commentService.authCheck(articleId,request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-302));
+        if(!commentService.authCheck(articleId,request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_WRITE_PERMISSION));
         CommentEntity created = commentService.create(articleId,dto,request);
         commentService.commentCount(articleId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -84,7 +82,7 @@ public class CommentApiController {
             HttpServletRequest request
     ){
 
-        if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_EDIT_PERMISSION));
 
         CommentEntity updated = commentService.update(id,dto);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
@@ -100,7 +98,7 @@ public class CommentApiController {
             HttpServletRequest request
     ){
 
-        if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(-303));
+        if(!commentService.writerCheck(commentService.findById(id), request)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.BOARD_NO_EDIT_PERMISSION));
         commentService.delete(id);
         commentService.commentCount(articleId);
         return ResponseEntity.status(HttpStatus.OK).build();
