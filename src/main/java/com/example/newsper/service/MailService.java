@@ -1,7 +1,7 @@
 package com.example.newsper.service;
 
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.redis.RedisUtil;
+import com.example.newsper.util.RedisUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

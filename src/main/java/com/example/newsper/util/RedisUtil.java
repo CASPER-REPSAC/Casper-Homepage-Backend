@@ -1,4 +1,4 @@
-package com.example.newsper.redis;
+package com.example.newsper.util;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

@@ -1,4 +1,4 @@
-package com.example.newsper.jwt;
+package com.example.newsper.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

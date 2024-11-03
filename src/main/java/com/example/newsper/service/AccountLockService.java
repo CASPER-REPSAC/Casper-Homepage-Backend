@@ -2,7 +2,7 @@ package com.example.newsper.service;
 
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.redis.RedisUtil;
+import com.example.newsper.util.RedisUtil;
 import com.example.newsper.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

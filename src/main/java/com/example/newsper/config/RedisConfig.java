@@ -1,4 +1,4 @@
-package com.example.newsper.redis;
+package com.example.newsper.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

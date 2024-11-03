@@ -3,7 +3,7 @@ package com.example.newsper.service;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.util.JwtTokenUtil;
 import com.example.newsper.repository.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

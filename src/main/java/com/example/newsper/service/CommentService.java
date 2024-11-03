@@ -6,7 +6,7 @@ import com.example.newsper.dto.CommentDto;
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.CommentEntity;
 import com.example.newsper.entity.UserEntity;
-import com.example.newsper.jwt.JwtTokenUtil;
+import com.example.newsper.util.JwtTokenUtil;
 import com.example.newsper.repository.ArticleRepository;
 import com.example.newsper.repository.CommentRepository;
 import jakarta.servlet.http.HttpServletRequest;

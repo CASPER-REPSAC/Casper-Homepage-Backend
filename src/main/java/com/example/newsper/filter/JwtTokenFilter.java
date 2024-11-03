@@ -1,7 +1,8 @@
-package com.example.newsper.jwt;
+package com.example.newsper.filter;
 
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.UserService;
+import com.example.newsper.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

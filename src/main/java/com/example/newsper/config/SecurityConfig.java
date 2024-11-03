@@ -1,6 +1,6 @@
 package com.example.newsper.config;
 
-import com.example.newsper.jwt.JwtTokenFilter;
+import com.example.newsper.filter.JwtTokenFilter;
 import com.example.newsper.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
