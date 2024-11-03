@@ -1,12 +1,15 @@
 package com.example.newsper.constant;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 @Getter
 public enum UserRole {
     ADMIN("admin"),
-    MEMBER("member"),
     ASSOCIATE("associate"),
+    GRADUATE("graduate"),
+    REST("rest"),
+    ACTIVE("active"),
     // Guest must be treated as an unknown user or all users.
     GUEST("guest");
 
@@ -23,5 +26,10 @@ public enum UserRole {
             }
         }
         return GUEST;
+    }
+
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+    public static UserRole fromString(String role) {
+        return valueOfRole(role);
     }
 }
