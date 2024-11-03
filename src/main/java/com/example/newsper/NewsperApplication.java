@@ -7,15 +7,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 @OpenAPIDefinition(
-		servers = {
-				@Server(url = "/", description = "Default Server url")
-		}
+        servers = {
+                @Server(url = "/", description = "Default Server url")
+        }
 )
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 public class NewsperApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(NewsperApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(NewsperApplication.class, args);
+    }
 
 }

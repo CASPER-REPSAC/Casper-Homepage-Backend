@@ -35,7 +35,7 @@ public class RedisUtil {
         stringRedisTemplate.delete(key);
     }
 
-    public void INCRData(String key){
+    public void INCRData(String key) {
         stringRedisTemplate.opsForValue().increment(key, 1);
         stringRedisTemplate.expire(key, 5, TimeUnit.MINUTES);
     }

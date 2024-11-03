@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface AssignmentRepository extends JpaRepository<AssignmentEntity,Long> {
+public interface AssignmentRepository extends JpaRepository<AssignmentEntity, Long> {
     @Modifying
     @Query(value = "UPDATE assignmentEntity SET nickname = :nickname WHERE id = :id", nativeQuery = true)
     void changeNicknameInAssignment(@Param("nickname") String nickname, @Param("id") String id);

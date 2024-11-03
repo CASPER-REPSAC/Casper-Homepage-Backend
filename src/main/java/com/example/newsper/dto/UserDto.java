@@ -38,7 +38,7 @@ public class UserDto {
 
 
     public UserEntity toEntity() {
-        return new UserEntity(id,pw,email,name,nickname, UserRole.ASSOCIATE,introduce,null,profileImgPath,homepage);
+        return new UserEntity(id, pw, email, name, nickname, UserRole.ASSOCIATE, introduce, null, profileImgPath, homepage);
     }
 }
 

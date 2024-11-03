@@ -1,7 +1,5 @@
 package com.example.newsper.api;
 
-import java.io.IOException;
-
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.*;
@@ -24,50 +22,47 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 
-@Tag(name= "User", description = "유저 API")
+@Tag(name = "User", description = "유저 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/user")
 public class UserApiController {
 
+    @Value("${custom.secret-key}")
+    String secretKey;
     @Autowired
     private FileService fileService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private ErrorCodeService errorCodeService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private MailService mailService;
-
     @Autowired
     private AccountLockService accountLockService;
-
     @Autowired
     private RedisUtil redisUtil;
-
     @Autowired
     private OAuthService oAuthService;
 
-    @Value("${custom.secret-key}")
-    String secretKey;
-
     @PostMapping("/join")
-    @Operation(summary= "회원 가입", description= "DB에 회원 정보를 등록합니다.")
+    @Operation(summary = "회원 가입", description = "DB에 회원 정보를 등록합니다.")
     public ResponseEntity<?> join(@RequestBody JoinDto dto) {
         UserEntity user = userService.findById(dto.getId());
         UserDto userDto = dto.toUserDto();
 
-        if(!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_EMAIL_VERIFICATION_ERROR));
-        if(!dto.isValid()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_MISSING_PARAMETER));
-        if(user != null||dto.getId().equals("guest")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
+        if (!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_EMAIL_VERIFICATION_ERROR));
+        if (!dto.isValid())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_MISSING_PARAMETER));
+        if (user != null || dto.getId().equals("guest"))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
 
         userService.newUser(userDto);
         redisUtil.deleteData(dto.getEmail());
@@ -77,7 +72,7 @@ public class UserApiController {
 
     @Operation(summary = "비밀번호 업데이트", description = "액세스 토큰 필요.")
     @PostMapping("/pwupdate")
-    public ResponseEntity<?> pwReset(@Parameter(description = "새로운 비밀번호") @RequestParam String pw, HttpServletRequest request){
+    public ResponseEntity<?> pwReset(@Parameter(description = "새로운 비밀번호") @RequestParam String pw, HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         user.setPw(passwordEncoder.encode(pw));
@@ -88,11 +83,12 @@ public class UserApiController {
 
     @Operation(summary = "ID 찾기", description = "가입시 사용된 메일로 아이디를 찾습니다.")
     @PostMapping("/findid")
-    public ResponseEntity<?> findid(@RequestBody findIdDto dto){
+    public ResponseEntity<?> findid(@RequestBody findIdDto dto) {
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if(user == null) log.info("가입된 이메일 없음 : "+dto.getEmail());
-        else log.info("가입된 이메일 발견 : "+user.getEmail());
-        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
+        if (user == null) log.info("가입된 이메일 없음 : " + dto.getEmail());
+        else log.info("가입된 이메일 발견 : " + user.getEmail());
+        if (user == null || !user.getEmail().equals(dto.getEmail()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
         mailService.idMail(dto.getEmail(), user.getId());
 
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -100,9 +96,10 @@ public class UserApiController {
 
     @Operation(summary = "비밀번호 찾기", description = "가입시 사용된 메일로 초기화된 비밀번호를 전송합니다.")
     @PostMapping("/findpw")
-    public ResponseEntity<?> findpw(@RequestBody findIdDto dto){
+    public ResponseEntity<?> findpw(@RequestBody findIdDto dto) {
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if(user == null || !user.getEmail().equals(dto.getEmail())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
+        if (user == null || !user.getEmail().equals(dto.getEmail()))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
 
         mailService.pwMail(user);
 
@@ -111,13 +108,13 @@ public class UserApiController {
 
 
     @PostMapping("/update")
-    @Operation(summary= "유저 정보 수정", description= "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
+    @Operation(summary = "유저 정보 수정", description = "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
     public ResponseEntity<UserEntity> update(@RequestBody UserModifyDto dto, HttpServletRequest request) throws IOException {
         log.info("User Update API Logging");
         String userId = userService.getUserId(request);
-        log.info("User ID : "+userId);
+        log.info("User ID : " + userId);
         UserEntity userEntity = userService.findById(userId);
-        if(!dto.getNickname().equals(userEntity.getNickname())){
+        if (!dto.getNickname().equals(userEntity.getNickname())) {
             userEntity.setNickname(dto.getNickname());
             userService.changeNickname(userEntity);
         }
@@ -126,8 +123,8 @@ public class UserApiController {
         userEntity.setIntroduce(dto.getIntroduce());
         userEntity.setName(dto.getName());
 
-        if(dto.getProfileImgPath() != null) {
-            if(userEntity.getProfileImgPath() != null) fileService.delete(userEntity.getProfileImgPath());
+        if (dto.getProfileImgPath() != null) {
+            if (userEntity.getProfileImgPath() != null) fileService.delete(userEntity.getProfileImgPath());
 
             FileEntity fileEntity = fileService.findById(dto.getProfileImgPath());
             fileEntity.setConnectId(String.valueOf(userEntity.getId()));
@@ -140,17 +137,17 @@ public class UserApiController {
     }
 
     @DeleteMapping("/withdrawal/{id}")
-    @Operation(summary= "회원 탈퇴", description= "본인, 관리자만 탈퇴 진행 가능합니다. 액세스 토큰 필요.")
-    public ResponseEntity<UserEntity> userWithdrawal(@Parameter(description = "유저 ID") @PathVariable String id, HttpServletRequest request){
+    @Operation(summary = "회원 탈퇴", description = "본인, 관리자만 탈퇴 진행 가능합니다. 액세스 토큰 필요.")
+    public ResponseEntity<UserEntity> userWithdrawal(@Parameter(description = "유저 ID") @PathVariable String id, HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity target = userService.findById(userId);
 
-        if(target.getRole() == UserRole.ADMIN) userService.delete(id);
-        else if(target.getId().equals(id)) userService.delete(target.getId());
+        if (target.getRole() == UserRole.ADMIN) userService.delete(id);
+        else if (target.getId().equals(id)) userService.delete(target.getId());
         else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
 
-        if(target.getProfileImgPath() != null) {
+        if (target.getProfileImgPath() != null) {
             fileService.delete(target.getProfileImgPath());
         }
 
@@ -158,52 +155,53 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    @Operation(summary= "로그인", description= "로그인 토큰을 반환합니다.")
+    @Operation(summary = "로그인", description = "로그인 토큰을 반환합니다.")
     public ResponseEntity<?> login(@RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.findById(dto.getId());
 
-        if(accountLockService.validation(dto.getId())) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_EXCEED_ATTEMPTS));
+        if (accountLockService.validation(dto.getId()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_EXCEED_ATTEMPTS));
 
         // 로그인 아이디나 비밀번호가 틀린 경우 global error return
-        if(user == null) {
+        if (user == null) {
             accountLockService.setCount(dto.getId());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_ID_NOT_FOUND));
         }
-        if(!(passwordEncoder.matches(dto.getPw(),user.getPw()))) {
+        if (!(passwordEncoder.matches(dto.getPw(), user.getPw()))) {
             accountLockService.setCount(dto.getId());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_PASSWORD_MISMATCH));
         }
 
         accountLockService.deleteCount(dto.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
 
-        log.info("googleCode : "+dto.getCode());
-        log.info("redirectUri : "+dto.getRedirectUri());
+        log.info("googleCode : " + dto.getCode());
+        log.info("redirectUri : " + dto.getRedirectUri());
 
         UserEntity user = oAuthService.google(dto.getCode(), dto.getRedirectUri());
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
     @Operation(summary = "깃허브 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     @PostMapping("/github")
     public ResponseEntity<?> githubLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
 
-        log.info("githubCode : "+dto.getCode());
-        log.info("redirectUri : "+dto.getRedirectUri());
+        log.info("githubCode : " + dto.getCode());
+        log.info("redirectUri : " + dto.getRedirectUri());
 
         UserEntity user = oAuthService.github(dto.getCode(), dto.getRedirectUri());
-        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user,response));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
     @PostMapping("/logout")
-    @Operation(summary= "로그아웃", description= "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
-    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response){
+    @Operation(summary = "로그아웃", description = "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
+    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
@@ -213,8 +211,8 @@ public class UserApiController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary= "리프레쉬", description= "유저 토큰과 쿠키를 재설정합니다. 리프레시 토큰 필요.")
-    public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response){
+    @Operation(summary = "리프레쉬", description = "유저 토큰과 쿠키를 재설정합니다. 리프레시 토큰 필요.")
+    public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
         try {
             Cookie[] cookies = request.getCookies();
             if (cookies == null) ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -226,33 +224,34 @@ public class UserApiController {
                 }
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     @GetMapping("/show")
-    @Operation(summary= "유저 정보 조회", description= "유저 정보를 조회합니다.")
-    public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id){
+    @Operation(summary = "유저 정보 조회", description = "유저 정보를 조회합니다.")
+    public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id) {
         UserEntity user = userService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(user.toJSON());
     }
 
     @GetMapping("/showall")
-    @Operation(summary= "유저 그룹 조회", description= "권한으로 유저 정보를 조회합니다.")
-    public ResponseEntity<Map<String,Object>> showall(@Parameter(description ="associate, active, rest, graduate") @RequestParam String role){
-        return ResponseEntity.status(HttpStatus.OK).body(userService.showall(role));
+    @Operation(summary = "유저 그룹 조회", description = "권한으로 유저 정보를 조회합니다.")
+    public ResponseEntity<Map<String, Object>> showall(@Parameter(description = "associate, active, rest, graduate") @RequestParam String role) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.showall(UserRole.valueOfRole(role)));
     }
 
     @PostMapping("/auth")
-    @Operation(summary= "유저 권한 수정", description= "유저의 권한을 수정합니다. 액세스 토큰 필요.")
-    public ResponseEntity auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto){
+    @Operation(summary = "유저 권한 수정", description = "유저의 권한을 수정합니다. 액세스 토큰 필요.")
+    public ResponseEntity auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto) {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
 
-        if(dto.getRole() == UserRole.ADMIN) return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(ErrorCode.ADMIN_PERMISSION_UNCHANGEABLE));
-        if(userEntity.getRole() != UserRole.ADMIN) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        if(dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (dto.getRole() == UserRole.ADMIN)
+            return ResponseEntity.status((HttpStatus.BAD_REQUEST)).body(errorCodeService.setErrorCodeBody(ErrorCode.ADMIN_PERMISSION_UNCHANGEABLE));
+        if (userEntity.getRole() != UserRole.ADMIN) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (dto.getId().equals("admin")) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         UserEntity user = userService.findById(dto.getId());
         userService.roleChange(user, dto.getRole());

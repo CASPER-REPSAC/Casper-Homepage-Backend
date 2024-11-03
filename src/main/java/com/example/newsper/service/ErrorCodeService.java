@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Service
 public class ErrorCodeService {
-    public Map<String, Object> setErrorCodeBody(ErrorCode code){
+    public Map<String, Object> setErrorCodeBody(ErrorCode code) {
         return code.toMap();
     }
 }

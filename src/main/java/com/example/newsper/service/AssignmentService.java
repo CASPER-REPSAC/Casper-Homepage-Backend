@@ -25,15 +25,15 @@ public class AssignmentService {
     @Autowired
     private FileService fileService;
 
-    public AssignmentEntity save(AssignmentEntity assignmentEntity){
+    public AssignmentEntity save(AssignmentEntity assignmentEntity) {
         return assignmentRepository.save(assignmentEntity);
     }
 
-    public AssignmentEntity findById(Long assignmentId){
+    public AssignmentEntity findById(Long assignmentId) {
         return assignmentRepository.findById(assignmentId).orElse(null);
     }
 
-    public AssignmentEntity update(AssignmentEntity assignmentEntity, CreateAssignmentDto assignmentDto){
+    public AssignmentEntity update(AssignmentEntity assignmentEntity, CreateAssignmentDto assignmentDto) {
         assignmentEntity.setTitle(assignmentDto.getTitle());
         assignmentEntity.setCategory(assignmentDto.getCategory());
         assignmentEntity.setDescription(assignmentDto.getDescription());
@@ -42,21 +42,21 @@ public class AssignmentService {
         return assignmentEntity;
     }
 
-    public void delete(AssignmentEntity assignmentEntity){
-        List<String> urls = fileService.getUrls(String.valueOf(assignmentEntity.getAssignmentId()),"article");
+    public void delete(AssignmentEntity assignmentEntity) {
+        List<String> urls = fileService.getUrls(String.valueOf(assignmentEntity.getAssignmentId()), "article");
 
-        for(String url : urls){
+        for (String url : urls) {
             fileService.delete(url);
         }
 
         assignmentRepository.delete(assignmentEntity);
     }
 
-    public int getMaxPageNum(){
+    public int getMaxPageNum() {
         return assignmentRepository.assignmentCount();
     }
 
-    public List<AssignmentListDto> assignmentList(Long listNum){
+    public List<AssignmentListDto> assignmentList(Long listNum) {
         List<Object[]> obj = assignmentRepository.AssignmentList(listNum);
 
         return obj.stream()

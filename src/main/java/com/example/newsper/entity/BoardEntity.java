@@ -1,9 +1,10 @@
 package com.example.newsper.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
 import lombok.*;
 
-@Entity(name="boardEntity")
+@Entity(name = "boardEntity")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString

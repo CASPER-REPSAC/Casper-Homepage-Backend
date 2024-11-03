@@ -25,28 +25,31 @@ public class BoardService {
     @Autowired
     private ArticleService articleService;
 
-    public BoardEntity save(BoardEntity entity){
+    public BoardEntity save(BoardEntity entity) {
         return boardRepository.save(entity);
     }
 
-    public BoardEntity delete(BoardEntity boardEntity){
+    public BoardEntity delete(BoardEntity boardEntity) {
         boardRepository.delete(boardEntity);
         List<ArticleEntity> articles = articleService.findByBoardName(boardEntity);
-        for(ArticleEntity article : articles){
+        for (ArticleEntity article : articles) {
             articleService.delete(article);
         }
         return boardEntity;
     }
 
     public void update(BoardEntity boardEntity, BoardDto dto) {
-        boardRepository.update(boardEntity.getBoardNameKey().getBoardName(),boardEntity.getBoardNameKey().getSubBoardName(),dto.getBoardName(), dto.getSubBoardName());
+        boardRepository.update(boardEntity.getBoardNameKey().getBoardName(), boardEntity.getBoardNameKey().getSubBoardName(), dto.getBoardName(), dto.getSubBoardName());
     }
 
-    public BoardEntity find(BoardNameKey boardNameKey){
+    public BoardEntity find(BoardNameKey boardNameKey) {
         return boardRepository.findById(boardNameKey).orElse(null);
     }
 
-    public List<String> findCategory(String id) { return boardRepository.findCategory(id); }
+    public List<String> findCategory(String id) {
+        return boardRepository.findCategory(id);
+    }
+
     public List<BoardEntity> findAll() {
         return boardRepository.findAll();
     }

@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.util.Date;
 import java.util.List;
+
 @Getter
 public class CreateSubmitDto {
 
@@ -16,7 +17,7 @@ public class CreateSubmitDto {
     @Schema(description = "파일 URLs")
     private List<String> urls;
 
-    public SubmitEntity toEntity(UserEntity user, Long assignmentId){
+    public SubmitEntity toEntity(UserEntity user, Long assignmentId) {
         return new SubmitEntity(null, assignmentId, user.getId(), user.getName(), new Date(), content, null, null);
     }
 }

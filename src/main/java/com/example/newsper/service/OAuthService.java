@@ -18,9 +18,7 @@ import java.util.Collections;
 @Service
 public class OAuthService {
 
-    @Autowired
-    private UserService userService;
-
+    private final RestTemplate restTemplate = new RestTemplate();
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     String googleClientId;
 
@@ -32,22 +30,22 @@ public class OAuthService {
 
     @Value("${spring.security.oauth2.client.registration.github.client-secret}")
     String githubClientSecret;
-
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private UserService userService;
 
     public UserEntity google(String code, String redirectUri) {
 
         String accessToken = getGoogleAccessToken(code, redirectUri);
-        log.info("AccessToken = "+accessToken);
+        log.info("AccessToken = " + accessToken);
         JsonNode userResourceNode = getGoogleUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
         String name = userResourceNode.get("name").asText();
-        log.info("email = "+email);
+        log.info("email = " + email);
 
-        if(userService.findByEmail(email) == null){
-            UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
+        if (userService.findByEmail(email) == null) {
+            UserDto dto = new UserDto(email, id + email, email, name, email, null, null, null, "associate");
             return userService.newUser(dto);
         } else return userService.findByEmail(email);
     }
@@ -86,16 +84,16 @@ public class OAuthService {
     public UserEntity github(String code, String redirectUri) {
 
         String accessToken = getGithubAccessToken(code, redirectUri);
-        log.info("AccessToken = "+accessToken);
+        log.info("AccessToken = " + accessToken);
         JsonNode userResourceNode = getGithubUserResource(accessToken);
 
         String id = userResourceNode.get("id").asText();
         String email = userResourceNode.get("email").asText();
         String name = userResourceNode.get("name").asText();
-        log.info("email = "+email);
+        log.info("email = " + email);
 
-        if(userService.findByEmail(email) == null){
-            UserDto dto = new UserDto(email,id+email,email, name, email,null,null,null,"associate");
+        if (userService.findByEmail(email) == null) {
+            UserDto dto = new UserDto(email, id + email, email, name, email, null, null, null, "associate");
             return userService.newUser(dto);
         } else return userService.findByEmail(email);
     }

@@ -7,6 +7,7 @@ public enum UserRole {
     ADMIN("admin"),
     MEMBER("member"),
     ASSOCIATE("associate"),
+    // Guest must be treated as an unknown user or all users.
     GUEST("guest");
 
     private final String role;

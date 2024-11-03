@@ -28,32 +28,30 @@ public class AccountLockService {
     public void setCount(String id) {
         if (redisUtil.existData(id)) {
             redisUtil.INCRData(id);
-        } else{
-            redisUtil.setDataExpire(id,"1",5*60L);
+        } else {
+            redisUtil.setDataExpire(id, "1", 5 * 60L);
         }
     }
 
     public boolean validation(String id) {
         if (redisUtil.existData(id)) {
-            if(Integer.parseInt(redisUtil.getData(id))>=5) {
+            if (Integer.parseInt(redisUtil.getData(id)) >= 5) {
                 redisUtil.INCRData(id);
                 return true;
-            }
-            else return false;
-        }
-        else return false;
+            } else return false;
+        } else return false;
     }
 
-    public void deleteCount(String id){
+    public void deleteCount(String id) {
         redisUtil.deleteData(id);
     }
 
     public boolean isArticleVisited(UserEntity user, ArticleEntity article) {
-        if(redisUtil.existData(user.getId()+"_"+article.getArticleId())){
-            redisUtil.setDataExpire(user.getId()+"_"+article.getArticleId(),"visited",5*60L);
+        if (redisUtil.existData(user.getId() + "_" + article.getArticleId())) {
+            redisUtil.setDataExpire(user.getId() + "_" + article.getArticleId(), "visited", 5 * 60L);
             return true;
-        } else{
-            redisUtil.setDataExpire(user.getId()+"_"+article.getArticleId(),"visited",5*60L);
+        } else {
+            redisUtil.setDataExpire(user.getId() + "_" + article.getArticleId(), "visited", 5 * 60L);
             return false;
         }
     }

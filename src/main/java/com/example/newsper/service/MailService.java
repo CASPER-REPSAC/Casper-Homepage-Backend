@@ -2,6 +2,8 @@ package com.example.newsper.service;
 
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.redis.RedisUtil;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,25 +11,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+
 import java.util.Random;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailService {
 
+    private final RedisUtil redisUtil;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private JavaMailSender mailSender;
-
-    private final RedisUtil redisUtil;
-
     @Value("${spring.mail.username}")
     private String configEmail;
 
@@ -38,7 +36,7 @@ public class MailService {
         Random random = new Random();
 
         return random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <=57 || i >=65) && (i <= 90 || i>= 97))
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
@@ -57,7 +55,7 @@ public class MailService {
             body += "<h3>" + "요청하신 인증 번호입니다." + "</h3>";
             body += "<h1>" + authCode + "</h1>";
             body += "<h3>" + "감사합니다." + "</h3>";
-            message.setText(body,"UTF-8", "html");
+            message.setText(body, "UTF-8", "html");
 
             redisUtil.setDataExpire(mail, authCode, 60 * 5L);
 
@@ -80,7 +78,7 @@ public class MailService {
             body += "<h3>" + "요청하신 ID 입니다." + "</h3>";
             body += "<h1>" + id + "</h1>";
             body += "<h3>" + "감사합니다." + "</h3>";
-            message.setText(body,"UTF-8", "html");
+            message.setText(body, "UTF-8", "html");
 
             mailSender.send(message);
 
@@ -104,7 +102,7 @@ public class MailService {
             body += "<h3>" + "초기화된 PW 입니다." + "</h3>";
             body += "<h1>" + authCode + "</h1>";
             body += "<h3>" + "감사합니다." + "</h3>";
-            message.setText(body,"UTF-8", "html");
+            message.setText(body, "UTF-8", "html");
 
             mailSender.send(message);
 

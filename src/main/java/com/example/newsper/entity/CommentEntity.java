@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 
-@Entity(name="commentEntity")
+@Entity(name = "commentEntity")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -18,16 +18,16 @@ public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="commentId")
+    @Column(name = "commentId")
     private Long commentId;
 
-    @Column(name="articleId", nullable = false)
+    @Column(name = "articleId", nullable = false)
     private Long articleId;
 
-    @Column(name="text", nullable = false)
+    @Column(name = "text", nullable = false)
     private String text;
 
-    @Column(name="createdAt", nullable = false)
+    @Column(name = "createdAt", nullable = false)
     private Date createdAt;
 
     @Column(name = "modifiedAt", nullable = false)
@@ -36,7 +36,7 @@ public class CommentEntity {
     @Column(name = "id", nullable = false)
     private String id;
 
-    @Column(name="nickname", nullable = false)
+    @Column(name = "nickname", nullable = false)
     private String nickname;
 
     public static CommentEntity createComment(CommentDto dto, ArticleEntity article) {
@@ -50,7 +50,7 @@ public class CommentEntity {
     public void patch(CommentDto dto) {
         if (this.commentId != dto.getCommentId())
             throw new IllegalArgumentException("댓글 수정 실패!");
-        if (dto.getText() != null){
+        if (dto.getText() != null) {
             this.text = dto.getText();
         }
     }

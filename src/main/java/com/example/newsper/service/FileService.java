@@ -22,23 +22,25 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FileService {
 
+    private final String uploadPath = "/home/casper/";
     @Autowired
     private FileRepository fileRepository;
-    private final String uploadPath ="/home/casper/";
     @Value("${custom.server.url}")
     private String serverUrl;
 
-    public void save(FileDto fileDto){
+    public void save(FileDto fileDto) {
         fileRepository.save(fileDto.toEntity());
     }
 
-    public void modify(FileEntity fileEntity){
+    public void modify(FileEntity fileEntity) {
         fileRepository.save(fileEntity);
     }
 
-    public FileEntity findById(String id){ return fileRepository.findById(id).orElse(null); }
+    public FileEntity findById(String id) {
+        return fileRepository.findById(id).orElse(null);
+    }
 
-    public List<String> getUrls(String id, String type){
+    public List<String> getUrls(String id, String type) {
         return fileRepository.getUrls(id, type);
     }
 
@@ -47,16 +49,15 @@ public class FileService {
 //    }
 
 
-
-    public List<Object> getFileNames(Long id, String type){
-        List<String> files = fileRepository.getUrls(String.valueOf(id),type);
+    public List<Object> getFileNames(Long id, String type) {
+        List<String> files = fileRepository.getUrls(String.valueOf(id), type);
         List<Object> ret = new ArrayList<>();
-        for(String file : files){
-            Map<String,Object> map = new HashMap<>();
+        for (String file : files) {
+            Map<String, Object> map = new HashMap<>();
             String fileName = file.substring(file.lastIndexOf("/") + 1);
             String extractedFileName = fileName.substring(fileName.indexOf("_") + 1);
-            map.put("name",extractedFileName);
-            map.put("src",file);
+            map.put("name", extractedFileName);
+            map.put("src", file);
 
             ret.add(map);
         }
@@ -90,16 +91,16 @@ public class FileService {
 
         file.transferTo(saveFile);
 
-        return serverUrl + ("/"+fileType+"/" + datePath + "/" + uploadFileName).replace("/", File.separator);
+        return serverUrl + ("/" + fileType + "/" + datePath + "/" + uploadFileName).replace("/", File.separator);
     }
 
-    public void delete(String path){
+    public void delete(String path) {
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
         String filePath = uploadPath;
         String result = path.substring(serverUrl.length());
 
         // 파일 객체 생성
-        File file = new File(filePath+result);
+        File file = new File(filePath + result);
         log.info(filePath);
         log.info(result);
         log.info("{}: {}", filePath, result);

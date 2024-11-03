@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-@Entity(name="fileEntity")
+@Entity(name = "fileEntity")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -16,14 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileEntity {
     @Id
-    @Column(name="filePath")
+    @Column(name = "filePath")
     private String filePath;
 
     @NotNull
-    @Column(name="type")
+    @Column(name = "type")
     private String type;
 
-    @Column(name="connectId")
+    @Column(name = "connectId")
     private String connectId;
 
 }

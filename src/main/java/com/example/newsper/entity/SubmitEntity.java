@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-@Entity(name="SubmitEntity")
+
+@Entity(name = "SubmitEntity")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString

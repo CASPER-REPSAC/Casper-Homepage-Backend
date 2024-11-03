@@ -1,12 +1,10 @@
 package com.example.newsper.dto;
 
 import com.example.newsper.entity.ArticleEntity;
-import com.example.newsper.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.w3c.dom.Text;
 
 import java.util.Date;
 import java.util.List;
@@ -31,7 +29,7 @@ public class ArticleDto {
     private Long numOfComments;
     private List<String> urls;
 
-    public ArticleEntity toEntity(){
-        return new ArticleEntity(articleId,userId,boardId,category,createdAt,modifiedAt,nickname,title,content,hide,notice,view,numOfComments,false);
+    public ArticleEntity toEntity() {
+        return new ArticleEntity(articleId, userId, boardId, category, createdAt, modifiedAt, nickname, title, content, hide, notice, view, numOfComments, false);
     }
 }

@@ -1,14 +1,8 @@
 package com.example.newsper.dto;
 
-import com.example.newsper.entity.AssignmentEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 import java.util.Date;
-import java.util.List;
 
 public class AssignmentDto {
     @Schema(description = "과제 ID")

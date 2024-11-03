@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+
 @Slf4j
 
 public class JwtTokenUtil {
@@ -30,8 +31,8 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public static String createRefreshToken(String loginId, String key, long expireTimeMs){
-        return createToken(loginId,key,expireTimeMs);
+    public static String createRefreshToken(String loginId, String key, long expireTimeMs) {
+        return createToken(loginId, key, expireTimeMs);
     }
 
     // Claims에서 loginId 꺼내기

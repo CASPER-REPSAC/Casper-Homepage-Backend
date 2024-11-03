@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name= "Article", description = "게시글 API")
+@Tag(name = "Article", description = "게시글 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/file")
@@ -33,14 +33,14 @@ public class FileApiController {
     private ErrorCodeService errorCodeService;
 
     @PostMapping("/upload")
-    @Operation(summary= "파일 업로드", description= "파일을 업로드 합니다.")
+    @Operation(summary = "파일 업로드", description = "파일을 업로드 합니다.")
     public ResponseEntity<?> write(
             @RequestPart(value = "files") List<MultipartFile> files,
-            @Parameter(description ="article, profile, assignment, submit") @RequestParam String type
+            @Parameter(description = "article, profile, assignment, submit") @RequestParam String type
     ) throws IOException {
         List<Map<String, Object>> ret = new ArrayList<>();
 
-        if(files != null) {
+        if (files != null) {
             for (MultipartFile file : files) {
 
                 log.info("파일 이름 : " + file.getOriginalFilename());
@@ -55,10 +55,10 @@ public class FileApiController {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_NAME_INVALID));
                 }
 
-                String url = fileService.fileUpload(file,type);
+                String url = fileService.fileUpload(file, type);
                 Map<String, Object> map = new HashMap<>();
-                map.put("name",file.getOriginalFilename());
-                map.put("url",url);
+                map.put("name", file.getOriginalFilename());
+                map.put("url", url);
                 ret.add(map);
                 fileService.save(new FileDto(url, type));
             }
@@ -68,10 +68,10 @@ public class FileApiController {
     }
 
     @DeleteMapping("/delete")
-    @Operation(summary= "파일 삭제", description= "파일을 삭제합니다.")
+    @Operation(summary = "파일 삭제", description = "파일을 삭제합니다.")
     public ResponseEntity<?> write(
             @RequestParam String url
-    ){
+    ) {
         fileService.delete(url);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

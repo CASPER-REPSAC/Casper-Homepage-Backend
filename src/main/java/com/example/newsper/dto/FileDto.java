@@ -1,7 +1,6 @@
 package com.example.newsper.dto;
 
 import com.example.newsper.entity.FileEntity;
-import com.example.newsper.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +15,6 @@ public class FileDto {
     private String type;
 
     public FileEntity toEntity() {
-        return new FileEntity(filePath,type,null);
+        return new FileEntity(filePath, type, null);
     }
 }

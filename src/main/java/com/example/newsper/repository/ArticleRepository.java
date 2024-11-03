@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ArticleRepository extends JpaRepository<ArticleEntity,Long> {
+public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     @Query(value = "SELECT articleId, boardId, hide, numOfComments, title, nickname, createdAt, view, file, category FROM articleEntity WHERE boardId = :boardId and category = :category ORDER BY articleId DESC LIMIT :listNum, 10", nativeQuery = true)
     List<ArticleList> findByBoardList(@Param("boardId") String boardId, @Param("category") String category, @Param("listNum") Long listNum);
 

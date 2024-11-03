@@ -25,17 +25,20 @@ public class SubmitService {
 
     @Autowired
     private FileService fileService;
-    public SubmitEntity findById(Long submitId){
+
+    public SubmitEntity findById(Long submitId) {
         return submitRepository.findById(submitId).orElse(null);
     }
 
-    public SubmitEntity findByUserId(String userId){
+    public SubmitEntity findByUserId(String userId) {
         return submitRepository.findByUserId(userId);
     }
 
-    public SubmitEntity save(SubmitEntity submitEntity) { return submitRepository.save(submitEntity); }
+    public SubmitEntity save(SubmitEntity submitEntity) {
+        return submitRepository.save(submitEntity);
+    }
 
-    public List<SubmitListDto> findByAssignmentId(Long assignmentId){
+    public List<SubmitListDto> findByAssignmentId(Long assignmentId) {
         List<Object[]> obj = submitRepository.findByAssignmentId2(assignmentId);
 
         return obj.stream()
@@ -49,17 +52,17 @@ public class SubmitService {
                 .collect(Collectors.toList());
     }
 
-    public SubmitEntity update(SubmitEntity submitEntity, CreateSubmitDto dto){
+    public SubmitEntity update(SubmitEntity submitEntity, CreateSubmitDto dto) {
         submitEntity.setContent(dto.getContent());
         submitRepository.save(submitEntity);
         return submitEntity;
     }
 
-    public void delete(SubmitEntity submitEntity){
+    public void delete(SubmitEntity submitEntity) {
         submitRepository.delete(submitEntity);
     }
 
-    public void deleteByAssignment(Long assignmentId){
+    public void deleteByAssignment(Long assignmentId) {
         List<SubmitEntity> submits = submitRepository.findByAssignmentId(assignmentId);
         submitRepository.deleteAll(submits);
     }

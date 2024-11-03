@@ -25,20 +25,16 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CommentService {
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private ArticleRepository articleRepository;
-
-    @Autowired
-    private ArticleService articleService;
-
-    @Autowired
-    private UserService userService;
-
     @Value("${custom.secret-key}")
     String secretKey;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private ArticleRepository articleRepository;
+    @Autowired
+    private ArticleService articleService;
+    @Autowired
+    private UserService userService;
 
     public List<CommentDto> comments(Long articleId) {
         List<CommentDto> dtos = commentRepository.findByArticleId(articleId)
@@ -48,18 +44,18 @@ public class CommentService {
 
         for (CommentDto dto : dtos) {
             UserEntity userEntity = userService.findById(dto.getId());
-            if(userEntity != null)
+            if (userEntity != null)
                 dto.setProfile(userService.findById(dto.getId()).getProfileImgPath());
         }
 
         return dtos;
     }
 
-    public CommentEntity findById(Long commentId){
+    public CommentEntity findById(Long commentId) {
         return commentRepository.findById(commentId).orElse(null);
     }
 
-    public void commentCount(Long articleId){
+    public void commentCount(Long articleId) {
         ArticleEntity articleEntity = articleService.findById(articleId);
         articleEntity.setNumOfComments((long) comments(articleId).size());
         articleService.save(articleEntity);
@@ -77,7 +73,7 @@ public class CommentService {
         UserEntity userEntity = userService.findById(userId);
         dto.setId(userEntity.getId());
         dto.setNickname(userEntity.getNickname());
-        CommentEntity comment = CommentEntity.createComment(dto,article);
+        CommentEntity comment = CommentEntity.createComment(dto, article);
 
         return commentRepository.save(comment);
     }
@@ -97,7 +93,7 @@ public class CommentService {
         commentRepository.delete(target);
     }
 
-    public void deleteByArticle(Long articleId){
+    public void deleteByArticle(Long articleId) {
         List<CommentEntity> comments = commentRepository.findByArticleId(articleId);
         commentRepository.deleteAll(comments);
     }
@@ -123,19 +119,16 @@ public class CommentService {
         String boardId = Objects.requireNonNull(articleRepository.findById(articleId).orElse(null)).getBoardId();
         log.info("댓글 권한 체크");
 
-        if(boardId.equals("freedom_board")||boardId.equals("notice_board")) {
+        if (boardId.equals("freedom_board") || boardId.equals("notice_board")) {
             log.info("자유 게시판, 공지사항은 누구나 열람 가능합니다");
             return true;
-        }
-        else if(user == null) {
+        } else if (user == null) {
             log.info("유저 데이터에 조회할 수 없습니다");
             return false;
-        }
-        else if(user.getRole() == UserRole.ASSOCIATE) {
+        } else if (user.getRole() == UserRole.ASSOCIATE) {
             log.info("준회원은 준회원 게시판 열람이 가능합니다");
             return boardId.equals("associate_board");
-        }
-        else {
+        } else {
             log.info("정회원은 모든 게시판 열람이 가능합니다");
             return true;
         }
