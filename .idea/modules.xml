@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Casper-Homepage-Backend.newsper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Casper-Homepage-Backend.newsper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.example.newsper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.example.newsper.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/newsper.iml" filepath="$PROJECT_DIR$/.idea/modules/newsper.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/newsper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/newsper.main.iml" />
     </modules>
   </component>

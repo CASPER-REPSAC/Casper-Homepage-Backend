@@ -79,10 +79,11 @@ public class ArticleApiController {
         if (page == null || page <= 1) page = 1L;
         Map<String, Object> map = new HashMap<>();
         page = (page - 1) * 10;
-        double maxPageNum = articleService.getMaxPageNum(boardId, category);
+        int articleCount = articleService.getMaxPageNum(boardId, category);
+        int maxPageNum = articleCount / 10 + (articleCount % 10 == 0 ? 0 : 1);
         List<ArticleList> target = articleService.boardList(boardId, category, page);
-        log.info(category + "의 총 게시물 수 : " + maxPageNum);
-        map.put("maxPageNum", Math.ceil(maxPageNum / 10.0));
+        log.info("{}의 총 게시물 수 : {}", category, articleCount);
+        map.put("maxPageNum", maxPageNum);
         map.put("articleList", target);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
