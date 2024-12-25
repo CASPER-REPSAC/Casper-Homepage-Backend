@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.1.1'
+	id 'org.springframework.boot' version "${springBootVersion}"
 	id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -22,23 +22,25 @@ repositories {
 }
 
 dependencies {
-	implementation "org.springframework.boot:spring-boot-starter-mail:${springBootVersion}"
+	implementation "org.springframework.boot:spring-boot-starter-mail"
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+	implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-data-redis"
+	implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	implementation "org.springframework.security:spring-security-config"
+	testImplementation "org.springframework.security:spring-security-test"
+	implementation 'org.springframework.security:spring-security-acl'
 	implementation "io.jsonwebtoken:jjwt-api:${jsonwebtokenVersion}"
 	runtimeOnly "io.jsonwebtoken:jjwt-impl:${jsonwebtokenVersion}"
 	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jsonwebtokenVersion}"
-	implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
-	implementation "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
-	implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
 	implementation 'commons-io:commons-io:2.17.0'
 	implementation "me.paulschwarz:spring-dotenv:4.0.0"
-	compileOnly 'org.projectlombok:lombok:1.18.34'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok:1.18.34'
-	testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
-	implementation "org.springframework.boot:spring-boot-starter-data-redis:${springBootVersion}"
-	implementation "org.springframework.boot:spring-boot-starter-oauth2-client:${springBootVersion}"
-	testImplementation "org.springframework.security:spring-security-test:${springSecurityVersion}"
+	runtimeOnly 'com.mysql:mysql-connector-j:9.1.0'
+	compileOnly 'org.projectlombok:lombok:1.18.36'
+	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
 }
 
