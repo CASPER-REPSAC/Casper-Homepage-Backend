@@ -109,7 +109,7 @@ public class AssignmentApiController {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @DeleteMapping("delete/{assignmentId}")
+    @DeleteMapping("/delete/{assignmentId}")
     @Operation(summary = "과제 삭제", description = "과제를 삭제합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> delete(
             @Parameter(description = "과제 ID")

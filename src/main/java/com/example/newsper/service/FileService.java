@@ -105,9 +105,13 @@ public class FileService {
         log.info(result);
         log.info("{}: {}", filePath, result);
 
+        fileRepository.delete(fileEntity);
+        if (!file.exists()) {
+            log.info("파일이 존재하지 않습니다.");
+            return;
+        }
+
         // 파일 삭제
         file.delete();
-
-        fileRepository.delete(fileEntity);
     }
 }

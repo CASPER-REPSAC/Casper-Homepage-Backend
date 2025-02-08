@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.util.Date;
 
-@Entity(name = "AssignmentEntity")
+@Entity(name = "assignmentEntity")
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
