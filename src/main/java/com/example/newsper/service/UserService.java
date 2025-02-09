@@ -150,7 +150,11 @@ public class UserService {
 
     public String getUserId(HttpServletRequest request) {
         try {
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+            String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authorization == null || !authorization.startsWith("Bearer ")) {
+                return "guest";
+            }
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).replace("Bearer ", "");
             return JwtTokenUtil.getLoginId(accessToken, secretKey);
         } catch (Exception e) {
             log.info(e.getMessage());

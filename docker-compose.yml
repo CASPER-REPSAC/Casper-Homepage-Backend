@@ -9,10 +9,10 @@ services:
         - .env
         - .database.env
   mysql:
-    image: mysql:9.1.0
+    image: mysql:lts
     env_file: .database.env
   redis:
-    image: redis:7.4.1
+    image: redis:alpine
   frontend:
     image: jiseong5036/casper-frontend:latest
     ports:
