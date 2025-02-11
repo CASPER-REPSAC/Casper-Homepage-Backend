@@ -229,6 +229,14 @@ public class UserApiController {
         }
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다. 액세스 토큰 필요.")
+    public ResponseEntity<Map<String, Object>> me(HttpServletRequest request) {
+        String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(user.toJSON());
+    }
+
     @GetMapping("/show")
     @Operation(summary = "유저 정보 조회", description = "유저 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id) {
