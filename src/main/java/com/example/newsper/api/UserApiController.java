@@ -51,6 +51,27 @@ public class UserApiController {
     @Autowired
     private OAuthService oAuthService;
 
+    @GetMapping("/create_admin")
+    @Operation(summary = "관리자 생성", description = "관리자 계정을 생성합니다.")
+    public ResponseEntity<?> createAdmin() {
+        UserEntity user = userService.findById("admin");
+        if (user != null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
+
+        UserDto userDto = new UserDto();
+        userDto.setId("admin");
+        userDto.setPw(secretKey);
+        userDto.setRole(UserRole.ADMIN.toString());
+        userDto.setEmail("casper.cwnu@gmail.com");
+        userDto.setName("관리자");
+        userDto.setNickname("관리자");
+        userDto.setHomepage("https://casper.or.kr");
+        userDto.setIntroduce("관리자 계정입니다.");
+        userDto.setProfileImgPath("/");
+        userService.newUser(userDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     @PostMapping("/join")
     @Operation(summary = "회원 가입", description = "DB에 회원 정보를 등록합니다.")
     public ResponseEntity<?> join(@RequestBody JoinDto dto) {

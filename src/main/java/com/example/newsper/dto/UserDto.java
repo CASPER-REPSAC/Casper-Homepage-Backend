@@ -3,13 +3,11 @@ package com.example.newsper.dto;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.entity.UserEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
+@RequiredArgsConstructor
 @ToString
 @Setter
 public class UserDto {
