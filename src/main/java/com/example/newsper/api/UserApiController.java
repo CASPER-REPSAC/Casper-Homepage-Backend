@@ -34,6 +34,8 @@ public class UserApiController {
 
     @Value("${custom.secret-key}")
     String secretKey;
+    @Value("${custom.debug}")
+    boolean debug;
     @Autowired
     private FileService fileService;
     @Autowired
@@ -52,8 +54,9 @@ public class UserApiController {
     private OAuthService oAuthService;
 
     @GetMapping("/create_admin")
-    @Operation(summary = "관리자 생성", description = "관리자 계정을 생성합니다.")
+    @Operation(summary = "관리자 생성", description = "관리자 계정을 생성합니다. Debug 모드에서만 사용 가능합니다.")
     public ResponseEntity<?> createAdmin() {
+        if(!debug) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.USABLE_ONLY_DEVELOPMENT));
         UserEntity user = userService.findById("admin");
         if (user != null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
 
@@ -67,6 +70,7 @@ public class UserApiController {
         userDto.setHomepage("https://casper.or.kr");
         userDto.setIntroduce("관리자 계정입니다.");
         userDto.setProfileImgPath("/");
+        userDto.setRole(UserRole.ADMIN.toString());
         userService.newUser(userDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();

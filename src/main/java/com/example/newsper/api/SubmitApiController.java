@@ -11,7 +11,10 @@ import com.example.newsper.repository.SubmitRepository;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,12 @@ import java.util.List;
 @Tag(name = "Submit", description = "과제 제출 API")
 @RestController
 @Slf4j
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 @RequestMapping("/api/assignment/{assignmentId}")
 public class SubmitApiController {
     @Autowired
@@ -49,6 +58,7 @@ public class SubmitApiController {
 
 
     @GetMapping("/submit/{submitId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출 조회", description = "제출한 과제를 조회합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> view(
             @Parameter(description = "과제 제출 ID")
@@ -74,6 +84,7 @@ public class SubmitApiController {
     }
 
     @PostMapping("/submit")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출", description = "과제를 제출합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "201", description = "성공")
     public ResponseEntity<?> create(
@@ -115,6 +126,7 @@ public class SubmitApiController {
     }
 
     @PatchMapping("/edit/{submitId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출 수정", description = "제출된 과제를 수정합니다.")
     public ResponseEntity<?> update(
             @Parameter(description = "과제 제출 ID")
@@ -151,6 +163,7 @@ public class SubmitApiController {
     }
 
     @DeleteMapping("/delete/{submitId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "제출된 과제 삭제", description = "제출된 과제를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> delete(

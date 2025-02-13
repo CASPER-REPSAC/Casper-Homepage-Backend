@@ -31,6 +31,7 @@ public enum ErrorCode {
     ASSIGNMENT_EDIT_SELF_ONLY_AGAIN(-705, "과제 수정은 본인만 가능"),
     ASSIGNMENT_DELETE_LIMITED(-706, "관리자, 제출자, 출제자만 삭제 가능"),
     FILE_COUNT_EXCEEDED_AGAIN(-707, "파일 5개 초과"),
+    USABLE_ONLY_DEVELOPMENT(-1000, "개발 환경에서만 사용 가능"),
     UNDEFINED_ERROR(-1, "지정되지 않은 에러");
 
     private final int code;

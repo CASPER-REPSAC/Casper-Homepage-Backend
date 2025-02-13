@@ -10,6 +10,9 @@ import com.example.newsper.entity.UserEntity;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,12 @@ import java.util.Map;
 
 @Tag(name = "Assignment", description = "과제 API")
 @RestController
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 @Slf4j
 @RequestMapping("/api/assignment")
 public class AssignmentApiController {
@@ -45,6 +54,7 @@ public class AssignmentApiController {
     private FileService fileService;
 
     @PostMapping("/create")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 작성", description = "액세스 토큰 필요.")
     public ResponseEntity<?> write(
             @RequestBody CreateAssignmentDto dto,
@@ -55,7 +65,7 @@ public class AssignmentApiController {
         if (user == null || user.getRole() == UserRole.ASSOCIATE)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
         if (dto.getUrls() != null && dto.getUrls().size() > 5)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
 
         AssignmentEntity created = dto.toEntity(user);
         assignmentService.save(created);
@@ -76,6 +86,7 @@ public class AssignmentApiController {
     }
 
     @PatchMapping("/edit/{assignmentId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 수정", description = "과제를 수정합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> update(
             @Parameter(description = "과제 ID")
@@ -110,6 +121,7 @@ public class AssignmentApiController {
     }
 
     @DeleteMapping("/delete/{assignmentId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 삭제", description = "과제를 삭제합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> delete(
             @Parameter(description = "과제 ID")
@@ -129,6 +141,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/list/{page}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 목록 조회", description = "과제 목록을 조회합니다.")
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
@@ -144,12 +157,13 @@ public class AssignmentApiController {
         double maxPageNum = assignmentService.getMaxPageNum();
         List<AssignmentListDto> dtos = assignmentService.assignmentList(page);
 
-        map.put("AssignmentList", getProgress(dtos, userId));
-        map.put("maxPageNum", Math.ceil(maxPageNum / 10.0));
+        map.put("assignments", getProgress(dtos, userId));
+        map.put("maxPage", Math.ceil(maxPageNum / 10.0));
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @GetMapping("/detail/{assignmentId}")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 상세 조회", description = "과제를 상세히 조회합니다.")
     public ResponseEntity<?> detail(
             @Parameter(description = "과제 ID")
@@ -166,7 +180,7 @@ public class AssignmentApiController {
         map.put("assignment", assignmentEntity);
 
         List<Object> assignmentFiles = fileService.getFileNames(assignmentId, "assignment");
-        map.put("assignmentFiles", assignmentFiles);
+        map.put("files", assignmentFiles);
 
         if (!(user.getRole() == UserRole.ASSOCIATE || user.getRole() == UserRole.GUEST)) {
             List<SubmitListDto> dtos = submitService.findByAssignmentId(assignmentId);
@@ -175,12 +189,13 @@ public class AssignmentApiController {
                 dto.setUrls(files);
             }
 
-            map.put("submit", dtos);
+            map.put("submits", dtos);
         }
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @PostMapping("/grade")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 채점", description = "과제를 채점합니다.")
     public ResponseEntity<?> grade(
             @Parameter(description = "과제 ID")
@@ -202,6 +217,7 @@ public class AssignmentApiController {
     }
 
     @PostMapping("/feedback")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 피드백", description = "과제에 피드백을 부여합니다.")
     public ResponseEntity<?> grade(
             @Parameter(description = "과제 ID")

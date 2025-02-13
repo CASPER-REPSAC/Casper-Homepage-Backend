@@ -1,5 +1,6 @@
 custom:
   secret-key: ${SECRET_KEY}
+  debug: ${DEBUG}
   server:
     url: ${SERVER_URL}
 spring:
