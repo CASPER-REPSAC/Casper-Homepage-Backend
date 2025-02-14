@@ -1,5 +1,6 @@
 package com.example.newsper.api;
 
+import com.example.newsper.constant.AssignmentStatus;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.*;
@@ -242,15 +243,15 @@ public class AssignmentApiController {
             SubmitEntity submitEntity = submitService.findByUserId(userId);
             Date date = new Date();
             if (date.getTime() >= dto.getDeadline().getTime()) {
-                dto.setProgress("마감됨");
+                dto.setProgress(AssignmentStatus.ENDED.getStatus());
             } else {
                 if (submitEntity != null && submitEntity.getAssignmentId().equals(dto.getAssignmentId())) {
                     if (submitEntity.getScore() != null)
-                        dto.setProgress("채점완료");
+                        dto.setProgress(AssignmentStatus.GRADED.getStatus());
                     else
-                        dto.setProgress("제출완료");
+                        dto.setProgress(AssignmentStatus.SUBMITTED.getStatus());
                 } else {
-                    dto.setProgress("진행중");
+                    dto.setProgress(AssignmentStatus.PROGRESS.getStatus());
                 }
             }
         }
