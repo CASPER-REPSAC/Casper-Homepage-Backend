@@ -11,4 +11,6 @@ public class SubmitFeedbackDto {
     private Long submitId;
     @Schema(description = "피드백")
     private String feedback;
+    @Schema(description = "점수")
+    private Long score;
 }

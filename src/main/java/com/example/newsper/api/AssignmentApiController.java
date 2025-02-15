@@ -244,6 +244,7 @@ public class AssignmentApiController {
 
         SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
         submitEntity.setFeedback(dto.getFeedback());
+        if(dto.getScore() != null) submitEntity.setScore(dto.getScore());
         submitService.save(submitEntity);
 
         return ResponseEntity.status(HttpStatus.OK).build();
