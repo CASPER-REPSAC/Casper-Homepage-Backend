@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Submit", description = "과제 제출 API")
 @RestController
@@ -75,7 +76,7 @@ public class SubmitApiController {
         if (user.getRole() == UserRole.ASSOCIATE && !submitEntity.getUserId().equals(userId))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_VIEW_MEMBER_ONLY));
 
-        List<Object> files = fileService.getFileNames(submitId, "submit");
+        List<Map<String, String>> files = fileService.getFileNames(submitId, "submit");
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("submit", submitEntity);
@@ -126,7 +127,7 @@ public class SubmitApiController {
         }
 
         HashMap<String, Object> map = new HashMap<>();
-        List<Object> files = fileService.getFileNames(created.getSubmitId(), "submit");
+        List<Map<String, String>> files = fileService.getFileNames(created.getSubmitId(), "submit");
         map.put("submit", created);
         map.put("files", files);
 

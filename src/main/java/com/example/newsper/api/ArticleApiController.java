@@ -106,7 +106,7 @@ public class ArticleApiController {
             article.setView(article.getView() + 1L);
 
         log.info(article.getView().toString());
-        List<Object> files = fileService.getFileNames(articleId, "article");
+        List<Map<String, String>> files = fileService.getFileNames(articleId, "article");
 
         UserEntity author = userService.findById(article.getUserId());
 
@@ -146,7 +146,7 @@ public class ArticleApiController {
         }
 
         HashMap<String, Object> map = new HashMap<>();
-        List<Object> files = fileService.getFileNames(created.getArticleId(), "article");
+        List<Map<String, String>> files = fileService.getFileNames(created.getArticleId(), "article");
         map.put("article", created);
         map.put("files", files);
         return ResponseEntity.status(HttpStatus.OK).body(map);

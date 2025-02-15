@@ -47,16 +47,8 @@ public class SubmitService {
     }
 
     public List<SubmitListDto> findByAssignmentId(Long assignmentId) {
-        List<Object[]> obj = submitRepository.findByAssignmentId2(assignmentId);
-
-        return obj.stream()
-                .map(row -> new SubmitListDto(
-                        (Long) row[0],      // submitId
-                        (String) row[1],    // name
-                        (Date) row[2],      // submitDate
-                        (Long) row[3],      // score
-                        fileService.getFileNames((Long) row[0], "submit"))    // urls
-                )
+        return submitRepository.findByAssignmentId(assignmentId).stream()
+                .map(SubmitListDto::new)
                 .collect(Collectors.toList());
     }
 

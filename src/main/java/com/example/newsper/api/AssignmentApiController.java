@@ -77,7 +77,7 @@ public class AssignmentApiController {
         }
 
         HashMap<String, Object> map = new HashMap<>();
-        List<Object> files = fileService.getFileNames(created.getAssignmentId(), "assignment");
+        List<Map<String, String>> files = fileService.getFileNames(created.getAssignmentId(), "assignment");
         map.put("assignment", created);
         map.put("files", files);
         return ResponseEntity.status(HttpStatus.CREATED).body(map);
@@ -177,14 +177,16 @@ public class AssignmentApiController {
         Map<String, Object> map = new HashMap<>();
         map.put("assignment", assignmentEntity);
 
-        List<Object> assignmentFiles = fileService.getFileNames(assignmentId, "assignment");
+        List<Map<String, String>> assignmentFiles = fileService.getFileNames(assignmentId, "assignment");
         map.put("files", assignmentFiles);
 
         if (user.getRole() != UserRole.ASSOCIATE) {
             List<SubmitListDto> dtos = submitService.findByAssignmentId(assignmentId);
             for (SubmitListDto dto : dtos) {
-                List<Object> files = fileService.getFileNames(dto.getSubmitId(), "submit");
-                dto.setUrls(files);
+                List<Map<String, String>> files = fileService.getFileNames(dto.getSubmitId(), "submit");
+                dto.setFeedback(null);
+                dto.setContent(null);
+                dto.setFiles(files);
             }
             map.put("submits", dtos);
         }
@@ -192,8 +194,12 @@ public class AssignmentApiController {
             SubmitEntity submitEntity = submitService.findByAssignmentIdAndUserId(assignmentId, userId);
             List<SubmitListDto> dtos = new ArrayList<>();
             if (submitEntity != null) {
-                List<Object> files = fileService.getFileNames(submitEntity.getSubmitId(), "submit");
-                dtos.add(new SubmitListDto(submitEntity.getSubmitId(), submitEntity.getName(), submitEntity.getSubmitDate(), submitEntity.getScore(), files));
+                List<Map<String, String>> files = fileService.getFileNames(submitEntity.getSubmitId(), "submit");
+                SubmitListDto submitListDto = new SubmitListDto(submitEntity);
+                submitListDto.setFeedback(null);
+                submitListDto.setContent(null);
+                submitListDto.setFiles(files);
+                dtos.add(submitListDto);
             }
             map.put("submits", dtos);
         }

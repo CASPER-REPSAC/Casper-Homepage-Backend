@@ -49,11 +49,11 @@ public class FileService {
 //    }
 
 
-    public List<Object> getFileNames(Long id, String type) {
+    public List<Map<String, String>> getFileNames(Long id, String type) {
         List<String> files = fileRepository.getUrls(String.valueOf(id), type);
-        List<Object> ret = new ArrayList<>();
+        List<Map<String, String>> ret = new ArrayList<>();
         for (String file : files) {
-            Map<String, Object> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>();
             String fileName = file.substring(file.lastIndexOf("/") + 1);
             String extractedFileName = fileName.substring(fileName.indexOf("_") + 1);
             map.put("name", extractedFileName);
