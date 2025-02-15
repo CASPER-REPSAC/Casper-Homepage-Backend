@@ -97,14 +97,22 @@ public class SubmitApiController {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
-        if (user.getRole() != UserRole.ASSOCIATE)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_MEMBER_ONLY));
-        if (submitService.findByUserId(userId) != null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_ONE_ONLY));
-        if (assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime())
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CLOSED));
-        if (dto.getUrls() != null && dto.getUrls().size() > 5)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED_AGAIN));
+        if (user.getRole() != UserRole.ASSOCIATE) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_MEMBER_ONLY));
+        }
+        if (submitService.hasSubmitted(assignmentId, userId)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_ONE_ONLY));
+        }
+        if (assignmentService.findById(assignmentId).getDeadline().getTime() < new Date().getTime()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CLOSED));
+        }
+        if (dto.getUrls() != null && dto.getUrls().size() > 5) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED_AGAIN));
+        }
 
         SubmitEntity created = dto.toEntity(user, assignmentId);
         submitRepository.save(created);

@@ -34,6 +34,14 @@ public class SubmitService {
         return submitRepository.findByUserId(userId);
     }
 
+    public SubmitEntity findByAssignmentIdAndUserId(Long assignmentId, String userId) {
+        return submitRepository.findByAssignmentIdAndUserId(assignmentId, userId);
+    }
+
+    public boolean hasSubmitted(Long assignmentId, String userId) {
+        return submitRepository.findByAssignmentIdAndUserId(assignmentId, userId) != null;
+    }
+
     public SubmitEntity save(SubmitEntity submitEntity) {
         return submitRepository.save(submitEntity);
     }
