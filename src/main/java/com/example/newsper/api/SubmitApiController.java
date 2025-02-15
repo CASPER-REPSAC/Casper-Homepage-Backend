@@ -180,7 +180,6 @@ public class SubmitApiController {
             @PathVariable Long assignmentId,
             HttpServletRequest request
     ) {
-
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 

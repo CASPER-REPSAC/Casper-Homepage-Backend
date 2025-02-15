@@ -23,10 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Tag(name = "Assignment", description = "과제 API")
 @RestController
@@ -183,13 +180,21 @@ public class AssignmentApiController {
         List<Object> assignmentFiles = fileService.getFileNames(assignmentId, "assignment");
         map.put("files", assignmentFiles);
 
-        if (!(user.getRole() == UserRole.ASSOCIATE || user.getRole() == UserRole.GUEST)) {
+        if (user.getRole() != UserRole.ASSOCIATE) {
             List<SubmitListDto> dtos = submitService.findByAssignmentId(assignmentId);
             for (SubmitListDto dto : dtos) {
                 List<Object> files = fileService.getFileNames(dto.getSubmitId(), "submit");
                 dto.setUrls(files);
             }
-
+            map.put("submits", dtos);
+        }
+        else {
+            SubmitEntity submitEntity = submitService.findByAssignmentIdAndUserId(assignmentId, userId);
+            List<SubmitListDto> dtos = new ArrayList<>();
+            if (submitEntity != null) {
+                List<Object> files = fileService.getFileNames(submitEntity.getSubmitId(), "submit");
+                dtos.add(new SubmitListDto(submitEntity.getSubmitId(), submitEntity.getName(), submitEntity.getSubmitDate(), submitEntity.getScore(), files));
+            }
             map.put("submits", dtos);
         }
         return ResponseEntity.status(HttpStatus.OK).body(map);
