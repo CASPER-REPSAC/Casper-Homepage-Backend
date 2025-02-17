@@ -49,7 +49,7 @@ public class ArticleApiController {
     private AccountLockService accountLockService;
 
     @GetMapping("/album/{page}")
-    @Operation(summary = "앨범 조회", description = "얼범을 조회합니다.")
+    @Operation(summary = "앨범 조회", description = "앨범을 조회합니다.")
     public ResponseEntity<?> album(@Parameter(description = "게시판 페이지") @PathVariable Long page) {
         if (page == null || page <= 1) page = 1L;
         page = (page - 1) * 10;

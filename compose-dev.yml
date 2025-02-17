@@ -16,7 +16,12 @@ services:
             -   .database.env
     redis:
         image: redis:7.4.1
-    frontend:
-        image: jiseong5036/casper-frontend:latest
+
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
         ports:
-            - "3000:3000"
+            - 8000:80
+        environment:
+            - PMA_ARBITRARY=1
+

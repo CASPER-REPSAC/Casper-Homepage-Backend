@@ -147,10 +147,16 @@ public class OAuthService {
         log.info("AccessToken = " + accessToken);
         JsonNode userResourceNode = getSsoUserResource(accessToken);
 
-        String id = userResourceNode.get("id").asText();
+        String id = userResourceNode.get("nickname").asText();
         String email = userResourceNode.get("email").asText();
         String name = userResourceNode.get("name").asText();
         log.info("email = " + email);
+
+        if (userService.findByName(name) != null) {
+            UserEntity entity = userService.findByName(name);
+            entity.setEmail(email);
+            userService.modify(entity);
+        }
 
         if (userService.findByEmail(email) == null) {
             UserDto dto = new UserDto(email, id + email, email, name, email, null, null, null, "associate");
