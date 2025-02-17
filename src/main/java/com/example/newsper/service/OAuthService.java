@@ -30,6 +30,12 @@ public class OAuthService {
 
     @Value("${spring.security.oauth2.client.registration.github.client-secret}")
     String githubClientSecret;
+
+    @Value("${spring.security.oauth2.client.registration.sso.client-id}")
+    String ssoClientId;
+
+    @Value("${spring.security.oauth2.client.registration.sso.client-secret}")
+    String ssoClientSecret;
     @Autowired
     private UserService userService;
 
@@ -128,6 +134,51 @@ public class OAuthService {
     private JsonNode getGithubUserResource(String accessToken) {
 
         String resourceUri = "https://api.github.com/user";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity entity = new HttpEntity(headers);
+        return restTemplate.exchange(resourceUri, HttpMethod.GET, entity, JsonNode.class).getBody();
+    }
+
+    public UserEntity sso(String code, String redirectUri) {
+
+        String accessToken = getSsoAccessToken(code, redirectUri);
+        log.info("AccessToken = " + accessToken);
+        JsonNode userResourceNode = getSsoUserResource(accessToken);
+
+        String id = userResourceNode.get("id").asText();
+        String email = userResourceNode.get("email").asText();
+        String name = userResourceNode.get("name").asText();
+        log.info("email = " + email);
+
+        if (userService.findByEmail(email) == null) {
+            UserDto dto = new UserDto(email, id + email, email, name, email, null, null, null, "associate");
+            return userService.newUser(dto);
+        } else return userService.findByEmail(email);
+    }
+
+    private String getSsoAccessToken(String authorizationCode, String redirectUri) {
+        String tokenUri = "https://sso.casper.or.kr/application/o/token/";
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("code", authorizationCode);
+        params.add("client_id", ssoClientId);
+        params.add("client_secret", ssoClientSecret);
+        params.add("redirect_uri", redirectUri);
+        params.add("grant_type", "authorization_code");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity entity = new HttpEntity(params, headers);
+
+        ResponseEntity<JsonNode> responseNode = restTemplate.exchange(tokenUri, HttpMethod.POST, entity, JsonNode.class);
+        JsonNode accessTokenNode = responseNode.getBody();
+        return accessTokenNode.get("access_token").asText();
+    }
+
+    private JsonNode getSsoUserResource(String accessToken) {
+        String resourceUri = "https://sso.casper.or.kr/application/o/userinfo/";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);

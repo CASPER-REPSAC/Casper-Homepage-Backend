@@ -50,3 +50,13 @@ spring:
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
+          sso:
+            client-id: ${SSO_CLIENT_ID}
+            client-secret: ${SSO_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "https://www.casper.or.kr/login/sso-login"
+        provider:
+          sso:
+            authorization-uri: https://sso.casper.or.kr/application/o/authorize/
+            token-uri: https://sso.casper.or.kr/application/o/token/
+            user-info-uri: https://sso.casper.or.kr/application/o/userinfo/

@@ -224,6 +224,17 @@ public class UserApiController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
+    @Operation(summary = "SSO 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
+    @PostMapping("/sso")
+    public ResponseEntity<?> ssoLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
+
+        log.info("ssoCode : " + dto.getCode());
+        log.info("redirectUri : " + dto.getRedirectUri());
+
+        UserEntity user = oAuthService.sso(dto.getCode(), dto.getRedirectUri());
+        return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
+    }
+
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
     public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
