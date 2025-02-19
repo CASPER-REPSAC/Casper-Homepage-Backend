@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface AssignmentRepository extends JpaRepository<AssignmentEntity, Long> {
     @Modifying
-    @Query(value = "UPDATE assignmentEntity SET nickname = :nickname WHERE id = :id", nativeQuery = true)
-    void changeNicknameInAssignment(@Param("nickname") String nickname, @Param("id") String id);
+    @Query(value = "UPDATE assignmentEntity SET nickname = :nickname WHERE userId = :userId", nativeQuery = true)
+    void changeNicknameInAssignment(@Param("nickname") String nickname, @Param("userId") String userId);
 
     @Query(value = "SELECT count(*) FROM assignmentEntity", nativeQuery = true)
     int assignmentCount();
