@@ -14,8 +14,8 @@ public interface SubmitRepository extends JpaRepository<SubmitEntity, Long> {
     List<SubmitEntity> findByAssignmentId(@Param("assignmentId") Long assignmentId);
 
     @Modifying
-    @Query(value = "UPDATE submitEntity SET nickname = :nickname WHERE id = :id", nativeQuery = true)
-    void changeNicknameInSubmit(@Param("nickname") String nickname, @Param("id") String id);
+    @Query(value = "UPDATE submitEntity SET name = :name WHERE userId = :userId", nativeQuery = true)
+    void changeNicknameInSubmit(@Param("name") String name, @Param("userId") String userId);
 
     @Query(value = "SELECT * FROM submitEntity WHERE userId = :userId", nativeQuery = true)
     SubmitEntity findByUserId(@Param("userId") String userId);
