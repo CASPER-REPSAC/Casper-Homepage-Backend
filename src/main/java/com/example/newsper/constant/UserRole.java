@@ -47,8 +47,8 @@ public enum UserRole {
 
         if (groups != null && !groups.isEmpty()) {
             return switch (groups.getFirst()) {
-                case "활동중" -> UserRole.ACTIVE;
-                case "비활동" -> UserRole.REST;
+                case "활동중" -> UserRole.valueOfRole("active");
+                case "비활동" -> UserRole.valueOfRole("rest");
 //                case "졸업생" :
 //                    return UserRole.GRADUATE;
 //                case "관리자" :
@@ -56,10 +56,10 @@ public enum UserRole {
 //                case "준회원":
 //                case "정회원" :
 //                    return UserRole.ASSOCIATE;
-                default -> UserRole.GUEST;
+                default -> UserRole.valueOfRole("guest");
             };
         }
-        return UserRole.GUEST;
+        return UserRole.valueOfRole("guest");
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
