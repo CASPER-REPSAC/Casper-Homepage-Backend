@@ -12,11 +12,11 @@ import java.util.List;
 
 @Getter
 public enum UserRole {
-    ADMIN("admin"),
-    ASSOCIATE("associate"),
-    GRADUATE("graduate"),
-    REST("rest"),
-    ACTIVE("active"),
+    ADMIN("admin"),         // 관리자
+    ASSOCIATE("associate"), // 준회원
+    GRADUATE("graduate"),   // 졸업생
+    REST("rest"),           // 비활동
+    ACTIVE("active"),       // 활동중
     // Guest must be treated as an unknown user or all users.
     GUEST("guest");
 
@@ -46,11 +46,20 @@ public enum UserRole {
         List<String> groups = claims.get("groups", List.class);
 
         if (groups != null && !groups.isEmpty()) {
-            return UserRole.valueOfRole(groups.get(0));
+            return switch (groups.getFirst()) {
+                case "활동중" -> UserRole.ACTIVE;
+                case "비활동" -> UserRole.REST;
+//                case "졸업생" :
+//                    return UserRole.GRADUATE;
+//                case "관리자" :
+//                    return UserRole.ADMIN;
+//                case "준회원":
+//                case "정회원" :
+//                    return UserRole.ASSOCIATE;
+                default -> UserRole.GUEST;
+            };
         }
-
         return UserRole.GUEST;
-
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
