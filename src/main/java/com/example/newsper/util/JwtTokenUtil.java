@@ -40,7 +40,7 @@ public class JwtTokenUtil {
         return extractClaims(token, secretKey).get("loginId").toString();
     }
 
-    // 발급된 Token이 만료 시간이 지났는지 체크
+    // 밝급된 Token이 만료 시간이 지났는지 체크
     public static boolean isExpired(String token, String secretKey) {
         Date expiredDate = extractClaims(token, secretKey).getExpiration();
         // Token의 만료 날짜가 지금보다 이전인지 check

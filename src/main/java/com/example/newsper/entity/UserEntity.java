@@ -7,7 +7,6 @@ import jakarta.persistence.Id;
 import lombok.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Entity(name = "userEntity")
@@ -66,5 +65,4 @@ public class UserEntity {
 
         return map;
     }
-
 }

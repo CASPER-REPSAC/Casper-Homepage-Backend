@@ -5,15 +5,11 @@ import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.example.newsper.util.JwtTokenUtil;
 import com.example.newsper.repository.*;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -21,8 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.SecretKey;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -93,17 +91,10 @@ public class UserService {
         long expireTimeMs = 60 * 60 * 1000L; // Token 유효 시간 = 1시간 (밀리초 단위)
         long refreshExpireTimeMs = 30 * 24 * 60 * 60 * 1000L; // Refresh Token 유효 시간 = 30일 (밀리초 단위)
 
-        // JWT 생성
         String jwtToken = JwtTokenUtil.createToken(user.getId(), secretKey, expireTimeMs);
         String refreshToken = JwtTokenUtil.createRefreshToken(user.getId(), secretKey, refreshExpireTimeMs);
 
         user.setRefreshToken(refreshToken);
-        userRepository.save(user);
-
-        // SSO로부터 날아온 JWT의 groups 정보 가져오기 & DB에 반영
-        UserRole roleFromSSO = UserRole.extraUserRoleFromToken(jwtToken, secretKey);
-        user.setRole(roleFromSSO);
-
         userRepository.save(user);
 
         // AccessToken 설정
