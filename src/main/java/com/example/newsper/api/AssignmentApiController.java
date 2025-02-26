@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class AssignmentApiController {
     private FileService fileService;
 
     @PostMapping("/create")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 작성", description = "액세스 토큰 필요.")
     public ResponseEntity<?> write(
@@ -84,6 +86,7 @@ public class AssignmentApiController {
     }
 
     @PatchMapping("/edit/{assignmentId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 수정", description = "과제를 수정합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> update(
@@ -119,6 +122,7 @@ public class AssignmentApiController {
     }
 
     @DeleteMapping("/delete/{assignmentId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 삭제", description = "과제를 삭제합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> delete(
@@ -139,6 +143,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/list/{page}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 목록 조회", description = "과제 목록을 조회합니다.")
     public ResponseEntity<?> list(
@@ -161,6 +166,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/detail/{assignmentId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 상세 조회", description = "과제를 상세히 조회합니다.")
     public ResponseEntity<?> detail(
@@ -207,6 +213,7 @@ public class AssignmentApiController {
     }
 
     @PostMapping("/grade")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 채점", description = "과제를 채점합니다.")
     public ResponseEntity<?> grade(
@@ -229,6 +236,7 @@ public class AssignmentApiController {
     }
 
     @PostMapping("/feedback")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 피드백", description = "과제에 피드백을 부여합니다.")
     public ResponseEntity<?> grade(
