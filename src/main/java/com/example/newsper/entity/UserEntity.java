@@ -1,9 +1,7 @@
 package com.example.newsper.entity;
 
 import com.example.newsper.constant.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashMap;
@@ -34,8 +32,7 @@ public class UserEntity {
     private String nickname;
 
     @Column(name = "role")
-//    @Enumerated(EnumType.STRING)
-//    난 바보똥멍청이야 이거 땜에 1시간 날렸어
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @Column(name = "introduce")

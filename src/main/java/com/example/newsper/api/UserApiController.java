@@ -10,6 +10,7 @@ import com.example.newsper.util.RedisUtil;
 import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,14 +64,13 @@ public class UserApiController {
         UserDto userDto = new UserDto();
         userDto.setId("admin");
         userDto.setPw(secretKey);
-        userDto.setRole(UserRole.ADMIN.toString());
+        userDto.setRole(UserRole.ADMIN.getRole());
         userDto.setEmail("casper.cwnu@gmail.com");
         userDto.setName("관리자");
         userDto.setNickname("관리자");
         userDto.setHomepage("https://casper.or.kr");
         userDto.setIntroduce("관리자 계정입니다.");
         userDto.setProfileImgPath("/");
-        userDto.setRole(UserRole.ADMIN.toString());
         userService.newUser(userDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -266,6 +266,7 @@ public class UserApiController {
     }
 
     @GetMapping("/me")
+    @SecurityRequirement(name = "Authorization")
     @Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다. 액세스 토큰 필요.")
     public ResponseEntity<Map<String, Object>> me(HttpServletRequest request) {
         String userId = userService.getUserId(request);
