@@ -252,7 +252,6 @@ public class AssignmentApiController {
 
     private List<AssignmentListDto> getProgress(List<AssignmentListDto> dtos, String userId) {
         for (AssignmentListDto dto : dtos) {
-            Date date = new Date();
             SubmitEntity submitEntity = submitService.findByAssignmentIdAndUserId(dto.getAssignmentId(), userId);
             if (submitEntity != null) {
                 if (submitEntity.getScore() != null) {
@@ -261,13 +260,7 @@ public class AssignmentApiController {
                 else {
                     dto.setProgress(AssignmentStatus.SUBMITTED.getStatus());
                 }
-                continue;
-            }
-            if (date.getTime() >= dto.getDeadline().getTime()) {
-                dto.setProgress(AssignmentStatus.ENDED.getStatus());
-            } else {
-                dto.setProgress(AssignmentStatus.PROGRESS.getStatus());
-            }
+            } else { dto.setProgress(AssignmentStatus.NOT_SUBMITTED.getStatus()); }
         }
         return dtos;
     }
