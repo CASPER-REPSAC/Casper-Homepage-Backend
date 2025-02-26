@@ -1,5 +1,6 @@
 package com.example.newsper.service;
 
+import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,7 +13,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -143,6 +147,8 @@ public class OAuthService {
 
     public UserEntity sso(String code, String redirectUri) {
 
+        UserEntity user = null;
+
         String accessToken = getSsoAccessToken(code, redirectUri);
         log.info("AccessToken = " + accessToken);
         JsonNode userResourceNode = getSsoUserResource(accessToken);
@@ -159,10 +165,21 @@ public class OAuthService {
         }
 
         if (userService.findByEmail(email) == null) {
-            UserDto dto = new UserDto(email, id + email, email, name, email, null, null, null, "associate");
-            return userService.newUser(dto);
-        } else return userService.findByEmail(email);
+            UserDto dto = new UserDto(email, id+email, email, name, email, null, null, null, "associate");
+            user = userService.newUser(dto);
+        } else user = userService.findByEmail(email);
+        UserRole role = user.getRole();
+        ArrayList<String> groups = new ArrayList<>();
+        userResourceNode.get("groups").elements().forEachRemaining((JsonNode node) -> groups.add(node.asText()));
+        log.info(String.valueOf(groups));
+        UserRole ssoRole = getSsoUserRole(groups);
+        if (role != ssoRole) {
+            user.setRole(ssoRole);
+            userService.modify(user);
+        }
+        return user;
     }
+
 
     private String getSsoAccessToken(String authorizationCode, String redirectUri) {
         String tokenUri = "https://sso.casper.or.kr/application/o/token/";
@@ -190,5 +207,19 @@ public class OAuthService {
         headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity entity = new HttpEntity(headers);
         return restTemplate.exchange(resourceUri, HttpMethod.GET, entity, JsonNode.class).getBody();
+    }
+
+    private UserRole getSsoUserRole(List<String> roles) {
+        var roleMap = Map.of(
+                "관리자", UserRole.ADMIN,
+                "활동중", UserRole.ACTIVE,
+                "졸업생", UserRole.GRADUATE,
+                "비활동", UserRole.REST
+        );
+        return roles.stream()
+                .filter(roleMap::containsKey)
+                .findFirst()
+                .map(roleMap::get)
+                .orElse(UserRole.ASSOCIATE);
     }
 }
