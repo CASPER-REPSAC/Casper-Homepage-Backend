@@ -20,6 +20,7 @@ public enum UserRole {
     }
 
     public static UserRole valueOfRole(String role) {
+        role = role.toLowerCase();
         for (UserRole userRole : values()) {
             if (userRole.getRole().equals(role)) {
                 return userRole;
@@ -30,6 +31,6 @@ public enum UserRole {
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static UserRole fromString(String role) {
-        return valueOfRole(role);
+        return valueOfRole(role.toLowerCase());
     }
 }
