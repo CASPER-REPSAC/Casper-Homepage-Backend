@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 public enum UserRole {
-    ADMIN("admin"),
-    ASSOCIATE("associate"),
-    GRADUATE("graduate"),
-    REST("rest"),
-    ACTIVE("active"),
+    ADMIN("admin"), // 관리자
+    ASSOCIATE("associate"), // 준회원
+    GRADUATE("graduate"), // 졸업생
+    REST("rest"), // 비활동
+    ACTIVE("active"), // 활동중
     // Guest must be treated as an unknown user or all users.
     GUEST("guest");
 
