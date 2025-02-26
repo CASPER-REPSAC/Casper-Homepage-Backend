@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ public class FileApiController {
     private ErrorCodeService errorCodeService;
 
     @PostMapping("/upload")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "파일 업로드", description = "파일을 업로드 합니다.")
     public ResponseEntity<?> write(
             @RequestPart(value = "files") List<MultipartFile> files,
@@ -68,6 +70,7 @@ public class FileApiController {
     }
 
     @DeleteMapping("/delete")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "파일 삭제", description = "파일을 삭제합니다.")
     public ResponseEntity<?> write(
             @RequestParam String url

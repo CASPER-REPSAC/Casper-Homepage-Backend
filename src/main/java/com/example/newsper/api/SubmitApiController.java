@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -59,6 +60,7 @@ public class SubmitApiController {
 
 
     @GetMapping("/submit/{submitId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출 조회", description = "제출한 과제를 조회합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> view(
@@ -85,6 +87,7 @@ public class SubmitApiController {
     }
 
     @PostMapping("/submit")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출", description = "과제를 제출합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "201", description = "성공")
@@ -135,6 +138,7 @@ public class SubmitApiController {
     }
 
     @PatchMapping("/edit/{submitId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "과제 제출 수정", description = "제출된 과제를 수정합니다.")
     public ResponseEntity<?> update(
@@ -172,6 +176,7 @@ public class SubmitApiController {
     }
 
     @DeleteMapping("/delete/{submitId}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "Authorization")
     @Operation(summary = "제출된 과제 삭제", description = "제출된 과제를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "성공")

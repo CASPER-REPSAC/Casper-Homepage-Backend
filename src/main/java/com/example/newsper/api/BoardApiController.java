@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class BoardApiController {
     private BoardService boardService;
 
     @GetMapping("/category")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 소분류 조회", description = "게시글 분류를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> category(
@@ -41,6 +43,7 @@ public class BoardApiController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 소분류 추가", description = "게시글 소분류를 추가합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> save(
@@ -52,6 +55,7 @@ public class BoardApiController {
     }
 
     @DeleteMapping("/delete/{boardName}/{subBoardName}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 소분류 삭제", description = "게시글 소분류를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "실패")
@@ -68,6 +72,7 @@ public class BoardApiController {
     }
 
     @PatchMapping("/patch/{boardName}/{subBoardName}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 소분류 수정", description = "게시글 소분류를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> update(

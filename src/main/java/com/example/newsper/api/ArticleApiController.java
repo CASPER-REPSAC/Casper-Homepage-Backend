@@ -12,11 +12,13 @@ import com.example.newsper.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -49,6 +51,7 @@ public class ArticleApiController {
     private AccountLockService accountLockService;
 
     @GetMapping("/album/{page}")
+    @PermitAll
     @Operation(summary = "앨범 조회", description = "앨범을 조회합니다.")
     public ResponseEntity<?> album(@Parameter(description = "게시판 페이지") @PathVariable Long page) {
         if (page == null || page <= 1) page = 1L;
@@ -59,6 +62,7 @@ public class ArticleApiController {
     }
 
     @GetMapping("/{boardId}/{category}/{page}")
+    @PermitAll
     @Operation(summary = "게시글 리스트 조회", description = "총 페이지 수와 게시글 리스트를 반환합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
@@ -89,6 +93,7 @@ public class ArticleApiController {
     }
 
     @GetMapping("/view/{articleId}")
+    @PermitAll
     @Operation(summary = "게시글 상세 조회", description = "게시글 내용을 반환합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> view(@Parameter(description = "게시글ID") @PathVariable Long articleId, HttpServletRequest request) {
         log.info("View API Logging");
@@ -121,6 +126,7 @@ public class ArticleApiController {
     }
 
     @PostMapping("/write")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 작성", description = "액세스 토큰 필요.")
     public ResponseEntity<?> write(
             @RequestBody CreateArticleDto _dto,
@@ -153,6 +159,7 @@ public class ArticleApiController {
     }
 
     @DeleteMapping("delete/{articleId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> delete(
             @Parameter(description = "게시글ID")
@@ -173,6 +180,7 @@ public class ArticleApiController {
     }
 
     @PatchMapping("/update/{articleId}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "게시글 수정", description = "게시글을 수정합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> update(
             @Parameter(description = "게시글ID")
