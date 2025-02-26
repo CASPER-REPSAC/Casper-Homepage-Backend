@@ -2,7 +2,9 @@ package com.example.newsper.constant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 public enum UserRole {
     ADMIN("admin"), // 관리자
@@ -26,6 +28,7 @@ public enum UserRole {
                 return userRole;
             }
         }
+        log.info("role: {} as guest", role);
         return GUEST;
     }
 

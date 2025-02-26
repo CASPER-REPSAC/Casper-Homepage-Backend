@@ -46,7 +46,9 @@ public class UserService {
     public UserEntity newUser(UserDto dto) {
         UserEntity userEntity = dto.toEntity();
         userEntity.setPw(passwordEncoder.encode(userEntity.getPw()));
-
+        if(userEntity.getRole() == UserRole.GUEST) {
+            userEntity.setRole(UserRole.ASSOCIATE);
+        }
         return userRepository.save(userEntity);
     }
 
