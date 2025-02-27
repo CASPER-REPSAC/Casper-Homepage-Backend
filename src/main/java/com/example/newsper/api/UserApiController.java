@@ -116,8 +116,6 @@ public class UserApiController {
     @Operation(summary = "ID 찾기", description = "가입시 사용된 메일로 아이디를 찾습니다.")
     public ResponseEntity<?> findid(@RequestBody findIdDto dto) {
         UserEntity user = userService.findByEmail(dto.getEmail());
-        if (user == null) log.info("가입된 이메일 없음 : " + dto.getEmail());
-        else log.info("가입된 이메일 발견 : " + user.getEmail());
         if (user == null || !user.getEmail().equals(dto.getEmail()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.ACCOUNT_NOT_FOUND));
         mailService.idMail(dto.getEmail(), user.getId());
@@ -143,9 +141,7 @@ public class UserApiController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "유저 정보 수정", description = "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
     public ResponseEntity<UserEntity> update(@RequestBody UserModifyDto dto, HttpServletRequest request) throws IOException {
-        log.info("User Update API Logging");
         String userId = userService.getUserId(request);
-        log.info("User ID : " + userId);
         UserEntity userEntity = userService.findById(userId);
         if (!dto.getNickname().equals(userEntity.getNickname())) {
             userEntity.setNickname(dto.getNickname());
@@ -287,7 +283,7 @@ public class UserApiController {
     }
 
     @GetMapping("/showall")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     @Operation(summary = "유저 그룹 조회", description = "권한으로 유저 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> showall(@Parameter(description = "associate, active, rest, graduate") @RequestParam String role) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.showall(UserRole.valueOfRole(role)));
@@ -295,7 +291,7 @@ public class UserApiController {
 
     @PostMapping("/auth")
     @SecurityRequirement(name = "Authorization")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('admin')")
     @Operation(summary = "유저 권한 수정", description = "유저의 권한을 수정합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto) {
         String userId = userService.getUserId(request);
