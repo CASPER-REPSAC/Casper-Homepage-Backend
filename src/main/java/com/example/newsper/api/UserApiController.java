@@ -216,11 +216,7 @@ public class UserApiController {
     @PermitAll
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> googleLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
-
-        log.info("googleCode : " + dto.getCode());
-        log.info("redirectUri : " + dto.getRedirectUri());
-
-        UserEntity user = oAuthService.google(dto.getCode(), dto.getRedirectUri());
+        UserEntity user = oAuthService.google(dto.getCode());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
@@ -228,11 +224,7 @@ public class UserApiController {
     @PermitAll
     @Operation(summary = "깃허브 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> githubLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
-
-        log.info("githubCode : " + dto.getCode());
-        log.info("redirectUri : " + dto.getRedirectUri());
-
-        UserEntity user = oAuthService.github(dto.getCode(), dto.getRedirectUri());
+        UserEntity user = oAuthService.github(dto.getCode());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
@@ -240,18 +232,14 @@ public class UserApiController {
     @PermitAll
     @Operation(summary = "SSO 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> ssoLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
-
-        log.info("ssoCode : " + dto.getCode());
-        log.info("redirectUri : " + dto.getRedirectUri());
-
-        UserEntity user = oAuthService.sso(dto.getCode(), dto.getRedirectUri());
+        UserEntity user = oAuthService.sso(dto.getCode());
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "로그아웃", description = "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
-    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
 
@@ -309,7 +297,7 @@ public class UserApiController {
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "유저 권한 수정", description = "유저의 권한을 수정합니다. 액세스 토큰 필요.")
-    public ResponseEntity auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto) {
+    public ResponseEntity<?> auth(HttpServletRequest request, @Parameter(description = "associate, active, rest, graduate") @RequestBody RoleDto dto) {
         String userId = userService.getUserId(request);
         UserEntity userEntity = userService.findById(userId);
         UserEntity distUser = userService.findById(dto.getId());
