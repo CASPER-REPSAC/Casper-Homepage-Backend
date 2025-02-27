@@ -158,7 +158,7 @@ public class AssignmentApiController {
         Map<String, Object> map = new HashMap<>();
         page = (page - 1) * 10;
         double maxPageNum = assignmentService.getMaxPageNum();
-        List<AssignmentListDto> dtos = assignmentService.assignmentList(page);
+        List<AssignmentDto> dtos = assignmentService.assignmentList(page);
 
         map.put("assignments", getProgress(dtos, userId));
         map.put("maxPage", Math.ceil(maxPageNum / 10.0));
@@ -258,8 +258,8 @@ public class AssignmentApiController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    private List<AssignmentListDto> getProgress(List<AssignmentListDto> dtos, String userId) {
-        for (AssignmentListDto dto : dtos) {
+    private List<AssignmentDto> getProgress(List<AssignmentDto> dtos, String userId) {
+        for (AssignmentDto dto : dtos) {
             SubmitEntity submitEntity = submitService.findByAssignmentIdAndUserId(dto.getAssignmentId(), userId);
             if (submitEntity != null) {
                 if (submitEntity.getScore() != null) {
