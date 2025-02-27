@@ -4,13 +4,8 @@ import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.UserDto;
 import com.example.newsper.entity.UserEntity;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -19,7 +14,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,21 +29,6 @@ public class OAuthService {
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
 
-    // Internal use only
-    @RequiredArgsConstructor
-    @AllArgsConstructor
-    @Setter
-    @Getter
-    private static class SsoInfo {
-        private String grantType;
-        private String clientId;
-        private String clientSecret;
-        private String redirectUri;
-        private String authorizationCode;
-        private String refreshToken;
-        private String username;
-        private String password;
-    }
     public UserEntity google(String code) {
         ClientRegistration google = clientRegistrationRepository.findByRegistrationId("google");
         JsonNode userResourceNode = getUserResource(issueToken(code, google),
@@ -81,7 +63,16 @@ public class OAuthService {
             userService.modify(entity);
         }
 
-        return getUser(id, email, name);
+        UserEntity user = getUser(id, email, name);
+        UserRole role = user.getRole();
+        ArrayList<String> groups = new ArrayList<>();
+        userResourceNode.get("groups").elements().forEachRemaining((JsonNode node) -> groups.add(node.asText()));
+        UserRole ssoRole = getSsoUserRole(groups);
+        if (role != ssoRole) {
+            user.setRole(ssoRole);
+            userService.modify(user);
+        }
+        return user;
     }
 
     private String issueToken(String authorizationCode, ClientRegistration client) {
@@ -127,5 +118,19 @@ public class OAuthService {
             dto.setRole(UserRole.ASSOCIATE.getRole());
             return userService.newUser(dto);
         } else return userService.findByEmail(email);
+    }
+
+    private UserRole getSsoUserRole(List<String> roles) {
+        var roleMap = Map.of(
+                "관리자", UserRole.ADMIN,
+                "활동중", UserRole.ACTIVE,
+                "졸업생", UserRole.GRADUATE,
+                "비활동", UserRole.REST
+        );
+        return roles.stream()
+                .filter(roleMap::containsKey)
+                .findFirst()
+                .map(roleMap::get)
+                .orElse(UserRole.ASSOCIATE);
     }
 }
