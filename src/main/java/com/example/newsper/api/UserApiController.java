@@ -11,8 +11,10 @@ import com.example.newsper.entity.UserEntity;
 import com.example.newsper.util.JwtTokenUtil;
 import com.example.newsper.util.RedisUtil;
 import com.example.newsper.service.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +31,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-//@Tag(name = "User", description = "유저 API")
+@Tag(name = "User", description = "유저 API")
 @RestController
 @Slf4j
 @RequestMapping("/api/user")
@@ -55,7 +57,7 @@ public class UserApiController {
     private RedisUtil redisUtil;
     @Autowired
     private OAuthService oAuthService;
-
+    @Hidden
     @GetMapping("/create_admin")
     @PermitAll
     @Operation(summary = "관리자 생성", description = "관리자 계정을 생성합니다. Debug 모드에서만 사용 가능합니다.")
