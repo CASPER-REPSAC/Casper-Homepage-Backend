@@ -1,5 +1,8 @@
 package com.example.newsper.api;
 
+import com.example.newsper.annotations.AssociateOnly;
+import com.example.newsper.annotations.MemberOnly;
+import com.example.newsper.annotations.MustAuthorized;
 import com.example.newsper.constant.AssignmentStatus;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
@@ -53,8 +56,7 @@ public class AssignmentApiController {
     private FileService fileService;
 
     @PostMapping("/create")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MemberOnly
     @Operation(summary = "과제 작성", description = "액세스 토큰 필요.")
     public ResponseEntity<?> write(
             @RequestBody CreateAssignmentDto dto,
@@ -86,8 +88,7 @@ public class AssignmentApiController {
     }
 
     @PatchMapping("/edit/{assignmentId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MemberOnly
     @Operation(summary = "과제 수정", description = "과제를 수정합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> update(
             @Parameter(description = "과제 ID")
@@ -100,7 +101,7 @@ public class AssignmentApiController {
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
         if (!assignmentEntity.getUserId().equals(userId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_SELF_ONLY));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_NO_PERMISSION));
         if (dto.getUrls() != null && dto.getUrls().size() > 5)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_COUNT_EXCEEDED));
 
@@ -122,8 +123,7 @@ public class AssignmentApiController {
     }
 
     @DeleteMapping("/delete/{assignmentId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MemberOnly
     @Operation(summary = "과제 삭제", description = "과제를 삭제합나다. 액세스 토큰 필요.")
     public ResponseEntity<?> delete(
             @Parameter(description = "과제 ID")
@@ -131,10 +131,12 @@ public class AssignmentApiController {
             HttpServletRequest request
     ) {
         String userId = userService.getUserId(request);
+        UserEntity user = userService.findById(userId);
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
 
-        if (!assignmentEntity.getUserId().equals(userId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_SELF_ONLY));
+        if (!assignmentEntity.getUserId().equals(userId) && user.getRole() != UserRole.ADMIN) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_EDIT_NO_PERMISSION));
+        }
 
         submitService.deleteByAssignment(assignmentId);
         assignmentService.delete(assignmentEntity);
@@ -143,8 +145,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/list/{page}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MustAuthorized
     @Operation(summary = "과제 목록 조회", description = "과제 목록을 조회합니다.")
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
@@ -152,8 +153,6 @@ public class AssignmentApiController {
             HttpServletRequest request
     ) {
         String userId = userService.getUserId(request);
-        if (userId.equals("guest"))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_REQUIRED));
         if (page == null || page <= 1) page = 1L;
         Map<String, Object> map = new HashMap<>();
         page = (page - 1) * 10;
@@ -166,8 +165,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/detail/{assignmentId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MustAuthorized
     @Operation(summary = "과제 상세 조회", description = "과제를 상세히 조회합니다.")
     public ResponseEntity<?> detail(
             @Parameter(description = "과제 ID")
@@ -175,8 +173,6 @@ public class AssignmentApiController {
             HttpServletRequest request
     ) {
         String userId = userService.getUserId(request);
-        if (userId.equals("guest"))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.LOGIN_REQUIRED));
         UserEntity user = userService.findById(userId);
 
         AssignmentEntity assignmentEntity = assignmentService.findById(assignmentId);
@@ -213,19 +209,12 @@ public class AssignmentApiController {
     }
 
     @PostMapping("/grade")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MemberOnly
     @Operation(summary = "과제 채점", description = "과제를 채점합니다.")
     public ResponseEntity<?> grade(
             @Parameter(description = "과제 ID")
-            @RequestBody List<SubmitGradeDto> dtos,
-            HttpServletRequest request
+            @RequestBody List<SubmitGradeDto> dtos
     ) {
-        String userId = userService.getUserId(request);
-        UserEntity user = userService.findById(userId);
-
-        if (user.getRole() == UserRole.ASSOCIATE || user.getRole() == UserRole.GUEST)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
         for (SubmitGradeDto dto : dtos) {
             SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
             submitEntity.setScore(dto.getScore());
@@ -236,20 +225,12 @@ public class AssignmentApiController {
     }
 
     @PostMapping("/feedback")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
+    @MemberOnly
     @Operation(summary = "과제 피드백", description = "과제에 피드백을 부여합니다.")
     public ResponseEntity<?> grade(
             @Parameter(description = "과제 ID")
-            @RequestBody SubmitFeedbackDto dto,
-            HttpServletRequest request
+            @RequestBody SubmitFeedbackDto dto
     ) {
-        String userId = userService.getUserId(request);
-        UserEntity user = userService.findById(userId);
-
-        if (user.getRole() == UserRole.ASSOCIATE || user.getRole() == UserRole.GUEST)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_CREATION_MEMBER_ONLY));
-
         SubmitEntity submitEntity = submitService.findById(dto.getSubmitId());
         submitEntity.setFeedback(dto.getFeedback());
         if(dto.getScore() != null) submitEntity.setScore(dto.getScore());
@@ -260,15 +241,17 @@ public class AssignmentApiController {
 
     private List<AssignmentDto> getProgress(List<AssignmentDto> dtos, String userId) {
         for (AssignmentDto dto : dtos) {
-            SubmitEntity submitEntity = submitService.findByAssignmentIdAndUserId(dto.getAssignmentId(), userId);
-            if (submitEntity != null) {
-                if (submitEntity.getScore() != null) {
-                    dto.setProgress(AssignmentStatus.GRADED.getStatus());
-                }
-                else {
-                    dto.setProgress(AssignmentStatus.SUBMITTED.getStatus());
-                }
-            } else { dto.setProgress(AssignmentStatus.NOT_SUBMITTED.getStatus()); }
+            Optional.ofNullable(submitService.findByAssignmentIdAndUserId(dto.getAssignmentId(), userId))
+                    .ifPresentOrElse(
+                            submitEntity -> {
+                                if (submitEntity.getScore() != null) {
+                                    dto.setProgress(AssignmentStatus.GRADED.getStatus());
+                                } else {
+                                    dto.setProgress(AssignmentStatus.SUBMITTED.getStatus());
+                                }
+                            },
+                            () -> dto.setProgress(AssignmentStatus.NOT_SUBMITTED.getStatus())
+                    );
         }
         return dtos;
     }

@@ -69,3 +69,7 @@ spring:
             authorization-uri: https://sso.casper.or.kr/application/o/authorize/
             token-uri: https://sso.casper.or.kr/application/o/token/
             user-info-uri: https://sso.casper.or.kr/application/o/userinfo/
+
+springdoc:
+  swagger-ui:
+    filter: true

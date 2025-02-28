@@ -1,13 +1,18 @@
 package com.example.newsper.api;
 
+import com.example.newsper.annotations.AdminOnly;
 import com.example.newsper.dto.BoardDto;
 import com.example.newsper.entity.BoardEntity;
 import com.example.newsper.entity.BoardNameKey;
 import com.example.newsper.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,13 +28,19 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequestMapping("/api/board")
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class BoardApiController {
 
     @Autowired
     private BoardService boardService;
 
     @GetMapping("/category")
-    @PreAuthorize("isAuthenticated()")
+    @PermitAll
     @Operation(summary = "게시글 소분류 조회", description = "게시글 분류를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> category(
@@ -43,7 +54,7 @@ public class BoardApiController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("isAuthenticated()")
+    @AdminOnly
     @Operation(summary = "게시글 소분류 추가", description = "게시글 소분류를 추가합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> save(
@@ -55,7 +66,7 @@ public class BoardApiController {
     }
 
     @DeleteMapping("/delete/{boardName}/{subBoardName}")
-    @PreAuthorize("isAuthenticated()")
+    @AdminOnly
     @Operation(summary = "게시글 소분류 삭제", description = "게시글 소분류를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "실패")
@@ -72,7 +83,7 @@ public class BoardApiController {
     }
 
     @PatchMapping("/patch/{boardName}/{subBoardName}")
-    @PreAuthorize("isAuthenticated()")
+    @AdminOnly
     @Operation(summary = "게시글 소분류 수정", description = "게시글 소분류를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> update(

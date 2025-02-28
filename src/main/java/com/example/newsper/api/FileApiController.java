@@ -1,11 +1,15 @@
 package com.example.newsper.api;
 
+import com.example.newsper.annotations.MustAuthorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +25,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "Article", description = "게시글 API")
+@Tag(name = "File", description = "Attachment API")
 @RestController
 @Slf4j
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 @RequestMapping("/api/file")
 public class FileApiController {
 
@@ -34,7 +44,7 @@ public class FileApiController {
     private ErrorCodeService errorCodeService;
 
     @PostMapping("/upload")
-    @PreAuthorize("isAuthenticated()")
+    @MustAuthorized
     @Operation(summary = "파일 업로드", description = "파일을 업로드 합니다.")
     public ResponseEntity<?> write(
             @RequestPart(value = "files") List<MultipartFile> files,
@@ -70,7 +80,7 @@ public class FileApiController {
     }
 
     @DeleteMapping("/delete")
-    @PreAuthorize("isAuthenticated()")
+    @MustAuthorized
     @Operation(summary = "파일 삭제", description = "파일을 삭제합니다.")
     public ResponseEntity<?> write(
             @RequestParam String url

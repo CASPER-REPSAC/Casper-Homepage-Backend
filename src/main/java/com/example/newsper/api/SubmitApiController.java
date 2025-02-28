@@ -1,5 +1,7 @@
 package com.example.newsper.api;
 
+import com.example.newsper.annotations.AssociateOnly;
+import com.example.newsper.annotations.MustAuthorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.CreateSubmitDto;
@@ -60,9 +62,8 @@ public class SubmitApiController {
 
 
     @GetMapping("/submit/{submitId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "과제 제출 조회", description = "제출한 과제를 조회합니다. 액세스 토큰 필요.")
+    @MustAuthorized
+    @Operation(summary = "과제 제출 조회", description = "제출한 과제를 조회합니다.")
     public ResponseEntity<?> view(
             @Parameter(description = "과제 제출 ID")
             @PathVariable Long submitId,
@@ -87,9 +88,8 @@ public class SubmitApiController {
     }
 
     @PostMapping("/submit")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "과제 제출", description = "과제를 제출합니다. 액세스 토큰 필요.")
+    @AssociateOnly
+    @Operation(summary = "과제 제출", description = "과제를 제출합니다. 준회원만 가능합니다.")
     @ApiResponse(responseCode = "201", description = "성공")
     public ResponseEntity<?> create(
             @Parameter(description = "과제 ID")
@@ -100,11 +100,6 @@ public class SubmitApiController {
 
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
-
-        if (user.getRole() != UserRole.ASSOCIATE) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_MEMBER_ONLY));
-        }
         if (submitService.hasSubmitted(assignmentId, userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(errorCodeService.setErrorCodeBody(ErrorCode.ASSIGNMENT_SUBMIT_ONE_ONLY));
@@ -138,9 +133,8 @@ public class SubmitApiController {
     }
 
     @PatchMapping("/edit/{submitId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "과제 제출 수정", description = "제출된 과제를 수정합니다.")
+    @AssociateOnly
+    @Operation(summary = "과제 제출 수정", description = "제출된 과제를 수정합니다. 제출자만 가능합니다.")
     public ResponseEntity<?> update(
             @Parameter(description = "과제 제출 ID")
             @PathVariable Long submitId,
@@ -176,9 +170,8 @@ public class SubmitApiController {
     }
 
     @DeleteMapping("/delete/{submitId}")
-    @PreAuthorize("isAuthenticated()")
-    @SecurityRequirement(name = "Authorization")
-    @Operation(summary = "제출된 과제 삭제", description = "제출된 과제를 삭제합니다.")
+    @MustAuthorized
+    @Operation(summary = "제출된 과제 삭제", description = "제출된 과제를 삭제합니다. 관리자, 출제자, 제출자만 가능합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> delete(
             @Parameter(description = "제출 ID")

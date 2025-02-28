@@ -36,4 +36,9 @@ public enum UserRole {
     public static UserRole fromString(String role) {
         return valueOfRole(role.toLowerCase());
     }
+
+    @Override
+    public String toString() {
+        return role;
+    }
 }
