@@ -29,7 +29,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
+        String cookie = request.getHeader(HttpHeaders.COOKIE);
+        if (authorizationHeader == null && cookie != null) {
+            String[] cookies = cookie.split(";");
+            for (String c : cookies) {
+                c = c.trim();
+                if (c.startsWith("accessToken=")) {
+                    authorizationHeader = "Bearer " + c.split("=")[1];
+                    break;
+                }
+            }
+        }
         // Header의 Authorization 값이 비어있으면 => Jwt Token을 전송하지 않음 => 로그인 하지 않음
         if (authorizationHeader == null) {
             filterChain.doFilter(request, response);
