@@ -1,6 +1,6 @@
 package com.example.newsper.service;
 
-import com.example.newsper.dto.AssignmentListDto;
+import com.example.newsper.dto.AssignmentDto;
 import com.example.newsper.dto.CreateAssignmentDto;
 import com.example.newsper.entity.AssignmentEntity;
 import com.example.newsper.repository.AssignmentRepository;
@@ -56,11 +56,11 @@ public class AssignmentService {
         return assignmentRepository.assignmentCount();
     }
 
-    public List<AssignmentListDto> assignmentList(Long listNum) {
+    public List<AssignmentDto> assignmentList(Long listNum) {
         List<Object[]> obj = assignmentRepository.AssignmentList(listNum);
 
         return obj.stream()
-                .map(row -> new AssignmentListDto(
+                .map(row -> new AssignmentDto(
                         (Long) row[0],      // assignmentId
                         (String) row[1],    // title
                         (String) row[2],    // category

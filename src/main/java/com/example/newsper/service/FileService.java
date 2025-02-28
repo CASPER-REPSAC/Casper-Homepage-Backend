@@ -65,22 +65,21 @@ public class FileService {
     }
 
     public String fileUpload(MultipartFile file, String fileType) throws IOException {
+        fileType = fileType.toLowerCase().replace(File.separator, "_");
         String uploadFolder = uploadPath + File.separator + fileType;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        Date date = new Date();
-        String str = sdf.format(date);
-        String datePath = str.replace("-", File.separator);
+        String datePath = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
 
         File uploadPath = new File(uploadFolder, datePath);
 
         if (!uploadPath.exists()) {
-            uploadPath.mkdirs();
+            boolean ignored = uploadPath.mkdirs();
         }
 
         /* 파일 이름 */
         String uploadFileName = file.getOriginalFilename();
-
+        if(uploadFileName != null) {
+            uploadFileName = uploadFileName.trim().replace(File.separator, "_");
+        }
         /* UUID 설정 */
         String uuid = UUID.randomUUID().toString();
         uploadFileName = uuid + "_" + uploadFileName;
@@ -96,6 +95,7 @@ public class FileService {
 
     public void delete(String path) {
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
+        assert fileEntity != null;
         String filePath = uploadPath;
         String result = path.substring(serverUrl.length());
 
@@ -112,6 +112,6 @@ public class FileService {
         }
 
         // 파일 삭제
-        file.delete();
+        boolean ignored = file.delete();
     }
 }

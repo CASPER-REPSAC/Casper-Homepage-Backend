@@ -1,5 +1,6 @@
 package com.example.newsper.api;
 
+import com.example.newsper.annotations.MustAuthorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.AddCommentDto;
 import com.example.newsper.dto.CommentDto;
@@ -11,13 +12,18 @@ import com.example.newsper.service.ErrorCodeService;
 import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +31,12 @@ import java.util.List;
 @Tag(name = "Comment", description = "댓글 API")
 @RestController
 @Slf4j
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 @RequestMapping("/api/article/{articleId}")
 public class CommentApiController {
     @Autowired
@@ -40,6 +52,7 @@ public class CommentApiController {
     private ErrorCodeService errorCodeService;
 
     @GetMapping("/comment")
+    @PermitAll
     @Operation(summary = "댓글 조회", description = "특정 글의 댓글을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> comments(
@@ -58,6 +71,7 @@ public class CommentApiController {
     }
 
     @PostMapping("/comment")
+    @MustAuthorized
     @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다. 액세스 토큰 필요.")
     @ApiResponse(responseCode = "201", description = "성공")
     public ResponseEntity<?> create(
@@ -74,6 +88,7 @@ public class CommentApiController {
     }
 
     @PatchMapping("/comment/{id}")
+    @MustAuthorized
     @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> update(
@@ -92,6 +107,7 @@ public class CommentApiController {
     }
 
     @DeleteMapping("/comment/{id}")
+    @MustAuthorized
     @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> delete(

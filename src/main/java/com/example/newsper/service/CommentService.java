@@ -107,12 +107,14 @@ public class CommentService {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean writerCheck(CommentEntity comment, HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
         return comment.getId().equals(user.getId()) || user.getRole() == UserRole.ADMIN;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean authCheck(Long articleId, HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);

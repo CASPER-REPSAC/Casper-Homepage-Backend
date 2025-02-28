@@ -5,8 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class UserModifyDto {
+    @Schema(description = "대상 사용자 ID")
+    private String id;
 
-    @Schema(description = "사용자 이름")
+    @Schema(description = "수정 될 사용자 이름")
     private String name;
 
     @Schema(description = "수정 될 닉네임")
