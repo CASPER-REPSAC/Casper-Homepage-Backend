@@ -168,8 +168,8 @@ public class UserApiController {
 
             userEntity.setProfileImgPath(dto.getProfileImgPath());
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(userService.modify(userEntity));
+        userService.modify(userEntity);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/withdrawal/{id}")
