@@ -72,6 +72,18 @@ public class ArticleService {
             target.setContent(dto.getContent());
         }
 
+        if (dto.getCategory() != null) {
+            target.setCategory(dto.getCategory());
+        }
+
+        if (dto.getBoardId() != null) {
+            target.setBoardId(dto.getBoardId());
+        }
+
+        if (dto.getNotice() != null) {
+            target.setNotice(dto.getNotice());
+        }
+
         ArticleEntity updated = articleRepository.save(target);
         log.info(updated.toString());
         return updated;
