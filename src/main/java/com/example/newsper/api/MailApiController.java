@@ -6,7 +6,6 @@ import com.example.newsper.service.MailService;
 import com.example.newsper.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.PermitAll;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,8 +46,8 @@ public class MailApiController {
     @PostMapping("/emailkey")
     public ResponseEntity<String> sendEmailPath(@RequestParam(value = "email") String email, @RequestParam(value = "emailKey") String code) {
         log.info("/api/mail/emailKey API start");
-        log.info("email : " + email);
-        log.info("emailKey : " + code);
+        log.info("email : {}", email);
+        log.info("emailKey : {}", code);
         if (mailService.verifyEmailCode(email, code)) return ResponseEntity.status(HttpStatus.OK).build();
         else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
