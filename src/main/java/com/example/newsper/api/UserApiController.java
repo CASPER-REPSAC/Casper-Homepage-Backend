@@ -291,8 +291,8 @@ public class UserApiController {
     }
 
     @GetMapping("/showall")
-    @AdminOnly
-    @Operation(summary = "유저 그룹 조회", description = "유저 그룹을 조회합니다. 관리자만 가능합니다.")
+    @PermitAll
+    @Operation(summary = "유저 그룹 조회", description = "유저 그룹을 조회합니다.")
     public ResponseEntity<Map<String, Object>> showall(@Parameter(description = "associate, active, rest, graduate") @RequestParam String role) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.showall(UserRole.valueOfRole(role)));
     }
