@@ -95,7 +95,10 @@ public class FileService {
 
     public void delete(String path) {
         FileEntity fileEntity = fileRepository.findById(path).orElse(null);
-        assert fileEntity != null;
+        if (fileEntity == null) {
+            log.info("파일이 존재하지 않습니다. {}", path);
+            return;
+        }
         String filePath = uploadPath;
         String result = path.substring(serverUrl.length());
 
@@ -107,7 +110,7 @@ public class FileService {
 
         fileRepository.delete(fileEntity);
         if (!file.exists()) {
-            log.info("파일이 존재하지 않습니다.");
+            log.info("파일이 존재하지 않습니다. {}", file.getAbsolutePath());
             return;
         }
 

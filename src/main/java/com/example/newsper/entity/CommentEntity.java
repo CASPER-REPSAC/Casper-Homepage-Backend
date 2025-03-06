@@ -42,13 +42,13 @@ public class CommentEntity {
     public static CommentEntity createComment(CommentDto dto, ArticleEntity article) {
         if (dto.getCommentId() != null)
             throw new IllegalArgumentException("댓글 생성 실패!");
-        if (dto.getArticleId() != article.getArticleId())
+        if (!dto.getArticleId().equals(article.getArticleId()))
             throw new IllegalArgumentException("댓글 생성 실패!");
         return dto.toEntity();
     }
 
     public void patch(CommentDto dto) {
-        if (this.commentId != dto.getCommentId())
+        if (!this.commentId.equals(dto.getCommentId()))
             throw new IllegalArgumentException("댓글 수정 실패!");
         if (dto.getText() != null) {
             this.text = dto.getText();
