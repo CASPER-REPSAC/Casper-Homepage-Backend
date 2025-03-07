@@ -48,9 +48,11 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: https://www.casper.or.kr/login/google-login
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
+            redirect-uri: https://www.casper.or.kr/login/github-login
           sso:
             client-id: ${SSO_CLIENT_ID}
             client-secret: ${SSO_CLIENT_SECRET}
