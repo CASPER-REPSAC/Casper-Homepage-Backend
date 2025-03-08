@@ -147,17 +147,23 @@ public class AssignmentApiController {
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
             @PathVariable Long page,
+            @Parameter(description = "페이지당 항목 수")
+            @RequestParam(value = "limit", defaultValue = "6") Long limit,
             HttpServletRequest request
     ) {
         String userId = userService.getUserId(request);
         if (page == null || page <= 1) page = 1L;
+        if (limit == null || limit <= 0) limit = 6L;
+
         Map<String, Object> map = new HashMap<>();
-        page = (page - 1) * 10;
-        double maxPageNum = assignmentService.getMaxPageNum();
-        List<AssignmentDto> dtos = assignmentService.assignmentList(page);
+        long offset = (page - 1) * limit;
+        int assignmentCount = assignmentService.getAssignmentCount();
+
+        List<AssignmentDto> dtos = assignmentService.assignmentList(offset, limit);
 
         map.put("assignments", getProgress(dtos, userId));
-        map.put("maxPage", Math.ceil(maxPageNum / 10.0));
+        map.put("maxPage", assignmentCount / limit + (assignmentCount % limit == 0 ? 0 : 1));
+        map.put("totalItems", assignmentCount);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
