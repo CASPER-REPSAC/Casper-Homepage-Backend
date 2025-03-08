@@ -52,12 +52,12 @@ public class AssignmentService {
         assignmentRepository.delete(assignmentEntity);
     }
 
-    public int getMaxPageNum() {
+    public int getAssignmentCount() {
         return assignmentRepository.assignmentCount();
     }
 
-    public List<AssignmentDto> assignmentList(Long listNum) {
-        List<Object[]> obj = assignmentRepository.AssignmentList(listNum);
+    public List<AssignmentDto> assignmentList(Long listNum, Long limit) {
+        List<Object[]> obj = assignmentRepository.assignmentList(listNum, limit);
 
         return obj.stream()
                 .map(row -> new AssignmentDto(
