@@ -2,6 +2,8 @@ package com.example.newsper.repository;
 
 import com.example.newsper.entity.ArticleEntity;
 import com.example.newsper.entity.ArticleList;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,6 +32,46 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
     @Query(value = "SELECT * FROM articleEntity WHERE boardId = :boardId and category = :category", nativeQuery = true)
     List<ArticleEntity> findByBoardName(@Param("boardId") String boardId, @Param("category") String category);
 
-//    @Query(value = "SELECT articleId, boardId, hide, numOfComments, title, nickname, createdAt, view FROM articleEntity WHERE boardId = :boardId and category = :category ORDER BY articleId DESC LIMIT :listNum, 10", nativeQuery = true)
-//    List<ArticleList> findByBoardList(@Param("boardId") String boardId, @Param("category") String category, @Param("listNum") Long listNum);
+    // 제목으로 검색
+    Page<ArticleEntity> findByTitleContaining(String title, Pageable pageable);
+
+    // 내용으로 검색
+    Page<ArticleEntity> findByContentContaining(String content, Pageable pageable);
+
+    // 제목 또는 내용으로 검색
+    Page<ArticleEntity> findByTitleContainingOrContentContaining(
+            String title, String content, Pageable pageable);
+
+    // 제목 + 특정 게시판으로 검색
+    Page<ArticleEntity> findByTitleContainingAndBoardId(
+            String title, String boardId, Pageable pageable);
+
+    // 내용 + 특정 게시판으로 검색
+    Page<ArticleEntity> findByContentContainingAndBoardId(
+            String content, String boardId, Pageable pageable);
+
+    // 제목/내용 + 특정 게시판으로 검색
+    @Query("SELECT a FROM articleEntity a WHERE (a.title LIKE %:title% OR a.content LIKE %:content%) AND a.boardId = :boardId")
+    Page<ArticleEntity> findByTitleContainingOrContentContainingAndBoardId(
+            @Param("title") String title,
+            @Param("content") String content,
+            @Param("boardId") String boardId,
+            Pageable pageable);
+
+    // 제목 + 특정 게시판 + 특정 카테고리로 검색
+    Page<ArticleEntity> findByTitleContainingAndBoardIdAndCategory(
+            String title, String boardId, String category, Pageable pageable);
+
+    // 내용 + 특정 게시판 + 특정 카테고리로 검색
+    Page<ArticleEntity> findByContentContainingAndBoardIdAndCategory(
+            String content, String boardId, String category, Pageable pageable);
+
+    // 제목/내용 + 특정 게시판 + 특정 카테고리로 검색
+    @Query("SELECT a FROM articleEntity a WHERE (a.title LIKE %:title% OR a.content LIKE %:content%) AND a.boardId = :boardId AND a.category = :category")
+    Page<ArticleEntity> findByTitleContainingOrContentContainingAndBoardIdAndCategory(
+            @Param("title") String title,
+            @Param("content") String content,
+            @Param("boardId") String boardId,
+            @Param("category") String category,
+            Pageable pageable);
 }
