@@ -253,7 +253,7 @@ public class ArticleApiController {
                     pageable);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("articles", results.getContent());
+            response.put("items", results.getContent());
             response.put("currentPage", results.getNumber());
             response.put("totalItems", results.getTotalElements());
             response.put("totalPages", results.getTotalPages());
