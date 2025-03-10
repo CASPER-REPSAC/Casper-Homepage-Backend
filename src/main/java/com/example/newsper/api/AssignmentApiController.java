@@ -1,7 +1,7 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.MemberOnly;
-import com.example.newsper.annotations.MustAuthorized;
+import com.example.newsper.annotation.MemberOnly;
+import com.example.newsper.annotation.Authorized;
 import com.example.newsper.constant.AssignmentStatus;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
@@ -142,7 +142,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/list/{page}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "과제 목록 조회", description = "과제 목록을 조회합니다.")
     public ResponseEntity<?> list(
             @Parameter(description = "게시판 페이지")
@@ -168,7 +168,7 @@ public class AssignmentApiController {
     }
 
     @GetMapping("/detail/{assignmentId}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "과제 상세 조회", description = "과제를 상세히 조회합니다.")
     public ResponseEntity<?> detail(
             @Parameter(description = "과제 ID")

@@ -1,4 +1,4 @@
-package com.example.newsper.annotations;
+package com.example.newsper.annotation;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -1,6 +1,6 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.MustAuthorized;
+import com.example.newsper.annotation.Authorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.ArticleDto;
@@ -143,7 +143,7 @@ public class ArticleApiController {
     }
 
     @PostMapping("/write")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "게시글 작성", description = "게시글을 작성합니다.")
     public ResponseEntity<?> write(
             @RequestBody CreateArticleDto _dto,
@@ -176,7 +176,7 @@ public class ArticleApiController {
     }
 
     @DeleteMapping("delete/{articleId}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합나다.")
     public ResponseEntity<?> delete(
             @Parameter(description = "게시글ID")
@@ -197,7 +197,7 @@ public class ArticleApiController {
     }
 
     @PatchMapping("/update/{articleId}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "게시글 수정", description = "게시글을 수정합나다. 작성자 또는 관리자만 가능합니다.")
     public ResponseEntity<?> update(
             @Parameter(description = "게시글ID")

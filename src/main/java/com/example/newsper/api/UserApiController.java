@@ -1,8 +1,8 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.AdminOnly;
-import com.example.newsper.annotations.MustAuthorized;
-import com.example.newsper.annotations.MustNotAuthorized;
+import com.example.newsper.annotation.AdminOnly;
+import com.example.newsper.annotation.Authorized;
+import com.example.newsper.annotation.Unauthorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.*;
@@ -82,7 +82,7 @@ public class UserApiController {
     }
 
     @PostMapping("/join")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "회원 가입", description = "DB에 회원 정보를 등록합니다.")
     public ResponseEntity<?> join(@RequestBody JoinDto dto) {
         UserEntity user = userService.findById(dto.getId());
@@ -102,7 +102,7 @@ public class UserApiController {
     }
 
     @PostMapping("/pwupdate")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "비밀번호 업데이트", description = "액세스 토큰 필요.")
     public ResponseEntity<?> pwReset(@Parameter(description = "새로운 비밀번호") @RequestParam String pw, HttpServletRequest request) {
         String userId = userService.getUserId(request);
@@ -114,7 +114,7 @@ public class UserApiController {
     }
 
     @PostMapping("/findid")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "ID 찾기", description = "가입시 사용된 메일로 아이디를 찾습니다.")
     public ResponseEntity<?> findid(@RequestBody findIdDto dto) {
         UserEntity user = userService.findByEmail(dto.getEmail());
@@ -126,7 +126,7 @@ public class UserApiController {
     }
 
     @PostMapping("/findpw")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "비밀번호 찾기", description = "가입시 사용된 메일로 초기화된 비밀번호를 전송합니다.")
     public ResponseEntity<?> findpw(@RequestBody findIdDto dto) {
         UserEntity user = userService.findByEmail(dto.getEmail());
@@ -140,7 +140,7 @@ public class UserApiController {
 
 
     @PostMapping("/update")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "유저 정보 수정", description = "닉네임, 홈페이지 주소, 소개글을 수정 합니다. 액세스 토큰 필요.")
     public ResponseEntity<UserEntity> update(@RequestBody UserModifyDto dto, HttpServletRequest request) throws IOException {
         String userId = userService.getUserId(request);
@@ -175,7 +175,7 @@ public class UserApiController {
     }
 
     @DeleteMapping("/withdrawal/{id}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "회원 탈퇴", description = "본인, 관리자만 탈퇴 진행 가능합니다. 액세스 토큰 필요.")
     public ResponseEntity<UserEntity> userWithdrawal(@Parameter(description = "유저 ID") @PathVariable String id, HttpServletRequest request) {
         String userId = userService.getUserId(request);
@@ -194,7 +194,7 @@ public class UserApiController {
     }
 
     @PostMapping("/login")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "로그인", description = "로그인 토큰을 반환합니다.")
     public ResponseEntity<?> login(@RequestBody LoginDto dto, HttpServletResponse response) {
         UserEntity user = userService.findById(dto.getId());
@@ -218,7 +218,7 @@ public class UserApiController {
     }
 
     @PostMapping("/google")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> googleLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.google(dto.getCode());
@@ -226,7 +226,7 @@ public class UserApiController {
     }
 
     @PostMapping("/github")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "깃허브 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> githubLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.github(dto.getCode());
@@ -234,7 +234,7 @@ public class UserApiController {
     }
 
     @PostMapping("/sso")
-    @MustNotAuthorized
+    @Unauthorized
     @Operation(summary = "SSO 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> ssoLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.sso(dto.getCode());
@@ -242,7 +242,7 @@ public class UserApiController {
     }
 
     @PostMapping("/logout")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "로그아웃", description = "유저 토큰과 쿠키를 제거합니다. 액세스 토큰 필요.")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String userId = userService.getUserId(request);
@@ -274,7 +274,7 @@ public class UserApiController {
     }
 
     @GetMapping("/me")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> me(HttpServletRequest request) {
         String userId = userService.getUserId(request);
@@ -283,7 +283,7 @@ public class UserApiController {
     }
 
     @GetMapping("/show")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "유저 정보 조회", description = "유저 정보를 조회합니다.")
     public ResponseEntity<Map<String, Object>> show(@Parameter(description = "유저 ID") @RequestParam String id) {
         UserEntity user = userService.findById(id);
