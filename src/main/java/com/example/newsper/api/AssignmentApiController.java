@@ -161,8 +161,9 @@ public class AssignmentApiController {
 
         List<AssignmentDto> dtos = assignmentService.assignmentList(offset, limit);
 
-        map.put("assignments", getProgress(dtos, userId));
-        map.put("maxPage", assignmentCount / limit + (assignmentCount % limit == 0 ? 0 : 1));
+        map.put("items", getProgress(dtos, userId));
+        map.put("currentPage", page);
+        map.put("totalPages", assignmentCount / limit + (assignmentCount % limit == 0 ? 0 : 1));
         map.put("totalItems", assignmentCount);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }

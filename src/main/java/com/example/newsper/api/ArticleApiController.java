@@ -104,8 +104,10 @@ public class ArticleApiController {
         int maxPageNum = articleCount / 10 + (articleCount % 10 == 0 ? 0 : 1);
         List<ArticleList> target = articleService.boardList(boardId, category, page);
         log.info("{}의 총 게시물 수 : {}", category, articleCount);
-        map.put("maxPageNum", maxPageNum);
-        map.put("articleList", target);
+        map.put("items", target);
+        map.put("currentPage", page / 10 + 1);
+        map.put("totalPages", maxPageNum);
+        map.put("totalItems", articleCount);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
