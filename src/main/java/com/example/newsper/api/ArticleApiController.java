@@ -235,8 +235,12 @@ public class ArticleApiController {
     @PostMapping("/search")
     @PermitAll
     @Operation(summary = "게시글 검색", description = "게시글을 검색합니다.")
-    public ResponseEntity<?> searchArticles(@RequestBody SearchArticleRequestDto searchRequest) {
+    public ResponseEntity<?> searchArticles(@RequestBody SearchArticleRequestDto searchRequest, HttpServletRequest request) {
         try {
+            // 현재 사용자 정보 가져오기
+            String userId = userService.getUserId(request);
+            UserEntity user = userService.findById(userId);
+
             Sort sort = Sort.by(
                     searchRequest.getDirection().equalsIgnoreCase("asc") ?
                             Sort.Direction.ASC : Sort.Direction.DESC,
@@ -245,12 +249,14 @@ public class ArticleApiController {
 
             Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
 
-            Page<?> results = searchService.searchArticles(
+            // 사용자 권한에 따른 검색 수행
+            Page<ArticleEntity> results = searchService.searchArticlesWithPermissions(
                     searchRequest.getQuery(),
                     searchRequest.getBoardId(),
                     searchRequest.getCategory(),
                     searchRequest.getType(),
-                    pageable);
+                    pageable,
+                    user);
 
             Map<String, Object> response = new HashMap<>();
             response.put("items", results.getContent());

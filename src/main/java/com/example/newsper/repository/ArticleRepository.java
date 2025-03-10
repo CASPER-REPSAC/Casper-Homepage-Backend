@@ -74,4 +74,34 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
             @Param("boardId") String boardId,
             @Param("category") String category,
             Pageable pageable);
+    // 여러 게시판에서 제목으로 검색
+    Page<ArticleEntity> findByTitleContainingAndBoardIdIn(
+            String title, List<String> boardIds, Pageable pageable);
+
+    // 여러 게시판에서 내용으로 검색
+    Page<ArticleEntity> findByContentContainingAndBoardIdIn(
+            String content, List<String> boardIds, Pageable pageable);
+
+    // 여러 게시판에서 제목+내용으로 검색
+    @Query("SELECT a FROM articleEntity a WHERE (a.title LIKE %:query% OR a.content LIKE %:query%) AND a.boardId IN :boardIds")
+    Page<ArticleEntity> findByTitleOrContentContainingAndBoardIdIn(
+            @Param("query") String query,
+            @Param("boardIds") List<String> boardIds,
+            Pageable pageable);
+
+    // 여러 게시판에서 카테고리와 함께 제목으로 검색
+    Page<ArticleEntity> findByTitleContainingAndBoardIdInAndCategory(
+            String title, List<String> boardIds, String category, Pageable pageable);
+
+    // 여러 게시판에서 카테고리와 함께 내용으로 검색
+    Page<ArticleEntity> findByContentContainingAndBoardIdInAndCategory(
+            String content, List<String> boardIds, String category, Pageable pageable);
+
+    // 여러 게시판에서 카테고리와 함께 제목+내용으로 검색
+    @Query("SELECT a FROM articleEntity a WHERE (a.title LIKE %:query% OR a.content LIKE %:query%) AND a.boardId IN :boardIds AND a.category = :category")
+    Page<ArticleEntity> findByTitleOrContentContainingAndBoardIdInAndCategory(
+            @Param("query") String query,
+            @Param("boardIds") List<String> boardIds,
+            @Param("category") String category,
+            Pageable pageable);
 }
