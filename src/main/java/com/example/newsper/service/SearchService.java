@@ -138,7 +138,9 @@ public class SearchService {
             String category,
             String searchType,
             Pageable pageable) {
-
+        if(searchType == null) {
+            searchType = "";
+        }
         return switch (searchType.toLowerCase()) {
             case "title" -> category != null ?
                     articleRepository.findByTitleContainingAndBoardIdInAndCategory(
