@@ -1,6 +1,6 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.AdminOnly;
+import com.example.newsper.annotation.AdminOnly;
 import com.example.newsper.dto.BoardDto;
 import com.example.newsper.entity.BoardEntity;
 import com.example.newsper.entity.BoardNameKey;

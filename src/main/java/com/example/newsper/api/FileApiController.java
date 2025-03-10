@@ -1,6 +1,6 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.MustAuthorized;
+import com.example.newsper.annotation.Authorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.dto.FileDto;
 import com.example.newsper.service.ErrorCodeService;
@@ -42,7 +42,7 @@ public class FileApiController {
     private ErrorCodeService errorCodeService;
 
     @PostMapping("/upload")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "파일 업로드", description = "파일을 업로드 합니다.")
     public ResponseEntity<?> write(
             @RequestPart(value = "files") List<MultipartFile> files,
@@ -78,7 +78,7 @@ public class FileApiController {
     }
 
     @DeleteMapping("/delete")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "파일 삭제", description = "파일을 삭제합니다.")
     public ResponseEntity<?> write(
             @RequestParam String url

@@ -1,7 +1,7 @@
 package com.example.newsper.api;
 
-import com.example.newsper.annotations.AssociateOnly;
-import com.example.newsper.annotations.MustAuthorized;
+import com.example.newsper.annotation.AssociateOnly;
+import com.example.newsper.annotation.Authorized;
 import com.example.newsper.constant.ErrorCode;
 import com.example.newsper.constant.UserRole;
 import com.example.newsper.dto.CreateSubmitDto;
@@ -60,7 +60,7 @@ public class SubmitApiController {
 
 
     @GetMapping("/submit/{submitId}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "과제 제출 조회", description = "제출한 과제를 조회합니다.")
     public ResponseEntity<?> view(
             @Parameter(description = "과제 제출 ID")
@@ -168,7 +168,7 @@ public class SubmitApiController {
     }
 
     @DeleteMapping("/delete/{submitId}")
-    @MustAuthorized
+    @Authorized
     @Operation(summary = "제출된 과제 삭제", description = "제출된 과제를 삭제합니다. 관리자, 출제자, 제출자만 가능합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     public ResponseEntity<?> delete(
