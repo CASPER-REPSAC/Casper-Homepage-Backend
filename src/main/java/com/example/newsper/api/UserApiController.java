@@ -254,7 +254,7 @@ public class UserApiController {
     }
 
     @PostMapping("/refresh")
-    @MustAuthorized
+    @PermitAll
     @Operation(summary = "리프레쉬", description = "유저 토큰과 쿠키를 재설정합니다. 리프레시 토큰 필요.")
     public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
         try {
