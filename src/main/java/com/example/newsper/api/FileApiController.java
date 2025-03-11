@@ -55,8 +55,8 @@ public class FileApiController {
 
                 log.info("파일 이름 : " + file.getOriginalFilename());
                 log.info("파일 크기 : " + file.getSize());
-
-                if (file.getSize() > 5000000) {
+                // 500MB 제한
+                if (file.getSize() > 1024*1024*500) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.FILE_SIZE_EXCEEDED));
                 }
 
