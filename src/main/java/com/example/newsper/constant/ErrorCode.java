@@ -17,7 +17,7 @@ public enum ErrorCode {
     BOARD_NO_ACCESS(-301, "게시판 접근 권한 없음"),
     BOARD_NO_WRITE_PERMISSION(-302, "게시글 쓰기 권한 없음"),
     BOARD_NO_EDIT_PERMISSION(-303, "게시글 수정/삭제 권한 없음"),
-    FILE_SIZE_EXCEEDED(-401, "파일 용량 10MB 초과"),
+    FILE_SIZE_EXCEEDED(-401, "파일 용량 500MB 초과"),
     FILE_NAME_INVALID(-402, "파일 이름이 너무 길거나 NULL"),
     ADMIN_PERMISSION_UNCHANGEABLE(-501, "관리자의 권한은 바꿀 수 없음"),
     ASSIGNMENT_CREATION_MEMBER_ONLY(-601, "정회원 이상 과제 작성 가능"),
