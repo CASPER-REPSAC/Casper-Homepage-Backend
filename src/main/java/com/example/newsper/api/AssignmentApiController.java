@@ -72,6 +72,7 @@ public class AssignmentApiController {
         if (dto.getUrls() != null) {
             for (String url : dto.getUrls()) {
                 FileEntity fileEntity = fileService.findById(url);
+                if(fileEntity == null) continue;
                 fileEntity.setConnectId(String.valueOf(created.getAssignmentId()));
                 fileService.modify(fileEntity);
             }
