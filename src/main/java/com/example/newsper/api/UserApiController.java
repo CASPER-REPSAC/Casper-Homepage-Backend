@@ -279,6 +279,10 @@ public class UserApiController {
     public ResponseEntity<Map<String, Object>> me(HttpServletRequest request) {
         String userId = userService.getUserId(request);
         UserEntity user = userService.findById(userId);
+        if(user == null) {
+            log.error("User not found({})", userId);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(user.toJSON());
     }
 
