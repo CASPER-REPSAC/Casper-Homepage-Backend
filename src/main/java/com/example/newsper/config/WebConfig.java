@@ -7,11 +7,46 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+import java.util.List;
 
 @Configuration
-public class WebConfig {
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String homePath = "/home/casper/";
+        registry.addResourceHandler("/profile/**")
+                .addResourceLocations("file://" + homePath + "profile/");
+        registry.addResourceHandler("/article/**")
+                .addResourceLocations("file://" + homePath + "article/");
+        registry.addResourceHandler("/assignment/**")
+                .addResourceLocations("file://" + homePath + "assignment/");
+        registry.addResourceHandler("/submit/**")
+                .addResourceLocations("file://" + homePath + "submit/");
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(false);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        PageableHandlerMethodArgumentResolver resolver = new PageableHandlerMethodArgumentResolver();
+        resolver.setOneIndexedParameters(true);
+        argumentResolvers.add(resolver);
+    }
 
     @Bean
     public FilterRegistrationBean<FileDownloadFilter> fileDownloadFilter() {
