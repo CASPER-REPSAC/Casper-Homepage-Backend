@@ -32,6 +32,7 @@ public enum ErrorCode {
     ASSIGNMENT_DELETE_LIMITED(-706, "관리자, 제출자, 출제자만 삭제 가능"),
     FILE_COUNT_EXCEEDED_AGAIN(-707, "파일 5개 초과"),
     USABLE_ONLY_DEVELOPMENT(-1000, "개발 환경에서만 사용 가능"),
+    DISABLED_FEATURE(-1001, "비활성화된 기능"),
     UNDEFINED_ERROR(-1, "지정되지 않은 에러");
 
     private final int code;

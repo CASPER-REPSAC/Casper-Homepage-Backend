@@ -21,34 +21,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Mail", description = "인증 메일 API")
 @RequestMapping("/api/mail")
 public class MailApiController {
-
-    @Autowired
-    private MailService mailService;
-
-    @Autowired
-    private UserService userService;
-
     @Autowired
     private ErrorCodeService errorCodeService;
 
     @Operation(summary = "인증 메일 전송", description = "인증 메일을 전송합니다.")
     @PreAuthorize("!isAuthenticated()")
     @PostMapping("/send")
-    public ResponseEntity<?> sendEmailPath(@RequestParam(value = "email") String email) {
-        if (userService.findByEmail(email) != null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
-        mailService.sendEmail(email);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    // revert: see code before commit 1e2fbd6
+    public ResponseEntity<?> sendEmailPath(@RequestParam(value = "email") String ignoredEmail) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
     }
 
     @Operation(summary = "인증코드 확인", description = "인증 코드 유효성을 확인합니다.")
     @PreAuthorize("!isAuthenticated()")
     @PostMapping("/emailkey")
-    public ResponseEntity<String> sendEmailPath(@RequestParam(value = "email") String email, @RequestParam(value = "emailKey") String code) {
-        log.info("/api/mail/emailKey API start");
-        log.info("email : {}", email);
-        log.info("emailKey : {}", code);
-        if (mailService.verifyEmailCode(email, code)) return ResponseEntity.status(HttpStatus.OK).build();
-        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    // revert: see code before commit 1e2fbd6
+    public ResponseEntity<?> sendEmailPath(@RequestParam(value = "email") String ignoredEmail, @RequestParam(value = "emailKey") String ignoredCode) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
     }
 }
