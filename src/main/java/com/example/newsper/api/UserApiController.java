@@ -84,21 +84,10 @@ public class UserApiController {
     @PostMapping("/join")
     @Unauthorized
     @Operation(summary = "회원 가입", description = "DB에 회원 정보를 등록합니다.")
-    public ResponseEntity<?> join(@RequestBody JoinDto dto) {
-        UserEntity user = userService.findById(dto.getId());
-        UserDto userDto = dto.toUserDto();
-
-        if (!mailService.verifyEmailCode(dto.getEmail(), dto.getEmailKey()))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_EMAIL_VERIFICATION_ERROR));
-        if (!dto.isValid())
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_MISSING_PARAMETER));
-        if (user != null || dto.getId().equals("guest"))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCodeService.setErrorCodeBody(ErrorCode.SIGNUP_DUPLICATE_ID));
-
-        userService.newUser(userDto);
-        redisUtil.deleteData(dto.getEmail());
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    // revert: see code before commit 1e2fbd6
+    public ResponseEntity<?> join(@RequestBody UserDto ignoredDto) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
     }
 
     @PostMapping("/pwupdate")
@@ -222,6 +211,10 @@ public class UserApiController {
     @Operation(summary = "구글 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> googleLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.google(dto.getCode());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
@@ -230,6 +223,10 @@ public class UserApiController {
     @Operation(summary = "깃허브 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> githubLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.github(dto.getCode());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 
@@ -238,6 +235,10 @@ public class UserApiController {
     @Operation(summary = "SSO 로그인", description = "OAuth2를 사용하여 로그인 합니다.")
     public ResponseEntity<?> ssoLogin(@RequestBody OauthDto dto, HttpServletResponse response) {
         UserEntity user = oAuthService.sso(dto.getCode());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(errorCodeService.setErrorCodeBody(ErrorCode.DISABLED_FEATURE));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(userService.login(user, response));
     }
 

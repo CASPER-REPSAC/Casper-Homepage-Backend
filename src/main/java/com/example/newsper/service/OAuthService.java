@@ -63,7 +63,8 @@ public class OAuthService {
             userService.modify(entity);
         }
 
-        UserEntity user = getUser(id, email, name);
+        // revert: see code before commit 1e2fbd6
+        UserEntity user = getUser(id, email, name, true);
         UserRole role = user.getRole();
         ArrayList<String> groups = new ArrayList<>();
         userResourceNode.get("groups").elements().forEachRemaining((JsonNode node) -> groups.add(node.asText()));
@@ -106,8 +107,15 @@ public class OAuthService {
         return restTemplate.exchange(provider.getUserInfoEndpoint().getUri(), HttpMethod.GET, entity, JsonNode.class).getBody();
     }
 
+    @Deprecated(forRemoval = true)
     private UserEntity getUser(String id, String email, String name) {
-        if (userService.findByEmail(email) == null) {
+        return getUser(id, email, name, false);
+    }
+
+    // revert: see code before commit 1e2fbd6
+    private UserEntity getUser(String id, String email, String name, boolean enableRegister) {
+        UserEntity user = userService.findByEmail(email);
+        if (enableRegister && user == null) {
             String password = id + email;
             UserDto dto = new UserDto();
             dto.setId(email);
@@ -116,8 +124,9 @@ public class OAuthService {
             dto.setName(name);
             dto.setNickname(email);
             dto.setRole(UserRole.ASSOCIATE.getRole());
-            return userService.newUser(dto);
-        } else return userService.findByEmail(email);
+            user = userService.newUser(dto);
+        }
+        return user;
     }
 
     private UserRole getSsoUserRole(List<String> roles) {
