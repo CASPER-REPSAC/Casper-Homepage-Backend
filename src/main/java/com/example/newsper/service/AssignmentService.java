@@ -56,6 +56,22 @@ public class AssignmentService {
         return assignmentRepository.assignmentCount();
     }
 
+    public List<AssignmentDto> getAllAssignments() {
+        List<AssignmentEntity> entities = assignmentRepository.findAll();
+
+        return entities.stream()
+                .map(entity -> new AssignmentDto(
+                        entity.getAssignmentId(),
+                        entity.getTitle(),
+                        entity.getCategory(),
+                        entity.getDeadline(),
+                        entity.getUserId(),
+                        entity.getName(),
+                        null // 진행 상태는 나중에 설정
+                ))
+                .collect(Collectors.toList());
+    }
+
     public List<AssignmentDto> assignmentList(Long listNum, Long limit) {
         List<Object[]> obj = assignmentRepository.assignmentList(listNum, limit);
 
