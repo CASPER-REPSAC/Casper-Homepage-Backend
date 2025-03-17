@@ -160,9 +160,25 @@ public class AssignmentApiController {
         long offset = (page - 1) * limit;
         int assignmentCount = assignmentService.getAssignmentCount();
 
-        List<AssignmentDto> dtos = assignmentService.assignmentList(offset, limit);
+        List<AssignmentDto> dtos = getProgress(assignmentService.assignmentList(offset, limit), userId);
+        Date now = new Date();
+        dtos.sort((a, b) -> {
+            boolean aSubmitted = a.getProgress().equals(AssignmentStatus.SUBMITTED.getStatus()) ||
+                    a.getProgress().equals(AssignmentStatus.GRADED.getStatus());
+            boolean bSubmitted = b.getProgress().equals(AssignmentStatus.SUBMITTED.getStatus()) ||
+                    b.getProgress().equals(AssignmentStatus.GRADED.getStatus());
 
-        map.put("items", getProgress(dtos, userId));
+            if (aSubmitted && !bSubmitted) {
+                return 1;
+            } else if (!aSubmitted && bSubmitted) {
+                return -1;
+            }
+
+            long aTimeRemaining = a.getDeadline().getTime() - now.getTime();
+            long bTimeRemaining = b.getDeadline().getTime() - now.getTime();
+            return Long.compare(aTimeRemaining, bTimeRemaining);
+        });
+        map.put("items", dtos);
         map.put("currentPage", page);
         map.put("totalPages", assignmentCount / limit + (assignmentCount % limit == 0 ? 0 : 1));
         map.put("totalItems", assignmentCount);
