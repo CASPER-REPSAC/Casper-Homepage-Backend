@@ -157,12 +157,13 @@ public class AssignmentApiController {
         if (limit == null || limit <= 0) limit = 6L;
 
         Map<String, Object> map = new HashMap<>();
-        long offset = (page - 1) * limit;
         int assignmentCount = assignmentService.getAssignmentCount();
+        List<AssignmentDto> allAssignments = assignmentService.getAllAssignments();
 
-        List<AssignmentDto> dtos = getProgress(assignmentService.assignmentList(offset, limit), userId);
+        allAssignments = getProgress(allAssignments, userId);
+
         Date now = new Date();
-        dtos.sort((a, b) -> {
+        allAssignments.sort((a, b) -> {
             boolean aSubmitted = a.getProgress().equals(AssignmentStatus.SUBMITTED.getStatus()) ||
                     a.getProgress().equals(AssignmentStatus.GRADED.getStatus());
             boolean bSubmitted = b.getProgress().equals(AssignmentStatus.SUBMITTED.getStatus()) ||
@@ -178,9 +179,19 @@ public class AssignmentApiController {
             long bTimeRemaining = b.getDeadline().getTime() - now.getTime();
             return Long.compare(aTimeRemaining, bTimeRemaining);
         });
-        map.put("items", dtos);
+
+        int fromIndex = (int)((page - 1) * limit);
+        int toIndex = Math.min(fromIndex + limit.intValue(), allAssignments.size());
+
+        if (fromIndex >= allAssignments.size()) {
+            map.put("items", new ArrayList<AssignmentDto>());
+        } else {
+            List<AssignmentDto> pagedAssignments = allAssignments.subList(fromIndex, toIndex);
+            map.put("items", pagedAssignments);
+        }
+
         map.put("currentPage", page);
-        map.put("totalPages", assignmentCount / limit + (assignmentCount % limit == 0 ? 0 : 1));
+        map.put("totalPages", (int)Math.ceil((double)assignmentCount / limit));
         map.put("totalItems", assignmentCount);
         return ResponseEntity.status(HttpStatus.OK).body(map);
     }
