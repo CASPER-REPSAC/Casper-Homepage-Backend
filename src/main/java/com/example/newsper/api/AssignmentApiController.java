@@ -159,7 +159,6 @@ public class AssignmentApiController {
         Map<String, Object> map = new HashMap<>();
         int assignmentCount = assignmentService.getAssignmentCount();
         List<AssignmentDto> allAssignments = assignmentService.getAllAssignments();
-
         allAssignments = getProgress(allAssignments, userId);
 
         Date now = new Date();
@@ -174,7 +173,6 @@ public class AssignmentApiController {
             } else if (!aSubmitted && bSubmitted) {
                 return -1;
             }
-
             long aTimeRemaining = a.getDeadline().getTime() - now.getTime();
             long bTimeRemaining = b.getDeadline().getTime() - now.getTime();
             return Long.compare(aTimeRemaining, bTimeRemaining);
@@ -189,7 +187,6 @@ public class AssignmentApiController {
             List<AssignmentDto> pagedAssignments = allAssignments.subList(fromIndex, toIndex);
             map.put("items", pagedAssignments);
         }
-
         map.put("currentPage", page);
         map.put("totalPages", (int)Math.ceil((double)assignmentCount / limit));
         map.put("totalItems", assignmentCount);
